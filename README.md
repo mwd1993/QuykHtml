@@ -3,4 +3,4 @@ Use Python to quickly create, style, and manipulate web elements to create websi
 
 # See:
 
-[QuykHtml Docs](mwd1993.github.io/QuykHtml/)
+[QuykHtml Docs](http://www.mwd1993.github.io/QuykHtml/)
