@@ -10,6 +10,7 @@ class qhtml:
         self.styleSheet = self.ss()
         self.tables = self.table_helper(self)
         self.scripts = []
+        self.display = self.new("div", self)
 
         self.css = {
             "head": [
@@ -42,8 +43,14 @@ class qhtml:
             ]
         }
 
-    def new(self, _type):
-        _obj = self.new_obj(_type)
+    def new(self, _type, _p=0):
+        _obj = ""
+
+        if _p != 0:
+            _obj = self.new_obj(_type, _p)
+        else:
+            _obj = self.new_obj(_type)
+
         self.all.append(_obj)
         return _obj
 
@@ -54,11 +61,14 @@ class qhtml:
             _b = _b + "" + _s
 
         for _sc in self.scripts:
-            _scripts = _scripts + "" + _sc +"\n"
+            _scripts = _scripts + "" + _sc + "\n"
         f = open(os.getcwd() + "/render.html", "w")
-        f.write("<head><style>" + _b + '</style><script type="text/javascript">' + _scripts + '</script></head>' + str(self.all[0].innerHTML))
+        f.write("<head><style>" + _b + '</style><script type="text/javascript">' + _scripts + '</script></head>' + str(
+            self.all[0].innerHTML))
         f.close()
-        print("<head><style>" + _b + '</style><script type="text/javascript">' + _scripts + '</script>' + "</head>" + str(self.all[0].innerHTML))
+        print(
+            "<head><style>" + _b + '</style><script type="text/javascript">' + _scripts + '</script>' + "</head>" + str(
+                self.all[0].innerHTML))
         sleep(0.2)
         webbrowser.get('C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s').open(
             str(os.getcwd()) + "/render.html")
@@ -96,7 +106,7 @@ class qhtml:
         def export(self, _file):
             if "." not in _file:
                 return False
-            f = open(_file,"w")
+            f = open(_file, "w")
             _b = ""
             for s in self.styles:
                 _b = _b + "" + s + "\n"
@@ -105,14 +115,24 @@ class qhtml:
             f.close()
 
     class new_obj:
-        def __init__(self, _type):
+
+        def __init__(self, _type, _parent=0):
             self.type = _type
             self.children = []
-            self.parent = ""
+            if _parent != 0:
+                self.parent = _parent
+            else:
+                self.parent = ""
             self.attributes = []
             self.style = self.style_obj(self)
             self.innerHTML = ""
             self.innerText = ""
+
+        def render(self):
+            if self.parent == "":
+                pass
+            else:
+                self.parent.render()
 
         def insert(self, _obj):
             if type(_obj) is list:
@@ -152,7 +172,7 @@ class qhtml:
             self.innerText = _str
             return self
 
-        def set_class(self,_str):
+        def set_class(self, _str):
             self.add_attribute('class="' + _str + '"')
             return self
 
@@ -177,21 +197,24 @@ class qhtml:
             _obj = self
             _s = self
             while _obj.parent:
+                if not hasattr(_obj.parent, "children"):
+                    break
                 if _s in _obj.parent.children:
                     pass
                 else:
                     _obj.parent.children.append(self)
+
                 _obj = _obj.parent
 
-        def on_click(self,_code):
-            self.add_attribute('onclick="' + _code + '"')
+        def on_click(self, _code):
+            self.add_attribute('onClick="' + _code + '"')
             return self
 
-        def on_mouse_enter(self,_code):
+        def on_mouse_enter(self, _code):
             self.add_attribute('onmouseover="' + _code + '"')
             return self
 
-        def on_mouse_leave(self,_code):
+        def on_mouse_leave(self, _code):
             self.add_attribute('onmouseout="' + _code + '"')
             return self
 
