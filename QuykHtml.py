@@ -16,6 +16,7 @@ class qhtml:
         self.tables = self.table_helper(self)
         self.scripts = []
         self.display = self.new("div", self)
+        self.bootstrap = self.bootstrap()
 
         # CSS to be added, can use self.styleSheet.add()
 
@@ -71,6 +72,9 @@ class qhtml:
         _b = ""
         _scripts = ""
         _path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
+        _bootstrap = ""
+        if self.bootstrap.using():
+            _bootstrap = self.bootstrap.get()
 
         for _s in self.styleSheet.styles:
             _b = _b + "" + _s
@@ -78,7 +82,7 @@ class qhtml:
         for _sc in self.scripts:
             _scripts = _scripts + "" + _sc + "\n"
 
-        html_string = "<head><style>" + _b + '</style><script type="text/javascript">' + _scripts + '</script></head>' + str(
+        html_string = "<head>" + _bootstrap + "<style>" + _b + '</style><script type="text/javascript">' + _scripts + '</script></head>' + str(
             self.all[0].innerHTML)
 
         f = open(os.getcwd() + "/render.html", "w")
@@ -377,3 +381,29 @@ class qhtml:
 
                 table.insert(trs)
                 self.table = table
+
+    class bootstrap:
+        def __init__(self):
+            self._using = False
+
+        def use(self, _bool):
+            self._using = _bool
+
+        def using(self):
+            return self._using
+
+        def get(self):
+            _s = self
+            bss = '<!-- CSS only --><link rel="stylesheet" ' \
+                  'href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" ' \
+                  'integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" ' \
+                  'crossorigin="anonymous"><script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" ' \
+                  'integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" ' \
+                  'crossorigin="anonymous"></script><script ' \
+                  'src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" ' \
+                  'integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" ' \
+                  'crossorigin="anonymous"></script><script ' \
+                  'src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" ' \
+                  'integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" ' \
+                  'crossorigin="anonymous"></script> '
+            return bss
