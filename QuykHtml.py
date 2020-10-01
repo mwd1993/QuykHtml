@@ -131,9 +131,22 @@ class qhtml:
         # Add a style to an object element
         # returns: class object/itself
 
-        def add(self, name, style):
-            self.styles.append(name + "{" + style + "}")
-            return self
+        def add(self, name: str or list, style=""):
+
+            if style == "":
+                if type(name) is list:
+                    for li in name:
+                        if type(li) is list:
+                            _name = li[0]
+                            _style = li[1]
+                            self.styles.append(_name + "{" + _style + "}")
+                        else:
+                            print("Error using add function in class QuykHtml - > ss:")
+                            print("Usage: add(style,name) or add([[\"style\",\"name\"],[\"style\",\"name\"]]")
+                            return self
+            else:
+                self.styles.append(name + "{" + style + "}")
+                return self
 
         # Export every style into an external style sheet
         # in the program's directory
