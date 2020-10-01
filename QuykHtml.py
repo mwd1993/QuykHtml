@@ -17,39 +17,6 @@ class qhtml:
         self.display = self.new("div", self)
         self.bootstrap = self.bootstrap()
 
-        # CSS to be added, can use self.styleSheet.add()
-
-        self.css = {
-            "head": [
-                "background-color:#8a85ed;",
-                "font-size:24px;",
-                "font-weight:bold;",
-                "height:400px;"
-            ],
-
-            "body": [
-                "font-size:24px;",
-                "height:600px;",
-                "text-align:center"
-            ],
-
-            "foot": [
-                "height:40px;",
-                "font-size:20px;",
-                "color:white;",
-                "background-color:#8a85ed;"
-            ],
-
-            "p": [
-                "font-weight:bold;",
-                "color:gray;"
-            ],
-
-            "space-top": [
-                "padding-top:60px;"
-            ]
-        }
-
     # Returns a new object of an html element
     # returns: Object
 
