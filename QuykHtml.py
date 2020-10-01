@@ -13,7 +13,6 @@ class qhtml:
 
         self.all = []
         self.styleSheet = self.ss()
-        self.tables = self.table_helper(self)
         self.scripts = []
         self.display = self.new("div", self)
         self.bootstrap = self.bootstrap()
@@ -127,6 +126,7 @@ class qhtml:
 
         def __init__(self):
             self.styles = []
+            self.colors = self._colors()
 
         # Add a style to an object element
         # returns: class object/itself
@@ -149,6 +149,20 @@ class qhtml:
             print("b = " + _b)
             f.write(_b)
             f.close()
+
+        class _colors:
+            def __init__(self):
+                self.LIGHT_GRAY = "#9e9e9e"
+                self.LIGHT_BLUE = "#699bf5"
+                self.LIGHT_RED = "#ed7476"
+                self.LIGHT_GREEN = "#53d490"
+                self.LIGHT_BROWN = "#82716c"
+
+                self.DARK_GRAY = "#4a4a4a"
+                self.DARK_BLUE = "#304873"
+                self.DARK_RED = "#633233"
+                self.DARK_GREEN = "#21573a"
+                self.DARK_BROWN = "#403735"
 
     # CLASS new_obj, an element object type
 
@@ -260,7 +274,6 @@ class qhtml:
 
             return _obj
 
-
         def generate_css_id(self, _f):
             if _f not in self.get_tag_open():
                 self.add_attribute('id="' + _f + '"')
@@ -334,53 +347,57 @@ class qhtml:
                 self._style = self._style + _style
                 return self.parent
 
-    class table_helper:
-        def __init__(self, _parent):
-            self.parent = _parent
+    class table:
+        def __init__(self, rows, columns):
+            self.objects = []
+            self.rows = rows
+            self.columns = columns
 
-        def new(self, columns, rows, objs_to_add):
+        def insert_at(self, row, column, obj):
+            _s = self
+            obj.table_inserted_at = [str(row), str(column)]
+            obj.table = self
+            self.objects.append(obj)
 
-            o = self.table_obj(self, columns, rows, objs_to_add)
+            return self
 
-            return o.table
+        def build_html(self):
+            row_index = -1
+            column_index = -1
 
-        class table_obj:
-            def __init__(self, _parent, columns, rows, objs_to_add):
-                self.parent = _parent
-                table = self.parent.parent.new("table")
-                trs = []
-                tcs = []
-                _append = ""
-                _append_list = []
+            html_table_open = '<table style="border-collapse: collapse;"><tbody style="width:100%;">'
+            html_table_close = "</tbody></table>"
 
-                for r in range(rows):
-                    for c in range(columns):
-                        for o in objs_to_add:
-                            if str(int(o["row"]) - 1) == str(r) and str(int(o["column"]) - 1) == str(c):
-                                _append = True
-                                _append_obj = o["value"]
-                                _append_list.append(_append_obj)
-                                continue
+            html_mid_build = ""
 
-                        td = self.parent.parent.new("td")
-                        td.style.set("text-align:center;")
+            while row_index < self.rows - 1:
+                row_index = row_index + 1
+                while column_index < self.columns - 1:
+                    column_index = column_index + 1
+                    html_mid_build = html_mid_build + "<td>"
+                    for o in self.objects:
+                        if o.table_inserted_at[0] == str(row_index) and o.table_inserted_at[1] == str(column_index):
+                            print(str(o.get_tag_open()) + o.innerText + " -> row " + o.table_inserted_at[0] + " column " +
+                                  o.table_inserted_at[1] + " inserted")
 
-                        if _append:
-                            for a in _append_list:
-                                td.insert(a)
+                            # INSERT OBJECT HTML INTO TABLE HERE
+                            # -----------------------------------
+                            html_mid_build = html_mid_build + "" + o.get_tag_open() + o.innerText + o.get_tag_close() + ""
+                            # -----------------------------------
 
-                            _append = False
-                            _append_list = []
-                            _append_obj = ""
+                    html_mid_build = html_mid_build + "</td>"
+                # <tr><td>"
+                # </td></tr>
+                html_mid_build = html_mid_build + "</tr>"
 
-                        tcs.append(td)
+                column_index = -1
 
-                    d = self.parent.parent.new("tr")
-                    d.insert(tcs)
-                    trs.append(d)
+            if not html_mid_build == "":
+                print(html_table_open + html_mid_build + html_table_close)
+                return html_table_open + html_mid_build + html_table_close
 
-                table.insert(trs)
-                self.table = table
+            return -1
+
 
     class bootstrap:
         def __init__(self):
