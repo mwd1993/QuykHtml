@@ -365,7 +365,8 @@ class qhtml:
             row_index = -1
             column_index = -1
 
-            html_table_open = '<table style="border-collapse: collapse;"><tbody style="width:100%;">'
+            html_table_open = '<table style="border-collapse: collapse;table-layout: fixed;width:100%;"><tbody ' \
+                              'style="width:100%;"> '
             html_table_close = "</tbody></table>"
 
             html_mid_build = ""
