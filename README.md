@@ -1,5 +1,5 @@
 # QuykHtml
-Use Python to create, style, and manipulate web elements to build websites and elements very quyckly :D.
+QuykHtml is a python library that allows you to quickly generate websites. The key is to chain together commands to quickly define, combine and modify elements.
 
 # Example
 ```python
