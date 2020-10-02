@@ -41,6 +41,6 @@ q.render()
 
 ```
 
-# See Docs and a lot more examples:
+# See Docs and more examples below:
 
 [QuykHtml Docs](https://mwd1993.github.io/QuykHtml/)
