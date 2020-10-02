@@ -9,17 +9,16 @@ from QuykHtml import qhtml
 q = qhtml()
 q.bootStrap.use(True)
 
-# inline quick way
+# inline quick way to define a p element and set several different types of values
 p_element = q.new("p").set_text("chain together commands :D").style.set("font-size:24px;").onClick('alert("You clicked me :D");')
 
-# readable way
-
+# Doing the same as above, in a more readable way
 p_element = q.new("p")
 p_element.set_text("Or don't chain them together")
 p_element.style.set("font-size:24px;")
 p_element.onClick('alert("You clicked me :D");')
 
-# insert into our display and render one liner
+# insert into our display and render using one liner
 q.display.style.set("text-align:center;").insert(p_element).render()
 
 # or do the same as above, in a more readable way
