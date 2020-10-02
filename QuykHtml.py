@@ -171,6 +171,13 @@ class qhtml:
             else:
                 self.parent.render()
 
+        # Insert a table into an element as pure html
+        # returns: itself/html object
+
+        def insert_table_html(self, html):
+            self.innerHTML = html
+            return self
+
         # Insert an object into another object
         # IE: insert a p object inside of a div object
         # returns: itself/html object
@@ -378,7 +385,6 @@ class qhtml:
                 return html_table_open + html_mid_build + html_table_close
 
             return -1
-
 
     class bootstrap:
         def __init__(self):
