@@ -33,6 +33,9 @@ q.display.insert(p_element).render()
 q.display.insert(p_element)
 q.render()
 
+# The render method can be used on the qhtml object itself or
+# on any element created by .new(type), it will render the whole page
+
 ```
 
 # See Docs and a lot more examples:
