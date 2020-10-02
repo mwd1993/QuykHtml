@@ -29,7 +29,7 @@ p_element.style.set("font-size:24px;")
 p_element.onClick('alert("You clicked me :D");')
 
 # Insert into our display (the main container you should 
-# insert everything into and render using a one liner
+# insert everything into) and render using a one liner
 q.display.insert(p_element).render()
 
 # Or do the same as above, in a more readable way
