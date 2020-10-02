@@ -33,8 +33,8 @@ q.display.insert(p_element).render()
 q.display.insert(p_element)
 q.render()
 
-# The render method can be used on the qhtml object itself or
-# on any element created by .new(type), it will render the whole page
+# The render method can be used on the qhtml object, qhtml.display object or
+# on any element created by .new(type), it will render the whole page regardless
 
 ```
 
