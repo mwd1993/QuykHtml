@@ -12,7 +12,7 @@ class qhtml:
         # -------------------------------------
 
         self.all = []
-        self.styleSheet = self.ss()
+        self.css = self.ss()
         self.scripts = []
         self.display = self.new("div", self)
         self.bootstrap = self.bootstrap()
@@ -42,7 +42,7 @@ class qhtml:
         if self.bootstrap.using():
             _bootstrap = self.bootstrap.get()
 
-        for _s in self.styleSheet.styles:
+        for _s in self.css.styles:
             _b = _b + "" + _s
 
         for _sc in self.scripts:
@@ -66,24 +66,7 @@ class qhtml:
     # Generate a simple QuykHtml skeleton in the script directory
     # returns: HTML String
     def generate_skeleton(self):
-        _self = self
-        _str = "from QuykHtml import qhtml\n\n"
-        _str += 'q = qhtml()\n\ncontainer = q.new("div")\n\n'
-        _str += 'head = q.new("div").style.set(q.css["head"])\n\nhead_text = q.new("p").set_text("Header Text")\n\n\n'
-        _str += 'body = q.new("div").style.set(q.css["body"])\n\nbody_text = q.new("p").set_text("Body Text")\n\n\n'
-        _str += 'foot = q.new("div").style.set(q.css["foot"])\n\nfoot_text = q.new("p").set_text("Footer Text")\n\n\n'
-        _str += '_p = q.new("p").set_text("Table Text 1")\n'
-        _str += '__p = q.new("p").set_text("Table Text 2")\n'
-        _str += '_p2 = q.new("p").set_text("Table Text 3")\n\n\n'
-
-        _str += 'table_objs = [{"value": _p, "row": "1", "column": "1"},{"value": __p, "row": "1", "column": "1"},{"value": _p2, "row": "1", "column": "1"},{"value": _p2, "row": "1", "column": "2"}]\ntable = q.tables.new(2, 1, table_objs)\ntable.style.set("width:100%;")'
-        _str += '\n\nhead.insert(head_text)\nbody.insert(body_text).insert(table)\nfoot.insert(foot_text)\n\ncontainer.insert([head, body, foot])\nq.render()'
-
-        f = open("skeleton.py", "w")
-        f.write(_str)
-        f.close()
-
-        return _str
+        return False
 
     # CLASS Style sheet attached to the html object
 
