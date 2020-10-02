@@ -1,5 +1,5 @@
 # QuykHtml
-Use Python to quickly create, style, and manipulate web elements to create websites very quyckly :D.
+Use Python to create, style, and manipulate web elements to build websites and elements very quyckly :D.
 
 # Example
 ```python
