@@ -11,7 +11,6 @@ q.bootStrap.use(True)
 
 # inline quick way
 p_element = q.new("p").set_text("chain together commands :D").style.set("font-size:24px;").onClick('alert("You clicked me :D");')
-q.display.style.set("text-align:center").insert(p_element).render()
 
 # readable way
 
