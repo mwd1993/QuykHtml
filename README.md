@@ -6,10 +6,14 @@ Use Python to quickly create, style, and manipulate web elements to create websi
 
 from QuykHtml import qhtml
 
+# Instantiate class
 q = qhtml()
+
+# Easily 'import' bootStrap utilities
 q.bootStrap.use(True)
 
 # inline quick way to define a p element and set several different types of values
+# order doesn't matter as each method call returns the object itself
 p_element = q.new("p").set_text("chain together commands :D").style.set("font-size:24px;").onClick('alert("You clicked me :D");')
 
 # Doing the same as above, in a more readable way
