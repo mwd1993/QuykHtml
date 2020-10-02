@@ -12,7 +12,11 @@ q = qhtml()
 # Easily 'import' bootStrap utilities
 q.bootStrap.use(True)
 
-# inline quick way to define a p element and set several different types of values
+# Write direct css - we want to text align all divs for this example
+# our final display object we append everything to is a div
+q.styleSheet.add("div","text-align:center;")
+
+# Inline quick way to define a p element and set several different types of values
 # order doesn't matter as each method call returns the object itself
 p_element = q.new("p").set_text("chain together commands :D").style.set("font-size:24px;").onClick('alert("You clicked me :D");')
 
@@ -22,11 +26,10 @@ p_element.set_text("Or don't chain them together")
 p_element.style.set("font-size:24px;")
 p_element.onClick('alert("You clicked me :D");')
 
-# insert into our display and render using one liner
-q.display.style.set("text-align:center;").insert(p_element).render()
+# Insert into our display and render using one liner
+q.display.insert(p_element).render()
 
-# or do the same as above, in a more readable way
-q.display.style.set("text-align:center;")
+# Or do the same as above, in a more readable way
 q.display.insert(p_element)
 q.render()
 
