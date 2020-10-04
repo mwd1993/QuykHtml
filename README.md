@@ -1,6 +1,22 @@
 # QuykHtml
 QuykHtml is a python library that allows you to quickly generate websites. The key is to chain together commands to quickly define, combine and modify elements.
 
+# Quick Examples
+Creating Elements
+
+```python
+
+from QuykHtml import qhtml
+
+# Instantiate class
+q = qhtml()
+
+div = q.new("div")
+p = q.new("p")
+input = q.new("input")
+
+```
+
 # Example
 Create a Paragraph element, manipulate it in several ways, append it to the display and render the webpage<br>
 Note: The render function will attempt to open the resultant webpage. The function also returns the Raw HTML of the website generated.
