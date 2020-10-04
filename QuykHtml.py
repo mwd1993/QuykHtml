@@ -83,6 +83,7 @@ class qhtml:
         def __init__(self):
             self.styles = []
             self.colors = self._colors()
+            self.helpers = self._helpers()
 
         # Add a style to an object element
         # returns: class object/itself
@@ -132,6 +133,37 @@ class qhtml:
                 self.DARK_RED = "#633233"
                 self.DARK_GREEN = "#21573a"
                 self.DARK_BROWN = "#403735"
+
+        class _helpers:
+            def __init__(self):
+                pass
+
+            def font_size(self, _value=-1):
+                _s = self
+                if _value == -1:
+                    print("css.helpers.font_size(val) error -> value should be structured like: 1px or 1em etc")
+                    return False
+                else:
+                    return "font-size:" + _value + ";"
+
+            def font_color(self, _color=-1):
+                _s = self
+                if _color == -1:
+                    print("css.helpers.font_color(_color) error -> _color should be formatted like: #ffffff or #000000 etc")
+                    return False
+                else:
+                    return "color:" + _color + ";"
+
+            def bgr_color(self, _value=-1):
+                _s = self
+                if _value == -1:
+                    return False
+                else:
+                    return "background-color:" + _value + ";"
+
+            def shadow(self, _w="5px", _x="5px", _y="5px", _z="5px", _color="#fff932"):
+                _s = self
+                return "box-shadow:" + _w + " " + _x + " " + _y + " " + _z + " " + _color + ";"
 
     # CLASS new_obj, an element object type
 
