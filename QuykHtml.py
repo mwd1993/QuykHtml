@@ -39,6 +39,12 @@ class qhtml:
         _scripts = ""
         _path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
         _bootstrap = ""
+
+        for _obj_element in self.all:
+            if _obj_element.ajax_code != "":
+                # print("render ajax code detected")
+                self.scripts.append(_obj_element.ajax_code)
+
         if self.bootstrap.using():
             _bootstrap = self.bootstrap.get()
 
@@ -144,6 +150,9 @@ class qhtml:
             self.style = self.style_obj(self)
             self.innerHTML = ""
             self.innerText = ""
+            self.ajax_code = ""
+            self.ajax_pointer = ""
+            self.ajax_callback = ""
 
         # Render - attempts to render the full webpage from the object
         # returns: void
@@ -289,6 +298,46 @@ class qhtml:
             self.add_attribute('onmouseout="' + _code + '"')
             return self
 
+        def ajax_get(self):
+            if self.ajax_code != "":
+                return [self.ajax_code, self.ajax_pointer, self.ajax_callback]
+            return False
+
+        def ajax_build(self, _type, _str_path, _js_func_name_and_callback_func: list, _async="true"):
+            if isinstance(_js_func_name_and_callback_func, list):
+                if len(_js_func_name_and_callback_func) == 2:
+                    _func_name = _js_func_name_and_callback_func[0]
+                    _func_name = _func_name.replace(";", "")
+                    _callback_name = _js_func_name_and_callback_func[1]
+                    _callback_name = _callback_name.replace(";", "")
+                else:
+                    print("error in ajax_build_html(...) - > _js_func_name_and_callback_func should be a list with 2 entries [x,y]. \nX being the function for the ajax to be called and Y being the callback function formatted like 'callback_function(r.responseText)'.")
+            else:
+                print("ajax_build_html(...) _js_callback_func should be a list, the provided was not a list")
+
+            # print(_js_callback_func)
+
+            _r = 'function ' + _func_name + '{var r = new XMLHttpRequest();'
+            _r = _r + 'r.onreadystatechange = function () {'
+            _r = _r + 'if (r.readyState != 4 || r.status != 200) {'
+            _r = _r + '    ' + _callback_name + ";"
+            _r = _r + '} else {'
+            _r = _r + '    ' + _callback_name + ";"
+            _r = _r + '  }'
+            _r = _r + '};'
+            _r = _r + 'r.open("' + _type + '", "' + _str_path + '", ' + _async + ');'
+            _r = _r + 'r.send();}'
+
+            self.ajax_code = _r
+            self.ajax_pointer = _func_name + ";"
+            self.ajax_callback = _callback_name
+
+            return self
+
+            # print("ajax code - > " + _r)
+
+            # return _func_name + ";"
+
         # CLASS style object
 
         class style_obj:
@@ -342,7 +391,7 @@ class qhtml:
 
             return self
 
-        def build(self, _obj: object):
+        def build_into(self, _obj: object):
             if not isinstance(_obj, qhtml.new_obj):
                 print("BUILD " + str(self) + " - obj = " + str(_obj) + " - " + str(type(_obj)))
                 print("Error building table -> table.build(_qhtml_object_element) -> argument should be a qhtml.new(type) object.")
