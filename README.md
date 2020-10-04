@@ -16,7 +16,7 @@ q.bootStrap.use(True)
 
 # Write direct css - we want to text align all divs for this example
 # our final display object we append everything to is a div
-q.styleSheet.add("div","text-align:center;")
+q.css.add("div","text-align:center;")
 
 # Inline quick way to define a p element and set several different types of values
 # order doesn't matter as each method call returns the object itself
