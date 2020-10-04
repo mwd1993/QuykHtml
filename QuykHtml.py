@@ -157,8 +157,12 @@ class qhtml:
         # Insert a table into an element as pure html
         # returns: itself/html object
 
-        def insert_table_html(self, html):
-            self.innerHTML = html
+        def insert_table_raw(self, table_raw_obj: object):
+            self.innerHTML = table_raw_obj.build_html()
+            return self
+
+        def insert_table_html(self, table_html: str):
+            self.innerHTML = table_html
             return self
 
         # Insert an object into another object
@@ -325,11 +329,27 @@ class qhtml:
 
         def insert_at(self, row, column, obj):
             _s = self
-            obj.table_inserted_at = [str(row), str(column)]
-            obj.table = self
-            self.objects.append(obj)
+
+            if type(obj) is list:
+                for li in obj:
+                    li.table_inserted_at = [str(row), str(column)]
+                    li.table = self
+                    self.objects.append(li)
+            else:
+                obj.table_inserted_at = [str(row), str(column)]
+                obj.table = self
+                self.objects.append(obj)
 
             return self
+
+        def build(self, _obj: object):
+            if not isinstance(_obj, qhtml.new_obj):
+                print("BUILD " + str(self) + " - obj = " + str(_obj) + " - " + str(type(_obj)))
+                print("Error building table -> table.build(_qhtml_object_element) -> argument should be a qhtml.new(type) object.")
+                return False
+
+            _obj.insert_table_html(self.build_html())
+            return _obj
 
         def build_html(self):
             row_index = -1
