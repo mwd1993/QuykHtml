@@ -1,9 +1,10 @@
 # QuykHtml
 QuykHtml is a python library that allows you to quickly generate websites, create templates and makes building those, quick and easy.<br>
+See QuykHtml Docs for a bit more example usage on things like Tables and Ajax requests.
 
 # [QuykHtml Docs](https://mwd1993.github.io/QuykHtml/)
 
-# Quick Examples
+# Simple Usage
 ###### Creating Elements
 
 ```python
@@ -38,7 +39,11 @@ q = qhtml()
 
 # Declare css, allows for a list of lists, with the first value being
 # classname and the markup/style string for the second value
-css = q.css.add([["div","font-size:32px;"],[".div_custom","color:gray;"]])
+q.css.add([["div","font-size:32px;"],[".div_custom","color:gray;"]])
+
+# You can also do the same by just calling the add method with two arguments
+q.css.add("div","font-size:32px;")
+q.css.add(".div_custom","color:gray;")
 
 # Create a div with the class .div_custom and set the text in the div
 div = q.new("div").set_class("div_custom").set_text("QuykHtml Rocks!")
