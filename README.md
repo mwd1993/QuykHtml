@@ -1,5 +1,6 @@
 # QuykHtml
-QuykHtml is a python library that allows you to quickly generate websites. The key is to chain together commands to quickly define, combine and modify elements.
+QuykHtml is a python library that allows you to quickly generate websites. The key is to chain together commands to quickly define, combine and modify elements.<br>
+Since each method call from a 'QuykHtml.new(type) object' returns itself, allowing you quickly modify the element, chaining together commands.
 
 # Quick Examples
 Creating Elements
@@ -11,9 +12,33 @@ from QuykHtml import qhtml
 # Instantiate class
 q = qhtml()
 
+# Create a div
 div = q.new("div")
+#  Create a div
 p = q.new("p")
+#  Create an input
 input = q.new("input")
+
+```
+
+Styling Elements
+
+```python
+
+from QuykHtml import qhtml
+
+# Instantiate class
+q = qhtml()
+
+# Declare css, the add method allows for a list of lists, with the first value being<br>
+# classname and the markup/style string for the second value
+css = q.css.add([["div","font-size:32px;"],[".div_custom","color:gray;"]])
+
+# Create a div, inherits from div and .div_custom css values
+div = q.new("div").set_class("div_custom").set_text("QuykHtml Rocks!")
+
+# Or use inline styling to style the element
+div = q.new("div").style.set("font-size:48px;color:green;").set_text("QuykHtml Rocks!");
 
 ```
 
