@@ -1,7 +1,6 @@
 # QuykHtml
 QuykHtml is a python library that allows you to quickly generate websites, create templates and makes building those, quick and easy.<br>
 
-# See Docs and more examples below:
 # [QuykHtml Docs](https://mwd1993.github.io/QuykHtml/)
 
 # Quick Examples
