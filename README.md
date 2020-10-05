@@ -1,6 +1,5 @@
 # QuykHtml
-QuykHtml is a python library that allows you to quickly generate websites. The key is to chain together commands to quickly define, combine and modify elements.<br>
-Since each method call from a 'QuykHtml.new(type) object' returns itself, allowing you quickly modify the element, chaining together commands.
+QuykHtml is a python library that allows you to quickly generate websites, create templates and makes building those, quick and easy.<br>
 
 # Quick Examples
 ###### Creating Elements
