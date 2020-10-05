@@ -34,22 +34,22 @@ from QuykHtml import qhtml
 # Instantiate class
 q = qhtml()
 
-# Declare css, the add method allows for a list of lists, with the first value being<br>
+# Declare css, allows for a list of lists, with the first value being
 # classname and the markup/style string for the second value
 css = q.css.add([["div","font-size:32px;"],[".div_custom","color:gray;"]])
 
-# Create a div, inherits from div and .div_custom css values
+# Create a div with the class .div_custom and set the text in the div
 div = q.new("div").set_class("div_custom").set_text("QuykHtml Rocks!")
 
-# Or use inline styling to style the element
-div2 = q.new("div").style.set("font-size:48px;color:green;").set_text("QuykHtml Rocks!");
+# You can use inline styling to style the element and set the text in the div
+div2 = q.new("div").style.set("font-size:48px;color:green;").set_text("QuykHtml Rocks!")
 
 # Render the results
-q.display.insert([div, div2]);
+q.display.insert([div, div2]).render()
 
 ```
 
-# Example
+# Example: Create a paragraph, manipulate it then render the result
 Create a Paragraph element, manipulate it in several ways, append it to the display and render the webpage<br>
 Note: The render function will attempt to open the resultant webpage. The function also returns the Raw HTML of the website generated.
 ```python
@@ -91,4 +91,4 @@ q.render()
 
 # See Docs and more examples below:
 
-[QuykHtml Docs](https://mwd1993.github.io/QuykHtml/)
+# [QuykHtml Docs](https://mwd1993.github.io/QuykHtml/)
