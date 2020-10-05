@@ -14,10 +14,15 @@ q = qhtml()
 
 # Create a div
 div = q.new("div")
+
 #  Create a paragraph
 p = q.new("p")
+
 #  Create an input
 input = q.new("input")
+
+# Render the results
+q.display.insert([div, p, input]).render()
 
 ```
 
@@ -38,7 +43,10 @@ css = q.css.add([["div","font-size:32px;"],[".div_custom","color:gray;"]])
 div = q.new("div").set_class("div_custom").set_text("QuykHtml Rocks!")
 
 # Or use inline styling to style the element
-div = q.new("div").style.set("font-size:48px;color:green;").set_text("QuykHtml Rocks!");
+div2 = q.new("div").style.set("font-size:48px;color:green;").set_text("QuykHtml Rocks!");
+
+# Render the results
+q.display.insert([div, div2]);
 
 ```
 
