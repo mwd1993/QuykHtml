@@ -161,7 +161,7 @@ class qhtml:
                 else:
                     return "background-color:" + _value + ";"
 
-            def shadow(self, _w="5px", _x="5px", _y="5px", _z="5px", _color="#fff932"):
+            def shadow(self, _color, _w="5px", _x="5px", _y="5px", _z="5px"):
                 _s = self
                 return "box-shadow:" + _w + " " + _x + " " + _y + " " + _z + " " + _color + ";"
 
