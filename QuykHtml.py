@@ -17,6 +17,7 @@ class qhtml:
         self.display = self.new("div", self)
         self.bootstrap = self.bootstrap()
         self.preview = self.new("div")
+        self.collections = self._collections(self)
 
         # ** PREVIEW HELPER **
         # Preview helper for on_click_show_preview. Shows the element
@@ -197,6 +198,7 @@ class qhtml:
             else:
                 self.parent = ""
             self.attributes = []
+            self.attr_check = []
             self.style = self.style_obj(self)
             self.innerHTML = ""
             self.innerText = ""
@@ -250,7 +252,27 @@ class qhtml:
         # Adds an attribute to an element
         # returns: self/object
         def add_attribute(self, _str):
-            self.attributes.append(_str)
+
+            _attr_name = _str[:_str.find("=")]
+            _attr_val = _str[_str.find("=") + 1:]
+
+            if _attr_name in self.attr_check:
+                self.clear_attribute(_attr_name)
+
+            self.attr_check.append(_attr_name)
+            self.attributes.append(_attr_name + "=" + _attr_val)
+            return self
+
+        def clear_attribute(self, _attr_name):
+            if _attr_name in self.attr_check:
+                print("check")
+                for _a in self.attributes:
+                    if _attr_name in _a:
+                        self.attributes.remove(_a)
+                        self.attr_check.remove(_attr_name)
+                        break
+                    else:
+                        print("FALSE\n")
             return self
 
         # Retrieves all attributes from an object
@@ -495,17 +517,21 @@ class qhtml:
                     html_mid_build = html_mid_build + "<td>"
                     for o in self.objects:
                         if o.table_inserted_at[0] == str(row_index) and o.table_inserted_at[1] == str(column_index):
-                            print(str(o.get_tag_open()) + o.innerText + " -> row " + o.table_inserted_at[0] + " column " +
-                                  o.table_inserted_at[1] + " inserted")
+
+                            if "t1" in o.get_tag_open():
+                                print(str(o.get_tag_open()) + o.innerText + " -> row " + o.table_inserted_at[0] + " column " +
+                                      o.table_inserted_at[1] + " inserted" + "\n=======\n\n")
 
                             # INSERT OBJECT HTML INTO TABLE HERE
                             # -----------------------------------
-                            html_mid_build = html_mid_build + "" + o.get_tag_open() + o.innerText + o.get_tag_close() + ""
+                            if o.innerText not in o.innerHTML:
+                                html_mid_build = html_mid_build + "" + o.get_tag_open() + o.innerText + o.innerHTML + o.get_tag_close() + ""
+                            else:
+                                html_mid_build = html_mid_build + "" + o.get_tag_open() + o.innerHTML + o.get_tag_close() + ""
                             # -----------------------------------
 
                     html_mid_build = html_mid_build + "</td>"
-                # <tr><td>"
-                # </td></tr>
+
                 html_mid_build = html_mid_build + "</tr>"
 
                 column_index = -1
@@ -541,3 +567,48 @@ class qhtml:
                   'integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" ' \
                   'crossorigin="anonymous"></script> '
             return bss
+
+    class _collections:
+        def __init__(self, _p):
+            self.parent = _p
+            self.collection_list = []
+            self.collection_types = {}
+
+        def get_collection(self, _type, dict_args):
+            _self = self
+            _safe = ["set_text", "on_click", "add_attribute"]
+            _key_index = -1
+            _key_value_index = -1
+            _obj = self.collection_types[_type]
+            _new_obj = []
+
+            if _obj:
+                # for each key in the dictionary
+                for _key in dict_args:
+                    _key_index = _key_index + 1
+                    if _key in "by_id" or _key in "by_class":
+                        # for each id,command_name,command as a list
+                        for _id_info in dict_args[_key]:
+                            _key_value_index = _key_value_index + 1
+                            _id = _id_info[0]
+                            _command_name = _id_info[1]
+                            _command = _id_info[2]
+                            # for each object in the collection object
+                            for __obj in _obj:
+                                if _id in __obj.get_attributes() and _command_name in _safe:
+                                    _func = getattr(__obj, _command_name)
+                                    if _func:
+                                        _val = _func(_command)
+                                        if __obj not in _new_obj:
+                                            _new_obj.append(_val)
+
+                return _new_obj
+            else:
+                print("no valid type for " + _type)
+                return False
+
+        def add_collection(self, _type, list_qhtml_obj):
+            self.collection_list.append(list_qhtml_obj)
+            self.collection_types[_type] = list_qhtml_obj
+            for _item in list_qhtml_obj:
+                pass
