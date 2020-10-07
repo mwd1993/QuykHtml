@@ -4,7 +4,7 @@
 		function _show(self){if(self.innerText == "Methods"){document.getElementById("b_f").style.display = "none";document.getElementById("b_m").style.display = "block";document.getElementById("b_e").style.display = "none";document.getElementById("b_m").scrollIntoView();}else if(self.innerText =="FAQS"){document.getElementById("b_m").style.display = "none";document.getElementById("b_f").style.display = "block";document.getElementById("b_e").style.display = "none";document.getElementById("b_f").scrollIntoView();}else if(self.innerText =="Examples"){document.getElementById("b_m").style.display = "none";document.getElementById("b_f").style.display = "none";document.getElementById("b_e").style.display = "block";document.getElementById("b_e").scrollIntoView();}}function _hover(self){self.style.width="45%";}function _hover_leave(self){self.style.width="45%";}
 	</script>
 	
-	<style>.quykHtml_preview{display:none;padding-top:20%;text-align:center;z-index:100;position:absolute;top:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);}td{text-align:center;padding:20px;margin:0px;vertical-align:top;}.pic:hover{cursor:pointer;width:110%;}.pic{width:85%;box-shadow:5px 5px 5px 5px #9e9e9e;}</style>
+	<style>.quykHtml_preview{display:none;padding-top:20%;text-align:center;z-index:100;position:absolute;top:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);}td{text-align:center;padding:20px;margin:0px;vertical-align:top;}.pic:hover{cursor:pointer;width:110%;}.pic{width:85%;box-shadow:5px 5px 5px 5px #9e9e9e;}.method-h{border-radius:4px;padding:8px;background-color:#53d490;font-size:32px;font-weight:bold;#4a4a4a;}.method-b{font-size:20px;font-weight:bold;#9e9e9e;}</style>
 	<script type="text/javascript">function quykHtml_showPreview(el){d = document.getElementById("quykHtml_preview");if(d.style.display == "none" || d.style.display == ""){d.style.display = "inline";d.appendChild(el.cloneNode(true)); d.innerHTML = d.innerHTML + "<p>Press Escape to close</p>";}}
 		document.onkeydown = function(evt) {evt = evt || window.event;var isEscape = false;if ("key" in evt) {isEscape = (evt.key === "Escape" || evt.key === "Esc");} else {isEscape = (evt.keyCode === 27);}if (isEscape) {d = document.getElementById("quykHtml_preview");if(d){if(d.style.display != "none"){d.innerHTML = ""; d.style.display = "none";}}}};
 	</script>
@@ -33,102 +33,56 @@
 	<table style="border-collapse: collapse;table-layout: fixed;width:100%;">
 		<tbody style="width:100%;">
 			<td>
-				<p style="">QuykHtml Object</p>
-				<p style="">
-				<table style="border-collapse: collapse;table-layout: fixed;width:100%;">
-					<tbody style="width:100%;">
-						<td>
-							<p style="">object.new( type )</p>
-						</td>
-						<td>
-							<p style="">Returns: Element Object - Returns an Element Object</p>
-						</td>
-						</tr>
-					</tbody>
-				</table>
-				</p>
-				<p style="">
-				<table style="border-collapse: collapse;table-layout: fixed;width:100%;">
-					<tbody style="width:100%;">
-						<td>
-							<p style="">Object.render()</p>
-						</td>
-						<td>
-							<p style="">Returns: The Raw HTML and opens chrome to render the HTML</p>
-						</td>
-						</tr>
-					</tbody>
-				</table>
-				</p>
-				<p style="">
-				<table style="border-collapse: collapse;table-layout: fixed;width:100%;">
-					<tbody style="width:100%;">
-						<td>
-							<p style="">Object.generate_skeleton()</p>
-						</td>
-						<td>
-							<p style="">Returns: N/A - Generates a simple skeleton of a website in the program directory</p>
-						</td>
-						</tr>
-					</tbody>
-				</table>
-				</p>
+				<div style="">
+					<p class="example-p" style="">Declare usage of bootstrap easily</p>
+					<img class="pic" onClick="quykHtml_showPreview(this);" src="QHTML_EXAMPLE_BOOTSTRAP.png" style=""></img>
+				</div>
 			</td>
 			<td>
-				<p style="">'new_obj' - Element</p>
-				<p style="">
-				<table style="border-collapse: collapse;table-layout: fixed;width:100%;">
-					<tbody style="width:100%;">
-						<td>
-							<p style="">Object.style.set( html_style_string )</p>
-						</td>
-						<td>
-							<p style="">Returns: Self - Styles the element IE: "font-size:12px;color:red;"</p>
-						</td>
-						</tr>
-					</tbody>
-				</table>
-				</p>
-				<p style="">
-				<table style="border-collapse: collapse;table-layout: fixed;width:100%;">
-					<tbody style="width:100%;">
-						<td>
-							<p style="">Object.insert(Element Object)</p>
-						</td>
-						<td>
-							<p style="">Returns: Self - Insert an element object into another</p>
-						</td>
-						</tr>
-					</tbody>
-				</table>
-				</p>
-				<p style="">
-				<table style="border-collapse: collapse;table-layout: fixed;width:100%;">
-					<tbody style="width:100%;">
-						<td>
-							<p style="">Object.add_attribute( str_attribute )</p>
-						</td>
-						<td>
-							<p style="">Returns: Self - Applies an attribute to an element IE: 'class="test-class"' or 'onclick="alert('clicked!');"</p>
-						</td>
-						</tr>
-					</tbody>
-				</table>
-				</p>
-				<p style="">
-				<table style="border-collapse: collapse;table-layout: fixed;width:100%;">
-					<tbody style="width:100%;">
-						<td>
-							<p style="">Object.add_attribute( str_attribute )</p>
-						</td>
-						<td>
-							<p style="">Returns: Self - Applies an attribute to an element IE: 'class="test-class"' or 'onclick="alert('clicked!');"</p>
-						</td>
-						</tr>
-					</tbody>
-				</table>
-				</p>
+				<div style="">
+					<p class="example-p" style="">Create a div and place a paragraph inside</p>
+					<img class="pic" onClick="quykHtml_showPreview(this);" src="example1.png" style=""></img>
+				</div>
 			</td>
+			<td>
+				<div style="">
+					<p class="example-p" style="">Style a Paragraph using inline styling</p>
+					<img class="pic" onClick="quykHtml_showPreview(this);" src="example2.png" style=""></img>
+				</div>
+			</td>
+			</tr>
+			<td>
+				<div style="">
+					<p class="example-p" style="">Style a Paragraph using classes</p>
+					<img class="pic" onClick="quykHtml_showPreview(this);" src="example3.png" style=""></img>
+				</div>
+			</td>
+			<td>
+				<div style="">
+					<p class="example-p" style="">Set the elements id and set the place holder attribute on the element as well</p>
+					<img class="pic" onClick="quykHtml_showPreview(this);" src="example4.png" style=""></img>
+				</div>
+			</td>
+			<td>
+				<div style="">
+					<p class="example-p" style="">Create an on_click callback to JS Code on an element</p>
+					<img class="pic" onClick="quykHtml_showPreview(this);" src="QHTML_EXAMPLE_ONCLICK.png" style=""></img>
+				</div>
+			</td>
+			</tr>
+			<td>
+				<div style="">
+					<p class="example-p" style="">Adding Javascript Code and using it</p>
+					<img class="pic" onClick="quykHtml_showPreview(this);" src="QHTML_EXAMPLE_ADDINGJAVASCRIPTCODE.png" style=""></img>
+				</div>
+			</td>
+			<td>
+				<div style="">
+					<p class="example-p" style="">Create a table of 2 columns, 2 rows, create 4 P elements, and put them into the table </p>
+					<img class="pic" onClick="quykHtml_showPreview(this);" src="QHTML_EXAMPLE_TABLEEXAMPLE.png" style=""></img>
+				</div>
+			</td>
+			<td></td>
 			</tr>
 		</tbody>
 	</table>
@@ -215,5 +169,6 @@
 <div class="foot" style="">
 	<p style="font-weight:bold;margin-top:8px;color:white;">This website was made using QuykHtml</p>
 </div>
+
 
 
