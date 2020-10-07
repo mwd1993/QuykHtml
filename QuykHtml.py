@@ -16,6 +16,21 @@ class qhtml:
         self.scripts = []
         self.display = self.new("div", self)
         self.bootstrap = self.bootstrap()
+        self.preview = self.new("div")
+
+        # ** PREVIEW HELPER **
+        # Preview helper for on_click_show_preview. Shows the element
+        # object that was clicked in full screen. Good for images, but
+        # can be used with any element created by qhtml.new(type)
+        # -------------------------------------------------------------
+        self.css.add(".quykHtml_preview", "display:none;padding-top:20%;text-align:center;z-index:100;position:absolute;top:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);")
+        self.preview.set_class("quykHtml_preview").add_attribute('id="quykHtml_preview"')
+        # preview display code
+        self.scripts.append('function quykHtml_showPreview(el){d = document.getElementById("quykHtml_preview");if(d.style.display == "none" || d.style.display == ""){d.style.display = "inline";d.appendChild(el.cloneNode(true)); d.innerHTML = d.innerHTML + "<p>Press Escape to close</p>";}}')
+        # escape key press code
+        self.scripts.append('document.onkeydown = function(evt) {evt = evt || window.event;var isEscape = false;if ("key" in evt) {isEscape = (evt.key === "Escape" || evt.key === "Esc");} else {isEscape = (evt.keyCode === 27);}if (isEscape) {d = document.getElementById('
+                            '"quykHtml_preview");if(d){if(d.style.display != "none"){d.innerHTML = ""; d.style.display = "none";}}}};')
+        # -------------------------------------------------------------
 
     # Returns a new object of an html element
     # returns: Object
@@ -53,6 +68,9 @@ class qhtml:
 
         for _sc in self.scripts:
             _scripts = _scripts + "" + _sc + "\n"
+
+        print("inserting " + str(self.preview))
+        self.display.insert(self.preview)
 
         html_string = "<head>" + _bootstrap + "<style>" + _b + '</style><script type="text/javascript">' + _scripts + '</script></head>' + str(
             self.all[0].innerHTML)
@@ -185,6 +203,7 @@ class qhtml:
             self.ajax_code = ""
             self.ajax_pointer = ""
             self.ajax_callback = ""
+            self.onclick_showpreview_html = ""
 
         # Render - attempts to render the full webpage from the object
         # returns: void
@@ -330,6 +349,10 @@ class qhtml:
 
         def on_click(self, _code):
             self.add_attribute('onClick="' + _code + '"')
+            return self
+
+        def on_click_show_preview(self):
+            self.on_click("quykHtml_showPreview(this);")
             return self
 
         # Set an on mouse enter to be called with code (JS)
