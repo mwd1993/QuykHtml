@@ -1,5 +1,6 @@
 import webbrowser
 import os
+import time
 from time import sleep
 
 
@@ -468,6 +469,7 @@ class qhtml:
     class table:
         def __init__(self, rows_or_file_path, columns_or_styling_dict=-1):
             self.__qhtml = qhtml()
+            self.time_start = int(round(time.time() * 1000))
             if type(rows_or_file_path) != int:
                 _styling = columns_or_styling_dict
                 if _styling != -1 and type(_styling) is dict:
@@ -514,15 +516,18 @@ class qhtml:
                         _curr_col = -1
 
                     self.get = _table
+
                 else:
                     self.rows = 0
                     self.columns = 0
-                    self.error = True
+                    self.time = "Error"
+                    self.error = -1
 
             else:
                 self.objects = []
                 self.rows = rows_or_file_path
                 self.columns = columns_or_styling_dict
+                self.time = 0
 
         def insert_at(self, row, column, obj):
             _s = self
@@ -555,7 +560,6 @@ class qhtml:
             html_table_open = '<table style="border-collapse: collapse;table-layout: fixed;width:100%;"><tbody ' \
                               'style="width:100%;"> '
             html_table_close = "</tbody></table>"
-
             html_mid_build = ""
 
             while row_index < self.rows - 1:
@@ -582,7 +586,8 @@ class qhtml:
 
             if not html_mid_build == "":
                 # print(html_table_open + html_mid_build + html_table_close)
-                print("\n\n** finished table html building ** \n\n")
+                self.time = int(round(time.time() * 1000)) - self.time_start
+                print("\n\n** Table built in " + str(self.time) + " MS with " + str(self.columns) + " columns and " + str(self.rows) + " rows  ** \n\n")
                 return html_table_open + html_mid_build + html_table_close
 
             return -1
