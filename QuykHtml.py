@@ -80,18 +80,13 @@ class qhtml:
         f.write(html_string)
         f.close()
 
-        print(html_string)
+        # print(html_string)
 
         sleep(0.2)
 
         webbrowser.get(_path).open(str(os.getcwd()) + "/render.html")
 
         return html_string
-
-    # Generate a simple QuykHtml skeleton in the script directory
-    # returns: HTML String
-    def generate_skeleton(self):
-        return False
 
     # CLASS Style sheet attached to the html object
 
@@ -471,10 +466,63 @@ class qhtml:
                 return self.parent
 
     class table:
-        def __init__(self, rows, columns):
-            self.objects = []
-            self.rows = rows
-            self.columns = columns
+        def __init__(self, rows_or_file_path, columns_or_styling_dict=-1):
+            self.__qhtml = qhtml()
+            if type(rows_or_file_path) != int:
+                _styling = columns_or_styling_dict
+                if _styling != -1 and type(_styling) is dict:
+                    print("Styling passed - > " + str(_styling))
+
+                _file = rows_or_file_path
+                if os.path.isfile(_file):
+                    # IF THE FILE PASSED IN IS A CSV TYPE
+                    if os.path.splitext(_file)[1] == ".csv":
+                        _f_open = open(_file, "r")
+                        _file_contents = _f_open.read()
+                        _f_open.close()
+                        _file_contents = _file_contents.split("\n")
+                        _columns = _file_contents[1].count(",")
+
+                        if _columns > 1:
+                            _columns = _columns + 1
+
+                        _rows = len(_file_contents)
+
+                        print("Create a table with " + str(_columns) + " col and " + str(_rows) + " rows")
+
+                if _rows and _columns:
+                    self.rows = _rows
+                    self.columns = _columns
+
+                    _row_items = _file_contents
+                    _table = self.__qhtml.table(_rows, _columns)
+
+                    _curr_row = -1
+                    _curr_col = -1
+
+                    for _ri in _row_items:
+                        _curr_row = _curr_row + 1
+                        _column_item = _ri.split(",")
+                        for _ci in _column_item:
+                            _curr_col = _curr_col + 1
+                            _p = self.__qhtml.new("p").set_text(_ci)
+                            if type(_styling) is dict:
+                                if _p.type in _styling:
+                                    _styling_value = _styling[_p.type]
+                                    _p.style.set(_styling_value)
+                            _table.insert_at(_curr_row, _curr_col, _p)
+                        _curr_col = -1
+
+                    self.get = _table
+                else:
+                    self.rows = 0
+                    self.columns = 0
+                    self.error = True
+
+            else:
+                self.objects = []
+                self.rows = rows_or_file_path
+                self.columns = columns_or_styling_dict
 
         def insert_at(self, row, column, obj):
             _s = self
@@ -518,26 +566,23 @@ class qhtml:
                     for o in self.objects:
                         if o.table_inserted_at[0] == str(row_index) and o.table_inserted_at[1] == str(column_index):
 
-                            if "t1" in o.get_tag_open():
-                                print(str(o.get_tag_open()) + o.innerText + " -> row " + o.table_inserted_at[0] + " column " +
-                                      o.table_inserted_at[1] + " inserted" + "\n=======\n\n")
-
                             # INSERT OBJECT HTML INTO TABLE HERE
                             # -----------------------------------
                             if o.innerText not in o.innerHTML:
-                                html_mid_build = html_mid_build + "" + o.get_tag_open() + o.innerText + o.innerHTML + o.get_tag_close() + ""
+                                html_mid_build += o.get_tag_open() + o.innerText + o.innerHTML + o.get_tag_close() + ""
                             else:
-                                html_mid_build = html_mid_build + "" + o.get_tag_open() + o.innerHTML + o.get_tag_close() + ""
+                                html_mid_build += o.get_tag_open() + o.innerHTML + o.get_tag_close() + ""
                             # -----------------------------------
 
-                    html_mid_build = html_mid_build + "</td>"
+                    html_mid_build += "</td>"
 
-                html_mid_build = html_mid_build + "</tr>"
+                html_mid_build += "</tr>"
 
                 column_index = -1
 
             if not html_mid_build == "":
-                print(html_table_open + html_mid_build + html_table_close)
+                # print(html_table_open + html_mid_build + html_table_close)
+                print("\n\n** finished table html building ** \n\n")
                 return html_table_open + html_mid_build + html_table_close
 
             return -1
