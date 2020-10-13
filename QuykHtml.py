@@ -18,7 +18,6 @@ class qhtml:
         self.display = self.new("div", self)
         self.bootstrap = self.bootstrap()
         self.preview = self.new("div")
-        self.collections = self._collections(self)
 
         # ** PREVIEW HELPER **
         # Preview helper for on_click_show_preview. Shows the element
@@ -193,6 +192,7 @@ class qhtml:
                 self.parent = _parent
             else:
                 self.parent = ""
+            self.id = -1
             self.attributes = []
             self.attr_check = []
             self.style = self.style_obj(self)
@@ -215,12 +215,18 @@ class qhtml:
         # Insert a table into an element as pure html
         # returns: itself/html object
 
-        def insert_table_raw(self, table_raw_obj: object):
-            self.innerHTML = table_raw_obj.build_html()
+        def insert_table_raw(self, table_raw_obj: object, append_html=False):
+            if append_html:
+                self.innerHTML += table_raw_obj.build_html()
+            else:
+                self.innerHTML = table_raw_obj.build_html()
             return self
 
-        def insert_table_html(self, table_html: str):
-            self.innerHTML = table_html
+        def insert_table_html(self, table_html: str, append_html=False):
+            if append_html:
+                self.innerHTML = self.innerHTML + table_html
+            else:
+                self.innerHTML = table_html
             return self
 
         # Insert an object into another object
@@ -320,7 +326,20 @@ class qhtml:
         # returns: self/object
 
         def set_class(self, _str):
-            self.add_attribute('class="' + _str + '"')
+            self.add_attribute('class="' + str(_str) + '"')
+            return self
+
+        def set_id(self, _str):
+            self.add_attribute('id="' + str(_str).replace("#", "") + '"')
+            self.id = str(_str).replace("#", "")
+            return self
+
+        def set_img_src(self, _str):
+            self.add_attribute('src="' + _str + '"')
+            return self
+
+        def set_name(self, _str):
+            self.add_attribute('name="' + _str + '"')
             return self
 
         def html(self):
@@ -367,6 +386,17 @@ class qhtml:
 
         def on_click(self, _code):
             self.add_attribute('onClick="' + _code + '"')
+            return self
+
+        def on_right_click(self, _code, _block_normal_context=True):
+            _block = ''
+
+            if _block_normal_context:
+                _block = ' return false;'
+            else:
+                _block = ''
+
+            self.add_attribute('oncontextmenu="' + _code + _block + '"')
             return self
 
         def on_click_show_preview(self):
@@ -470,6 +500,8 @@ class qhtml:
         def __init__(self, rows_or_file_path, columns_or_styling_dict=-1):
             self.__qhtml = qhtml()
             self.time_start = int(round(time.time() * 1000))
+            self.td_styles = []
+
             if type(rows_or_file_path) != int:
                 _styling = columns_or_styling_dict
                 if _styling != -1 and type(_styling) is dict:
@@ -510,8 +542,25 @@ class qhtml:
                             _p = self.__qhtml.new("p").set_text(_ci)
                             if type(_styling) is dict:
                                 if _p.type in _styling:
+                                    # here
                                     _styling_value = _styling[_p.type]
+                                    _values_dict = _styling[_p.type]
+                                    _calls = _values_dict["calls"]
+                                    _styling_value = _styling_value["style"]
                                     _p.style.set(_styling_value)
+
+                                    for __call in _calls:
+                                        print("call - > " + str(__call))
+                                        # call method
+                                        __call_m = __call[0]
+                                        # call arg ( may need to add support for multiple args )
+                                        __call_a = __call[1]
+
+                                        _func = getattr(_p, __call_m)
+                                        if _func:
+                                            _val = _func(__call_a)
+                                            print("call - > " + str(__call) + "\n return - >  " + str(_val))
+
                             _table.insert_at(_curr_row, _curr_col, _p)
                         _curr_col = -1
 
@@ -544,13 +593,27 @@ class qhtml:
 
             return self
 
-        def build_into(self, _obj: object):
+        def style_td_at(self, row, col, style):
+            _s = self
+            print("\nSTYLING AT " + str(row) + " - " + str(col) + '\n')
+            # _s.td_styles
+            _s.td_styles.append({
+                "style": style,
+                "row": row,
+                "column": col
+            })
+            for _style in _s.td_styles:
+                print(str(_style))
+
+            return self
+
+        def build_into(self, _obj: object, append_html=False):
             if not isinstance(_obj, qhtml.new_obj):
                 print("BUILD " + str(self) + " - obj = " + str(_obj) + " - " + str(type(_obj)))
                 print("Error building table -> table.build(_qhtml_object_element) -> argument should be a qhtml.new(type) object.")
                 return False
 
-            _obj.insert_table_html(self.build_html())
+            _obj.insert_table_html(self.build_html(), append_html)
             return _obj
 
         def build_html(self):
@@ -566,7 +629,18 @@ class qhtml:
                 row_index = row_index + 1
                 while column_index < self.columns - 1:
                     column_index = column_index + 1
-                    html_mid_build = html_mid_build + "<td>"
+                    _td_styling = self.td_styles
+                    _td_styling_set = ""
+                    for _style in _td_styling:
+                        if row_index == _style["row"] and column_index == _style["column"]:
+                            _td_styling_set = '<td style="' + _style['style'] + '">'
+                            break
+
+                    if _td_styling_set != "":
+                        html_mid_build = html_mid_build + _td_styling_set
+                    else:
+                        html_mid_build = html_mid_build + "<td>"
+
                     for o in self.objects:
                         if o.table_inserted_at[0] == str(row_index) and o.table_inserted_at[1] == str(column_index):
 
@@ -617,48 +691,3 @@ class qhtml:
                   'integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" ' \
                   'crossorigin="anonymous"></script> '
             return bss
-
-    class _collections:
-        def __init__(self, _p):
-            self.parent = _p
-            self.collection_list = []
-            self.collection_types = {}
-
-        def get_collection(self, _type, dict_args):
-            _self = self
-            _safe = ["set_text", "on_click", "add_attribute"]
-            _key_index = -1
-            _key_value_index = -1
-            _obj = self.collection_types[_type]
-            _new_obj = []
-
-            if _obj:
-                # for each key in the dictionary
-                for _key in dict_args:
-                    _key_index = _key_index + 1
-                    if _key in "by_id" or _key in "by_class":
-                        # for each id,command_name,command as a list
-                        for _id_info in dict_args[_key]:
-                            _key_value_index = _key_value_index + 1
-                            _id = _id_info[0]
-                            _command_name = _id_info[1]
-                            _command = _id_info[2]
-                            # for each object in the collection object
-                            for __obj in _obj:
-                                if _id in __obj.get_attributes() and _command_name in _safe:
-                                    _func = getattr(__obj, _command_name)
-                                    if _func:
-                                        _val = _func(_command)
-                                        if __obj not in _new_obj:
-                                            _new_obj.append(_val)
-
-                return _new_obj
-            else:
-                print("no valid type for " + _type)
-                return False
-
-        def add_collection(self, _type, list_qhtml_obj):
-            self.collection_list.append(list_qhtml_obj)
-            self.collection_types[_type] = list_qhtml_obj
-            for _item in list_qhtml_obj:
-                pass
