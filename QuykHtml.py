@@ -1,6 +1,7 @@
 import webbrowser
 import os
 import time
+import random
 from time import sleep
 
 
@@ -24,10 +25,11 @@ class qhtml:
         # object that was clicked in full screen. Good for images, but
         # can be used with any element created by qhtml.new(type)
         # -------------------------------------------------------------
-        self.css.add(".quykHtml_preview", "display:none;padding-top:20%;text-align:center;z-index:100;position:absolute;top:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);")
+        self.css.add(".quykHtml_preview", "display:none;padding-top:60px;text-align:center;z-index:100;position:fixed;top:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);")
         self.preview.set_class("quykHtml_preview").add_attribute('id="quykHtml_preview"')
         # preview display code
-        self.scripts.append('function quykHtml_showPreview(el){d = document.getElementById("quykHtml_preview");if(d.style.display == "none" || d.style.display == ""){d.style.display = "inline";d.appendChild(el.cloneNode(true)); d.innerHTML = d.innerHTML + "<p>Press Escape to close</p>";}}')
+        self.scripts.append('function quykHtml_showPreview(el){d = document.getElementById("quykHtml_preview");if(d.style.display == "none" || d.style.display == ""){d.style.display = "inline";d.appendChild(el.cloneNode(true)); d.innerHTML = d.innerHTML + "<p style=\'font-weight:bold;\'>Press '
+                            'Escape to close</p>";}}')
         # escape key press code
         self.scripts.append('document.onkeydown = function(evt) {evt = evt || window.event;var isEscape = false;if ("key" in evt) {isEscape = (evt.key === "Escape" || evt.key === "Esc");} else {isEscape = (evt.keyCode === 27);}if (isEscape) {d = document.getElementById('
                             '"quykHtml_preview");if(d){if(d.style.display != "none"){d.innerHTML = ""; d.style.display = "none";}}}};')
@@ -50,13 +52,13 @@ class qhtml:
     # Attempts to render the constructed webpage
     # returns: HTML
 
-    def render(self):
+    def render(self, only_html=False):
         _b = ""
         _scripts = ""
         _path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
-        _bootstrap = ""
-
+        
         for _obj_element in self.all:
+            # print("ajax code for " + str(_obj_element.type))
             if _obj_element.ajax_code != "":
                 # print("render ajax code detected")
                 self.scripts.append(_obj_element.ajax_code)
@@ -83,8 +85,8 @@ class qhtml:
         # print(html_string)
 
         sleep(0.2)
-
-        webbrowser.get(_path).open(str(os.getcwd()) + "/render.html")
+        if not only_html:
+            webbrowser.get(_path).open(str(os.getcwd()) + "/render.html")
 
         return html_string
 
@@ -179,6 +181,16 @@ class qhtml:
                 _s = self
                 return "box-shadow:" + _w + " " + _x + " " + _y + " " + _z + " " + _color + ";"
 
+            def rgbtohex(self, rgb):
+                _s = self
+                '''Takes an RGB tuple or list and returns a hex RGB string.'''
+                return f'#{int(rgb[0] * 255):02x}{int(rgb[1] * 255):02x}{int(rgb[2] * 255):02x}'
+
+            def hextorgb(self, _hex):
+                _s = self
+                _hex = _hex.lstrip('#')
+                return tuple(int(_hex[i:i + 2], 16) for i in (0, 2, 4))
+
     # CLASS new_obj, an element object type
 
     class new_obj:
@@ -206,11 +218,14 @@ class qhtml:
         # Render - attempts to render the full webpage from the object
         # returns: void
 
-        def render(self):
+        def render(self, only_html=False):
             if self.parent == "":
-                pass
+                return False
             else:
-                self.parent.render()
+                if only_html:
+                    self.parent.render(only_html)
+                else:
+                    self.parent.render()
 
         # Insert a table into an element as pure html
         # returns: itself/html object
@@ -343,7 +358,7 @@ class qhtml:
             return self
 
         def html(self):
-            pass
+            return self.innerHTML
 
         # Get parent class
         # returns: parent/obj
@@ -384,8 +399,11 @@ class qhtml:
         # Set an onclick function to be called with code (JS)
         # returns: self/object
 
-        def on_click(self, _code):
-            self.add_attribute('onClick="' + _code + '"')
+        def on_click(self, _code, _block_normal_context=True):
+            if _block_normal_context:
+                self.add_attribute('onClick="' + _code + ' return false;"')
+            else:
+                self.add_attribute('onClick="' + _code + '"')
             return self
 
         def on_right_click(self, _code, _block_normal_context=True):
@@ -429,19 +447,30 @@ class qhtml:
                     return self.ajax_callback
             return False
 
-        def ajax_build(self, _type, _str_path, _js_func_name_and_callback_func: list, _async="true"):
-            if isinstance(_js_func_name_and_callback_func, list):
-                if len(_js_func_name_and_callback_func) == 2:
-                    _func_name = _js_func_name_and_callback_func[0]
-                    _func_name = _func_name.replace(";", "")
-                    _callback_name = _js_func_name_and_callback_func[1]
-                    _callback_name = _callback_name.replace(";", "")
-                else:
-                    print("error in ajax_build_html(...) - > _js_func_name_and_callback_func should be a list with 2 entries [x,y]. \nX being the function for the ajax to be called and Y being the callback function formatted like 'callback_function(r.responseText)'.")
-            else:
-                print("ajax_build_html(...) _js_callback_func should be a list, the provided was not a list")
+        # previous build -> _build(self, _type, _str_path, _js_func_name_and_callback_func: list, _async="true"):
 
-            # print(_js_callback_func)
+        def ajax_build(self, _type, _str_path, js_callback_func="", _async="true"):
+            # if isinstance(_js_func_name_and_callback_func, list):
+            _ran = []
+            for i in range(5):
+                _ran.append(str(random.randint(0, 9)))
+
+            _ran = ''.join(_ran)
+
+            if js_callback_func:
+                _func_name = "_ajax_handler_" + str(_ran) + "()"
+                _func_name = _func_name.replace(";", "")
+                _callback_name = js_callback_func
+                _callback_name = _callback_name.replace(";", "")
+
+                if "(" not in _callback_name:
+                    _callback_name = _callback_name + "(r.responseText)"
+            else:
+                # print("error in ajax_build_html(...) - > _js_func_name_and_callback_func should be a list with 2 entries [x,y]. \nX being the function for the ajax to be called and Y being the callback function formatted like 'callback_function(r.responseText)'.")
+                print("ajax_build FAILED:\nPlease provide a Javascript function name and a Javascript callback method to handle the response text.\nAs js_func_name and js_callback_func")
+                return self
+
+            # _func_name = "_ajax_handler_" + str(len(self.ajax_list))
 
             _r = 'function ' + _func_name + '{var r = new XMLHttpRequest();'
             _r = _r + 'r.onreadystatechange = function () {'
@@ -595,7 +624,7 @@ class qhtml:
 
         def style_td_at(self, row, col, style):
             _s = self
-            print("\nSTYLING AT " + str(row) + " - " + str(col) + '\n')
+            # print("\nSTYLING AT " + str(row) + " - " + str(col) + '\n')
             # _s.td_styles
             _s.td_styles.append({
                 "style": style,
@@ -661,7 +690,7 @@ class qhtml:
             if not html_mid_build == "":
                 # print(html_table_open + html_mid_build + html_table_close)
                 self.time = int(round(time.time() * 1000)) - self.time_start
-                print("\n\n** Table built in " + str(self.time) + " MS with " + str(self.columns) + " columns and " + str(self.rows) + " rows  ** \n\n")
+                print("\n** Table built in " + str(self.time) + " MS with " + str(self.columns) + " columns and " + str(self.rows) + " rows  ** \n")
                 return html_table_open + html_mid_build + html_table_close
 
             return -1
