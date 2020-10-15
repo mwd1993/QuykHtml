@@ -56,7 +56,7 @@ class qhtml:
         _b = ""
         _scripts = ""
         _path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
-        
+
         for _obj_element in self.all:
             # print("ajax code for " + str(_obj_element.type))
             if _obj_element.ajax_code != "":
@@ -355,6 +355,24 @@ class qhtml:
 
         def set_name(self, _str):
             self.add_attribute('name="' + _str + '"')
+            return self
+
+        def set_tool_tip(self, _str):
+            self.add_attribute('title="' + _str + '"')
+            return self
+
+        # action="upload.php" method="post" enctype="multipart/form-data"
+        def set_form_options(self, action, method, enctype="multipart/form-data"):
+            if self.type != "form":
+                print('set_form_options error -> ' + self.type + ' is not a form element')
+                return self
+
+            if action and method:
+                self.add_attribute('action="' + action + '" method="' + method + '" enctype="' + enctype + '"')
+                return self
+            else:
+                print('set_form_options error -> ' + self.type + ' is missing either action or method argument')
+                return self
             return self
 
         def html(self):
