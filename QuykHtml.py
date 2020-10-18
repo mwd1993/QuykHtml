@@ -20,18 +20,62 @@ class qhtml:
         self.preview = self.new("div")
 
         # ** PREVIEW HELPER **
+        # -------------------------------------------------------------
         # Preview helper for on_click_show_preview. Shows the element
         # object that was clicked in full screen. Good for images, but
         # can be used with any element created by qhtml.new(type)
         # -------------------------------------------------------------
         self.css.add(".quykHtml_preview", "display:none;padding-top:60px;text-align:center;z-index:100;position:fixed;top:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);")
         self.preview.set_class("quykHtml_preview").add_attribute('id="quykHtml_preview"')
+
         # preview display code
-        self.scripts.append('function quykHtml_showPreview(el){d = document.getElementById("quykHtml_preview");if(d.style.display == "none" || d.style.display == ""){d.style.display = "inline";d.appendChild(el.cloneNode(true)); d.innerHTML = d.innerHTML + "<p style=\'font-weight:bold;\'>Press '
-                            'Escape to close</p>";}}')
-        # escape key press code
-        self.scripts.append('document.onkeydown = function(evt) {evt = evt || window.event;var isEscape = false;if ("key" in evt) {isEscape = (evt.key === "Escape" || evt.key === "Esc");} else {isEscape = (evt.keyCode === 27);}if (isEscape) {d = document.getElementById('
-                            '"quykHtml_preview");if(d){if(d.style.display != "none"){d.innerHTML = ""; d.style.display = "none";}}}};')
+        self.scripts.append(
+            'function quykHtml_showPreview(el){'
+            'd = document.getElementById("quykHtml_preview");'
+            'if(d.style.display == "none" || d.style.display == ""){'
+            'd.style.display = "inline";'
+            'var node = el.cloneNode(true);'
+            'node.className = "strat-img-no-hover";'
+            'if(node.tagName.toLowerCase() == "img"){'
+            'node.style.height = "640px";'
+            'node.style.width = "800px";'
+            '}'
+            'd.appendChild(node);'
+            'd.innerHTML = d.innerHTML + "<p style=\'font-weight:bold;font-size:20px;\'>Press Escape to close or click <span onclick=\'quykHtml_preview_close();\' style=\'cursor:pointer;color:green;font-size:24px;\'>here</span></p>";'
+            '}'
+            '}'
+        )
+        # preview display escape key press code
+        self.scripts.append(
+            'document.onkeydown = function(evt) {'
+            'evt = evt || window.event;'
+            'var isEscape = false;'
+            'if ("key" in evt) {'
+            'isEscape = (evt.key === "Escape" || evt.key === "Esc");'
+            '} else {'
+            'isEscape = (evt.keyCode === 27);'
+            '}'
+            'if(isEscape){'
+            'd = document.getElementById("quykHtml_preview");'
+            'if(d){'
+            'if(d.style.display != "none"){'
+            'd.innerHTML = "";'
+            'd.style.display = "none";'
+            '}'
+            '}}};'
+        )
+        # preview display click here escape option for mobile
+        self.scripts.append(
+            'function quykHtml_preview_close(){'
+            'd = document.getElementById("quykHtml_preview");'
+            'if(d){'
+            'if(d.style.display != "none"){'
+            'd.innerHTML = "";'
+            'd.style.display = "none";'
+            '}'
+            '}'
+            '}'
+        )
         # -------------------------------------------------------------
 
     # Returns a new object of an html element
