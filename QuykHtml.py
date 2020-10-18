@@ -12,7 +12,6 @@ class qhtml:
 
         # Variables
         # -------------------------------------
-
         self.all = []
         self.css = self.ss()
         self.scripts = []
@@ -39,13 +38,16 @@ class qhtml:
     # returns: Object
 
     def new(self, _type, _p=0):
+
         _obj = ""
 
         if _p != 0:
+            # create special
             _obj = self.new_obj(_type, _p)
         else:
             _obj = self.new_obj(_type)
 
+        _obj.parent = self
         self.all.append(_obj)
         return _obj
 
@@ -53,7 +55,7 @@ class qhtml:
     # returns: HTML
 
     def render(self, only_html=False):
-        _b = ""
+        _css = ""
         _scripts = ""
         _path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
 
@@ -67,7 +69,7 @@ class qhtml:
             _bootstrap = self.bootstrap.get()
 
         for _s in self.css.styles:
-            _b = _b + "" + _s
+            _css = _css + "" + _s
 
         for _sc in self.scripts:
             _scripts = _scripts + "" + _sc + "\n"
@@ -75,7 +77,7 @@ class qhtml:
         print("inserting " + str(self.preview))
         self.display.insert(self.preview)
 
-        html_string = "<head>" + _bootstrap + "<style>" + _b + '</style><script type="text/javascript">' + _scripts + '</script></head>' + str(
+        html_string = "<head>" + _bootstrap + "<style>" + _css + '</style><script type="text/javascript">' + _scripts + '</script></head>' + str(
             self.all[0].innerHTML)
 
         f = open(os.getcwd() + "/render.html", "w")
@@ -282,7 +284,6 @@ class qhtml:
 
         def clear_attribute(self, _attr_name):
             if _attr_name in self.attr_check:
-                print("check")
                 for _a in self.attributes:
                     if _attr_name in _a:
                         self.attributes.remove(_a)
@@ -305,7 +306,13 @@ class qhtml:
         # returns: string
 
         def get_tag_open(self):
-            return "<" + self.type + " " + self.get_attributes() + ' style="' + self.style.get() + '">'
+            first = "<" + self.type + " " + self.get_attributes()
+            if self.style.get():
+                second = ' style="' + self.style.get() + '">'
+            else:
+                second = ">"
+            # return "<" + self.type + " " + self.get_attributes() + ' style="' + self.style.get() + '">'
+            return first + second
 
         # Gets the closing tag of an object as a string
         # returns: string
@@ -357,12 +364,18 @@ class qhtml:
             self.add_attribute('name="' + _str + '"')
             return self
 
+        def set_value(self, _str):
+            self.add_attribute('value="' + _str + '"')
+            return self
+
         def set_tool_tip(self, _str):
             self.add_attribute('title="' + _str + '"')
             return self
 
         # action="upload.php" method="post" enctype="multipart/form-data"
-        def set_form_options(self, action, method, enctype="multipart/form-data"):
+        def set_form_options(self, action_php_call, method_get_or_post, enctype="multipart/form-data"):
+            method = method_get_or_post
+            action = action_php_call
             if self.type != "form":
                 print('set_form_options error -> ' + self.type + ' is not a form element')
                 return self
@@ -373,6 +386,18 @@ class qhtml:
             else:
                 print('set_form_options error -> ' + self.type + ' is missing either action or method argument')
                 return self
+            return self
+
+        def set_form_button(self):
+            self.add_attribute('value="submit"')
+            return self
+
+        def set_iframe(self, src_url, title="iframe"):
+            if self.type != "iframe":
+                print("Cannot set iframe data on type " + self.type)
+                return self
+
+            self.add_attribute('src="' + src_url + '" title="' + title + '"')
             return self
 
         def html(self):
