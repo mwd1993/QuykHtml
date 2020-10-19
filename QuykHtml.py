@@ -444,6 +444,14 @@ class qhtml:
             self.add_attribute('src="' + src_url + '" title="' + title + '"')
             return self
 
+        def set_auto_complete(self, _boolean : bool):
+            if not _boolean:
+                self.add_attribute('autocomplete="off"')
+            else:
+                self.add_attribute('autocomplete="on"')
+
+            return self
+
         def html(self):
             return self.innerHTML
 
