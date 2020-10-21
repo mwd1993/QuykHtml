@@ -625,6 +625,7 @@ class qhtml:
             self.__qhtml = qhtml()
             self.time_start = int(round(time.time() * 1000))
             self.td_styles = []
+            self.td_classes = []
 
             if type(rows_or_file_path) != int:
                 _styling = columns_or_styling_dict
@@ -717,6 +718,18 @@ class qhtml:
 
             return self
 
+        def set_td_class_at(self, row, col, _class):
+            _s = self
+            _s.td_classes.append({
+                "class": _class,
+                "row": row,
+                "column": col
+            })
+            for _c in _s.td_classes:
+                print(str(_c))
+
+            return self
+
         def style_td_at(self, row, col, style):
             _s = self
             # print("\nSTYLING AT " + str(row) + " - " + str(col) + '\n')
@@ -757,8 +770,23 @@ class qhtml:
                     _td_styling_set = ""
                     for _style in _td_styling:
                         if row_index == _style["row"] and column_index == _style["column"]:
-                            _td_styling_set = '<td style="' + _style['style'] + '">'
+                            _class_val = ""
+                            for _c in self.td_classes:
+                                if row_index == _c["row"] and column_index == _c["column"]:
+                                    _class_val = _c['class']
+                                    break
+                            if _class_val:
+                                _td_styling_set = '<td style="' + _style['style'] + '" class="' + _class_val + '">'
+                            else:
+                                _td_styling_set = '<td style="' + _style['style'] + '">'
                             break
+
+                    if len(_td_styling) <= 0:
+                        for _c in self.td_classes:
+                            if row_index == _c["row"] and column_index == _c["column"]:
+                                _class_val = _c['class']
+                                _td_styling_set = '<td class="' + _class_val + '">'
+                                break
 
                     if _td_styling_set != "":
                         html_mid_build = html_mid_build + _td_styling_set
