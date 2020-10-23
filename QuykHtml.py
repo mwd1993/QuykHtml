@@ -18,6 +18,7 @@ class qhtml:
         self.display = self.new("div", self)
         self.bootstrap = self.bootstrap()
         self.preview = self.new("div")
+        self.head = []
 
         # ** PREVIEW HELPER **
         # -------------------------------------------------------------
@@ -98,9 +99,12 @@ class qhtml:
     # Attempts to render the constructed webpage
     # returns: HTML
 
-    def render(self, only_html=False):
+    def render(self, output_file="render.html", only_html=False):
+        if "." not in output_file:
+            output_file = output_file + ".html"
         _css = ""
         _scripts = ""
+        _head_append = ""
         _path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
 
         for _obj_element in self.all:
@@ -118,13 +122,16 @@ class qhtml:
         for _sc in self.scripts:
             _scripts = _scripts + "" + _sc + "\n"
 
+        for h in self.head:
+            _head_append += h + "\n"
+
         print("inserting " + str(self.preview))
         self.display.insert(self.preview)
 
-        html_string = "<head>" + _bootstrap + "<style>" + _css + '</style><script type="text/javascript">' + _scripts + '</script></head>' + str(
+        html_string = "<head>" + _bootstrap + "<style>" + _css + '</style><script type="text/javascript">' + _scripts + '</script>' + _head_append + '</head>' + str(
             self.all[0].innerHTML)
 
-        f = open(os.getcwd() + "/render.html", "w")
+        f = open(os.getcwd() + "/" + output_file, "w")
         f.write(html_string)
         f.close()
 
@@ -132,7 +139,7 @@ class qhtml:
 
         sleep(0.2)
         if not only_html:
-            webbrowser.get(_path).open(str(os.getcwd()) + "/render.html")
+            webbrowser.get(_path).open(str(os.getcwd()) + "/" + output_file)
 
         return html_string
 
@@ -264,14 +271,14 @@ class qhtml:
         # Render - attempts to render the full webpage from the object
         # returns: void
 
-        def render(self, only_html=False):
+        def render(self, output_file="render.html", only_html=False):
             if self.parent == "":
                 return False
             else:
                 if only_html:
-                    self.parent.render(only_html)
+                    self.parent.render(output_file,only_html=True)
                 else:
-                    self.parent.render()
+                    self.parent.render(output_file)
 
         # Insert a table into an element as pure html
         # returns: itself/html object
@@ -444,7 +451,7 @@ class qhtml:
             self.add_attribute('src="' + src_url + '" title="' + title + '"')
             return self
 
-        def set_auto_complete(self, _boolean : bool):
+        def set_auto_complete(self, _boolean: bool):
             if not _boolean:
                 self.add_attribute('autocomplete="off"')
             else:
@@ -544,7 +551,7 @@ class qhtml:
 
         # previous build -> _build(self, _type, _str_path, _js_func_name_and_callback_func: list, _async="true"):
 
-        def ajax_build(self, _type, _str_path, js_callback_func="", _async="true"):
+        def ajax_build(self, _type, _str_path, js_callback_func="", _async="true", randomize_call_for_fresh_data=False):
             # if isinstance(_js_func_name_and_callback_func, list):
             _ran = []
             for i in range(5):
@@ -569,13 +576,16 @@ class qhtml:
 
             _r = 'function ' + _func_name + '{var r = new XMLHttpRequest();'
             _r = _r + 'r.onreadystatechange = function () {'
-            _r = _r + 'if (r.readyState != 4 || r.status != 200) {'
+            _r = _r + 'if (r.readyState == 4 && r.status == 200) {'
             _r = _r + '    ' + _callback_name + ";"
             _r = _r + '} else {'
-            _r = _r + '    ' + _callback_name + ";"
+            _r = _r + '     var a = "";'
             _r = _r + '  }'
             _r = _r + '};'
-            _r = _r + 'r.open("' + _type + '", "' + _str_path + '", ' + _async + ');'
+            if randomize_call_for_fresh_data:
+                _r = _r + 'r.open("' + _type + '", "' + _str_path + "?ran=" + str(_ran) + '", ' + _async + ');'
+            else:
+                _r = _r + 'r.open("' + _type + '", "' + _str_path + '", ' + _async + ');'
             _r = _r + 'r.send();}'
 
             self.ajax_code = _r
@@ -626,6 +636,7 @@ class qhtml:
             self.time_start = int(round(time.time() * 1000))
             self.td_styles = []
             self.td_classes = []
+            self.td_ids = []
 
             if type(rows_or_file_path) != int:
                 _styling = columns_or_styling_dict
@@ -718,6 +729,18 @@ class qhtml:
 
             return self
 
+        def set_td_id_at(self, row, col, _id):
+            _s = self
+            _s.td_ids.append({
+                "id": _id,
+                "row": row,
+                "column": col
+            })
+            for _c in _s.td_ids:
+                print(str(_c))
+
+            return self
+
         def set_td_class_at(self, row, col, _class):
             _s = self
             _s.td_classes.append({
@@ -771,27 +794,42 @@ class qhtml:
                     for _style in _td_styling:
                         if row_index == _style["row"] and column_index == _style["column"]:
                             _class_val = ""
+                            _id_val = ""
                             for _c in self.td_classes:
                                 if row_index == _c["row"] and column_index == _c["column"]:
                                     _class_val = _c['class']
                                     break
-                            if _class_val:
-                                _td_styling_set = '<td style="' + _style['style'] + '" class="' + _class_val + '">'
+
+                            for _ids in self.td_ids:
+                                if row_index == _ids["row"] and column_index == _ids["column"]:
+                                    _id_val = _ids['id']
+                                    break
+
+                            if _id_val:
+                                _td_id_set = 'id="' + _id_val + '" '
                             else:
-                                _td_styling_set = '<td style="' + _style['style'] + '">'
+                                _td_id_set = ' '
+
+                            if _class_val:
+                                _td_styling_set = '<td ' + _td_id_set + 'style="' + _style['style'] + '" class="' + _class_val + '">'
+                            else:
+                                _td_styling_set = '<td ' + _td_id_set + 'style="' + _style['style'] + '">'
                             break
 
                     if len(_td_styling) <= 0:
+
                         for _c in self.td_classes:
                             if row_index == _c["row"] and column_index == _c["column"]:
                                 _class_val = _c['class']
-                                _td_styling_set = '<td class="' + _class_val + '">'
+                                _td_styling_set = '<td class="' + _class_val + '"</td>'
                                 break
 
                     if _td_styling_set != "":
                         html_mid_build = html_mid_build + _td_styling_set
                     else:
                         html_mid_build = html_mid_build + "<td>"
+
+                    _td_id_set = ""
 
                     for o in self.objects:
                         if o.table_inserted_at[0] == str(row_index) and o.table_inserted_at[1] == str(column_index):
