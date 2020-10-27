@@ -3,6 +3,7 @@ import os
 import time
 import random
 from time import sleep
+import copy
 
 
 class qhtml:
@@ -96,6 +97,14 @@ class qhtml:
         self.all.append(_obj)
         return _obj
 
+    def dupe(self,qhtml_obj):
+        if isinstance(qhtml_obj,self.new_obj):
+            new = copy.copy(qhtml_obj)
+            self.all.append(new)
+            return new
+        else:
+            print('New obj instance is not valid or was not provided.')
+            return False
     # Attempts to render the constructed webpage
     # returns: HTML
 
@@ -597,6 +606,8 @@ class qhtml:
             # print("ajax code - > " + _r)
 
             # return _func_name + ";"
+
+
 
         # CLASS style object
 
