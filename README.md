@@ -213,4 +213,43 @@ q.display.insert(form).render()
 
 ```
 
+# Example: Miscellaneous
 
+```python
+
+from QuykHtml import qhtml
+
+# Instantiate class
+q = qhtml()
+
+# Append to the head tag
+q.head.append('<script type="text/javascript" src="path/to/js_code.js"></script>')
+q.head.append('<link rel="stylesheet" href="path/to/css.css">')
+
+# Built in color helpers
+q.css.colors.LIGHT_GRAY
+q.css.colors.DARK_GRAY
+q.css.colors.LIGHT_GREEN
+q.css.colors.DARK_GREEN
+# and more..
+
+# Loop through every created object of a qhtml instance
+for element in q.all:
+	print('Element type - > ' + element.type)
+	element.set_set("Overwrite")
+	
+# Duplicating element objects
+p_main = q.new("p").style.set("font-size:32px")
+
+p1 = q.dupe(p_main).set_text('p tag number 1').style.append('color:red;')
+p2 = q.dupe(p_main).set_text('p tag number 2').style.append('color:green')
+
+# Exporting css styles added to 'q.css'
+q.css.add('p','font-size:32px;')
+q.css.add('div','text-align:center;')
+
+q.css.export('path/to/export.css')
+
+
+
+```
