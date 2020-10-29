@@ -114,14 +114,14 @@ q.scripts.append(
 )
 
 # Append a script to a qhtml object
-p = q.new("p").set_text("Text element").add_script(
+p = q.new("p").set_text("Text element").scripts_add(
 	'function js_function() {'
 	'	alert("A JS Function");'
 	'}'
 )
 
 # Append code to be executed on page load to a qhtml object
-p = q.new("p").set_text("Text element").add_script('alert("Js code ran on page load");', on_page_load=True)
+p = q.new("p").set_text("Text element").scripts_add('alert("Js code ran on page load");', on_page_load=True)
 
 q.display.insert(p).render()
 
