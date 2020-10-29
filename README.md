@@ -1,5 +1,5 @@
 # QuykHtml
-A python library that allows you to quickly and easily generate templates and even create full-on websites.<br><br>
+A python library that allows you to quickly and easily generate HTML templates and even create full-on websites.<br><br>
 Key Features:<br>
 	- [Chaining together commands](#example-miscellaneous)<br>
 	- [Write Javascript/jquery in your IDE or include from a file](#example-javascript-code)<br>
