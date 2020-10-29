@@ -4,6 +4,7 @@ import time
 import random
 from time import sleep
 import copy
+import pyperclip
 
 
 class qhtml:
@@ -16,6 +17,7 @@ class qhtml:
         self.all = []
         self.css = self.ss()
         self.scripts = []
+        self.scripts_on_page_load = []
         self.display = self.new("div", self)
         self.bootstrap = self.bootstrap()
         self.preview = self.new("div")
@@ -85,35 +87,63 @@ class qhtml:
 
     def new(self, _type, _p=0):
 
+        _split = _type.split(" ")
         _obj = ""
+        if len(_split) > 1:
+            _first = _split[0]
+            _second = _split[1]
 
-        if _p != 0:
-            # create special
-            _obj = self.new_obj(_type, _p)
+            if "button" in _first or "input" in _first:
+                if _second == "br":
+                    _container = self.new_obj("div")
+                    _br = self.new_obj("br")
+                    if _p != 0:
+                        _obj = self.new_obj(_first,_p)
+                        _container.insert([_obj,_br])
+                    else:
+                        _obj = self.new_obj(_first)
+                        _container.insert([_obj, _br])
+
+                    _obj.parent = self
+                    self.all.append(_container)
+                    self.all.append(_br)
+                    self.all.append(_obj)
+                    return _container
+                else:
+                    return False
+            else:
+                return False
         else:
-            _obj = self.new_obj(_type)
+            if _p != 0:
+                # create special
+                _obj = self.new_obj(_type, _p)
+            else:
+                _obj = self.new_obj(_type)
 
-        _obj.parent = self
-        self.all.append(_obj)
-        return _obj
+            _obj.parent = self
+            self.all.append(_obj)
+            return _obj
 
-    def dupe(self,qhtml_obj):
-        if isinstance(qhtml_obj,self.new_obj):
+    def dupe(self, qhtml_obj):
+        if isinstance(qhtml_obj, self.new_obj):
             new = copy.copy(qhtml_obj)
             self.all.append(new)
             return new
         else:
             print('New obj instance is not valid or was not provided.')
             return False
+
     # Attempts to render the constructed webpage
     # returns: HTML
 
-    def render(self, output_file="render.html", only_html=False):
+    def render(self, output_file="render.html", only_html=False, set_clip_board=False):
         if "." not in output_file:
             output_file = output_file + ".html"
         _css = ""
         _scripts = ""
+        _scripts_on_page_load = ""
         _head_append = ""
+        _bootstrap = ""
         _path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
 
         for _obj_element in self.all:
@@ -121,6 +151,17 @@ class qhtml:
             if _obj_element.ajax_code != "":
                 # print("render ajax code detected")
                 self.scripts.append(_obj_element.ajax_code)
+
+            if len(_obj_element.scripts_on_page_load) > 0:
+                for __scr in _obj_element.scripts_on_page_load:
+                    _scripts_on_page_load += __scr
+
+            if len(_obj_element.scripts) > 0:
+                _build = ""
+                for _scr in _obj_element.scripts:
+                    _build += _scr
+
+                self.scripts.append(_build)
 
         if self.bootstrap.using():
             _bootstrap = self.bootstrap.get()
@@ -136,8 +177,8 @@ class qhtml:
 
         print("inserting " + str(self.preview))
         self.display.insert(self.preview)
-
-        html_string = "<head>" + _bootstrap + "<style>" + _css + '</style><script type="text/javascript">' + _scripts + '</script>' + _head_append + '</head>' + str(
+        _scripts_on_page_load = ' window.addEventListener("load", on_page_load_init); function on_page_load_init() {' + _scripts_on_page_load + '}'
+        html_string = "<head>" + _bootstrap + "<style>" + _css + '</style><script type="text/javascript">' + _scripts + '' + _scripts_on_page_load + '</script>' + _head_append + '</head>' + str(
             self.all[0].innerHTML)
 
         f = open(os.getcwd() + "/" + output_file, "w")
@@ -149,6 +190,9 @@ class qhtml:
         sleep(0.2)
         if not only_html:
             webbrowser.get(_path).open(str(os.getcwd()) + "/" + output_file)
+
+        if set_clip_board:
+            pyperclip.copy(html_string)
 
         return html_string
 
@@ -266,6 +310,8 @@ class qhtml:
                 self.parent = _parent
             else:
                 self.parent = ""
+            self.scripts = []
+            self.scripts_on_page_load = []
             self.id = -1
             self.attributes = []
             self.attr_check = []
@@ -280,14 +326,24 @@ class qhtml:
         # Render - attempts to render the full webpage from the object
         # returns: void
 
-        def render(self, output_file="render.html", only_html=False):
+        def render(self, output_file="render.html", only_html=False, set_clip_board=False):
             if self.parent == "":
                 return False
             else:
-                if only_html:
-                    self.parent.render(output_file,only_html=True)
+                if set_clip_board:
+                    self.parent.render(output_file, only_html, set_clip_board)
                 else:
-                    self.parent.render(output_file)
+                    if only_html:
+                        self.parent.render(output_file, only_html=True)
+                    else:
+                        self.parent.render(output_file)
+
+        def scripts_add(self, js_code, on_page_load=False):
+            if on_page_load:
+                self.scripts_on_page_load.append(js_code)
+            else:
+                self.scripts.append(js_code)
+            return self
 
         # Insert a table into an element as pure html
         # returns: itself/html object
@@ -432,6 +488,10 @@ class qhtml:
             self.add_attribute('title="' + _str + '"')
             return self
 
+        def set_clip_board(self):
+            pyperclip.copy(self.html())
+            return self
+
         # action="upload.php" method="post" enctype="multipart/form-data"
         def set_form_options(self, action_php_call, method_get_or_post, enctype="multipart/form-data"):
             method = method_get_or_post
@@ -469,7 +529,7 @@ class qhtml:
             return self
 
         def html(self):
-            return self.innerHTML
+            return self.get_tag_open() + self.innerText + self.innerHTML + self.get_tag_close()
 
         # Get parent class
         # returns: parent/obj
@@ -606,8 +666,6 @@ class qhtml:
             # print("ajax code - > " + _r)
 
             # return _func_name + ";"
-
-
 
         # CLASS style object
 
