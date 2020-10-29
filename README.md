@@ -257,11 +257,11 @@ q.head.append('<script type="text/javascript" src="path/to/js_code.js"></script>
 q.head.append('<link rel="stylesheet" href="path/to/css.css">')
 
 # Built in color helpers
-q.css.colors.LIGHT_GRAY
-q.css.colors.DARK_GRAY
-q.css.colors.LIGHT_GREEN
-q.css.colors.DARK_GREEN
-# and more..
+c = q.css.colors
+colors = [c.LIGHT_GRAY, c.DARK_GRAY,c.LIGHT_GREEN,c.DARK_GREEN] # and more..
+
+for color in colors:
+	print(color) # - >#hex_value
 
 # Loop through every created object of a qhtml instance
 for element in q.all:
