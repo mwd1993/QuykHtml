@@ -77,7 +77,6 @@ table_raw.insert_at(0,0,q.new("p").set_text("Row 1 column 1"))
 table_raw.insert_at(0,1,q.new("p").set_text("Row 1 column 2"))
 
 # Also valid syntax
-
 table_raw = q.table(1,2).insert_at(0,0,q.new("p").set_text("Row 1 column 1")).insert_at(0,1,q.new("p").set_text("Row 1 column 2"))
 
 # Td manipulation examples
