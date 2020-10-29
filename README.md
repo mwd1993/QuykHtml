@@ -108,6 +108,13 @@ q = qhtml()
 q.bootStrap.use(True)
 
 # Append a script, can even be read from a file
+q.scripts.append(
+	'function js_function() {'
+	'	alert("A JS Function");'
+	'}'
+)
+
+# Append a script to a qhtml object
 p = q.new("p").set_text("Text element").add_script(
 	'function js_function() {'
 	'	alert("A JS Function");'
