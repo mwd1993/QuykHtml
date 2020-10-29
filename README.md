@@ -183,6 +183,9 @@ q.bootStrap.use(True)
 # Always specify r in the callback function as that is the response text
 p = q.new("p").ajax_build('get','file.php?args=1&args2=2","_some_call_back_func(r)')
 
+# Quickly define the function if need be
+p.scripts_add('function _some_call_back_func(r){alert("Response text " + r.responseText);}')
+
 # Append JS Code for when the page loads, call the ajax function using
 # element.ajax_get("pointer") <- the 'ajax method built by ajax_build'
 p.scripts_add(p.ajax_get("pointer"),on_page_load=True)
