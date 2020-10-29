@@ -195,7 +195,7 @@ q.bootStrap.use(True)
 form = q.new("form")
 
 # Create the input element and set the name to form_name
-input = q.new("input").set_name('form_name')
+input = q.new("input").set_name('form_name').set_form_options('file.php','post')
 
 # Create the button and use method .set_form_button() to 
 # make it send the form when it is clicked
