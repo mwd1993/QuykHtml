@@ -235,6 +235,15 @@ q = qhtml()
 # Chaining commands
 q.new("p").set_text('some text').set_class('text-class').set_id('text-id').on_click("alert('clicked me');").style.set("cursor:pointer;")
 
+# Render arguments examples
+
+# output_file str_path, only_html boolean, set_clip_board boolean
+
+q.display.insert(q.new("p.").set_text("Render Arguments")).render(output_file="file/path/file.html")
+q.display.insert(q.new("p.").set_text("Render Arguments")).render(only_html=True)
+q.display.insert(q.new("p.").set_text("Render Arguments")).render(output_file="file/path/file.html",set_clip_board=True)
+q.display.insert(q.new("p.").set_text("Render Arguments")).render(only_html=True,set_clip_board=True)
+
 # ------------------------------
 # Bootstrap - Support
 # ------------------------------
@@ -259,9 +268,8 @@ q.head.append('<link rel="stylesheet" href="path/to/css.css">')
 # Built in color helpers
 c = q.css.colors
 colors = [c.LIGHT_GRAY, c.DARK_GRAY,c.LIGHT_GREEN,c.DARK_GREEN] # and more..
-
 for color in colors:
-	print(color) # - >#hex_value
+	print(color) # - > #hex_value
 
 # Loop through every created object of a qhtml instance
 for element in q.all:
