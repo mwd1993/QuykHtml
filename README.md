@@ -236,9 +236,7 @@ q = qhtml()
 q.new("p").set_text('some text').set_class('text-class').set_id('text-id').on_click("alert('clicked me');").style.set("cursor:pointer;")
 
 # Render arguments examples
-
 # output_file str_path, only_html boolean, set_clip_board boolean
-
 q.display.insert(q.new("p.").set_text("Render Arguments")).render(output_file="file/path/file.html")
 q.display.insert(q.new("p.").set_text("Render Arguments")).render(only_html=True)
 q.display.insert(q.new("p.").set_text("Render Arguments")).render(output_file="file/path/file.html",set_clip_board=True)
