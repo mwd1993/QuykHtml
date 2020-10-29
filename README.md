@@ -4,7 +4,7 @@ See QuykHtml Docs for a bit more example usage on things like Tables and Ajax re
 
 # [QuykHtml Docs](https://mwd1993.github.io/QuykHtml/)
 
-# General Example
+# Example: Basic Declaration
 
 ```python
 
@@ -22,7 +22,7 @@ p = q.new("p")
 #  Create an input
 input = q.new("input")
 
-# Render the results
+# Render the results by inserting all objects to display
 q.display.insert([div, p, input]).render()
 
 ```
