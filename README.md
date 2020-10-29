@@ -73,6 +73,8 @@ table = q.new("div").style.set("width:80%;margin:auto;")
 
 # Create raw table of 1 row and 2 columns
 table_raw = q.table(1,2)
+
+# Insert method using 0 based index -> insert_at(row,column,qhtml_object)
 table_raw.insert_at(0,0,q.new("p").set_text("Row 1 column 1"))
 table_raw.insert_at(0,1,q.new("p").set_text("Row 1 column 2"))
 
