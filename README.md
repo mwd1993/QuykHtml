@@ -169,7 +169,8 @@ form = q.new("form")
 # Create the input element and set the name to form_name
 input = q.new("input").set_name('form_name')
 
-# Create the button and use method .set_form_button() to make it send the form
+# Create the button and use method .set_form_button() to 
+# make it send the form when it is clicked
 button = q.new("button").set_text("submit").set_form_button()
 
 # Insert the form elements into the form
