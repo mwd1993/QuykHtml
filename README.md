@@ -5,7 +5,7 @@ See QuykHtml Docs for a bit more example usage on things like Tables and Ajax re
 # [QuykHtml Docs](https://mwd1993.github.io/QuykHtml/)
 
 # Simple Usage
-###### Creating Elements
+###### General Example
 
 ```python
 
@@ -28,7 +28,7 @@ q.display.insert([div, p, input]).render()
 
 ```
 
-###### Styling Elements
+###### Example: Styling Elements
 
 ```python
 
@@ -56,9 +56,8 @@ q.display.insert([div, div2]).render()
 
 ```
 
-# Example: Create a paragraph, manipulate it then render the result
-Create a Paragraph element, manipulate it in several ways, append it to the display and render the webpage<br>
-Note: The render function will attempt to open the resultant webpage. The function also returns the Raw HTML of the website generated.
+# Example: Tables
+
 ```python
 
 from QuykHtml import qhtml
@@ -69,29 +68,107 @@ q = qhtml()
 # Easily 'import' bootStrap utilities
 q.bootStrap.use(True)
 
-# Write direct css - we want to text align all divs for this example
-# our final display object we append everything to is a div
-q.css.add("div","text-align:center;")
+# Create the container for the table to be built into
+table = q.new("div").style.set("width:80%;margin:auto;")
 
-# Inline quick way to define a p element and set several different types of values
-# order doesn't matter as each method call returns the object itself
-p_element = q.new("p").set_text("chain together commands :D").style.set("font-size:24px;").onClick('alert("You clicked me :D");')
+# Create raw table of 1 row and 2 columns
+table_raw = q.table(1,2)
+table_raw.insert_at(0,0,q.new("p").set_text("Row 1 column 1"))
+table_raw.insert_at(0,1,q.new("p").set_text("Row 1 column 2"))
 
-# Doing the same as above, in a more readable way
-p_element = q.new("p")
-p_element.set_text("Or don't chain them together")
-p_element.style.set("font-size:24px;")
-p_element.onClick('alert("You clicked me :D");')
+# Also valid syntax
 
-# Insert into our display (the main container you should 
-# insert everything into) and render using a one liner
-q.display.insert(p_element).render()
+table_raw = q.table(1,2).insert_at(0,0,q.new("p").set_text("Row 1 column 1")).insert_at(0,1,q.new("p").set_text("Row 1 column 2"))
 
-# Or do the same as above, in a more readable way
-q.display.insert(p_element)
-q.render()
+# Td manipulation examples
+for i in range(2): 
+	table_raw.style_td_at(0,i,'text-align:center')
+	table_raw.set_td_class_at(0,i,'some-class')
+	table_raw.set_td_id_at(0,i,'some-id' + str(i))
 
-# The render method can be used on the qhtml object, qhtml.display object or
-# on any element created by .new(type), it will render the whole page regardless
+# Build raw table into table container
+table_raw.build_into(table)
+
+# Render the results
+q.display.insert(table).render()
+	
+```
+
+# Example: JavaScript Code
+
+```python
+
+from QuykHtml import qhtml
+
+# Instantiate class
+q = qhtml()
+
+# Easily 'import' bootStrap utilities
+q.bootStrap.use(True)
+
+# Append a script, can even be read from a file
+p = q.new("p").set_text("Text element").add_script(
+	'function js_function() {'
+	'	alert("A JS Function");'
+	'}'
+)
+
+# Append code to be executed on page load to a qhtml object
+p = q.new("p").set_text("Text element").add_script('alert("Js code ran on page load");', on_page_load=True)
+
+q.display.insert(p).render()
 
 ```
+
+# Example: Ajax Request
+
+```python
+
+from QuykHtml import qhtml
+
+# Instantiate class
+q = qhtml()
+
+# Easily 'import' bootStrap utilities
+q.bootStrap.use(True)
+
+# Create an ajax request on the p element
+# Always specify r in the callback function as that is the response text
+p = q.new("p").ajax_build('get','file.php?args=1&args2=2","_some_call_back_func(r)')
+
+# Append JS Code for when the page loads, call the ajax function using ajax_get("pointer") <- the 'ajax method built by ajax_build'
+p.scripts_add(p.ajax_get("pointer"),on_page_load=True)
+
+q.display.insert(p).render()
+
+```
+
+# Example: Forms
+
+```python
+
+from QuykHtml import qhtml
+
+# Instantiate class
+q = qhtml()
+
+# Easily 'import' bootStrap utilities
+q.bootStrap.use(True)
+
+# Create form element
+form = q.new("form")
+
+# Create the input element and set the name to form_name
+input = q.new("input").set_name('form_name')
+
+# Create the button and use method .set_form_button() to make it send the form
+button = q.new("button").set_text("submit").set_form_button()
+
+# Insert the form elements into the form
+form.insert([input,button])
+
+q.display.insert(form).render()
+
+```
+
+
