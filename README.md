@@ -79,7 +79,7 @@ p.set_value('custom value')
 p.set_tool_tip('simple hover text tool tip')
 p.set_form_options('file.php','get')
 p.set_form_button()
-p.set_iframe('url',title')
+p.set_iframe('url','title')
 p.set_auto_complete(False)
 
 ```
