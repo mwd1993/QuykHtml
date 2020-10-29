@@ -4,8 +4,7 @@ See QuykHtml Docs for a bit more example usage on things like Tables and Ajax re
 
 # [QuykHtml Docs](https://mwd1993.github.io/QuykHtml/)
 
-# Simple Usage
-###### General Example
+# General Example
 
 ```python
 
@@ -28,7 +27,7 @@ q.display.insert([div, p, input]).render()
 
 ```
 
-###### Example: Styling Elements
+# Example: Styling Elements
 
 ```python
 
