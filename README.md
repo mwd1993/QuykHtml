@@ -6,7 +6,7 @@ Key Features:<br>
 	- [Easy Table system](#example-tables)<br>
 	- [Easy Ajax Setup and Calls](#example-ajax-request)<br>
 	- [Easy Form Submissions](#example-forms)<br>
-	- [Bootstrap Support] (#example-miscellaneous)
+	- [Bootstrap Support](#example-miscellaneous)
 	
 
 # Example: Basic Declaration
