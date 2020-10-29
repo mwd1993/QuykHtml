@@ -6,6 +6,7 @@ Key Features:<br>
 	- [Easy Table system](#example-tables)<br>
 	- [Easy Ajax Setup and Calls](#example-ajax-request)<br>
 	- [Easy Form Submissions](#example-forms)<br>
+	- [Bootstrap Support] (#example-miscellaneous)
 	
 
 # Example: Basic Declaration
@@ -230,6 +231,20 @@ q = qhtml()
 
 # Chaining commands
 q.new("p").set_text('some text').set_class('text-class').set_id('text-id').on_click("alert('clicked me');").style.set("cursor:pointer;")
+
+# Bootstrap - Support
+q.bootstrap.use(True)
+
+div = q.new("div").set_class("row")
+div_col1 = q.new("div").set_class("col").set_text("column1")
+div_col2 = q.new("div").set_class("col").set_text("column2")
+div.insert([div_col1,div_col2])
+
+# Bootstrap - Also valid syntax
+div = q.new("div").set_class("row").insert([
+	q.new("div").set_class("col").set_text("column1"),
+	q.new("div").set_class("col").set_text("column2")
+])
 
 # Append to the head tag
 q.head.append('<script type="text/javascript" src="path/to/js_code.js"></script>')
