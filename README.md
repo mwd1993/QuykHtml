@@ -27,7 +27,7 @@ q.display.insert([div, p, input]).render()
 
 ```
 
-# Example: Styling Elements
+# Example: Element Styling
 
 ```python
 
@@ -52,6 +52,35 @@ div2 = q.new("div").style.set("font-size:48px;color:green;").set_text("QuykHtml 
 
 # Render the results
 q.display.insert([div, div2]).render()
+
+```
+
+# Examples: Element Setters
+
+```python
+
+from QuykHtml import qhtml
+
+# Instantiate class
+q = qhtml()
+
+p = q.new("p")
+p = q.add_attribute('title="Qhytml is easy!"')
+p.set_text('text')
+p.set_text_ipsum()
+p.set_text_ipsum_large()
+p.set_text_ipsum_small()
+p.set_class('class1 class2')
+p.set_form_button()
+p.set_id('my-id')
+p.set_img_src('src_url')
+p.set_name('some-name')
+p.set_value('custom value')
+p.set_tool_tip('simple hover text tool tip')
+p.set_form_options('file.php','get')
+p.set_form_button()
+p.set_iframe('url',title')
+p.set_auto_complete(False)
 
 ```
 
