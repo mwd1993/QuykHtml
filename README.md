@@ -1,11 +1,11 @@
 # QuykHtml
 A python library that allows you to quickly and easily generate templates and even create full-on websites.<br><br>
 Key Features:<br>
-	- Chaining together commands<br>
-	- Easy to use Table system<br>
-	- Simple Ajax Calls<br>
-	- Simple Form Calls<br>
-	- Write in your IDE or include JS Code from a file<br>
+	- [Chaining together commands](#example-miscellaneous)<br>
+	- [Easy to use Table system](#example-tables)<br>
+	- [Simple Ajax Calls](#example-ajax-request)<br>
+	- [Simple Form Calls](#example-forms)<br>
+	- [Write in your IDE or include JS Code from a file](#example-javascript-code)<br>
 	
 
 # Example: Basic Declaration
@@ -227,6 +227,9 @@ from QuykHtml import qhtml
 
 # Instantiate class
 q = qhtml()
+
+# Chaining commands
+q.new("p").set_text('some text').set_class('text-class').set_id('text-id').on_click("alert('clicked me');").style.set("cursor:pointer;")
 
 # Append to the head tag
 q.head.append('<script type="text/javascript" src="path/to/js_code.js"></script>')
