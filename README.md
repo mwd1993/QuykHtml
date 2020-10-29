@@ -65,6 +65,7 @@ from QuykHtml import qhtml
 q = qhtml()
 
 p = q.new("p")
+
 p = q.add_attribute('title="Qhytml is easy!"')
 p.set_text('text')
 p.set_text_ipsum()
@@ -73,14 +74,15 @@ p.set_text_ipsum_small()
 p.set_class('class1 class2')
 p.set_form_button()
 p.set_id('my-id')
-p.set_img_src('src_url') # q.new("img").st_img_src('src_url')
 p.set_name('some-name')
 p.set_value('custom value')
 p.set_tool_tip('simple hover text tool tip')
-p.set_form_options('file.php','get') # q.new("form").set_form_options('file.php','get')
-p.set_form_button() # q.new("button").set_form_button()
-p.set_iframe('url','title') # q.new("iframe").set_iframe('google.com')
-p.set_auto_complete(False) # q.new("input").set_auto_complete(False)
+
+q.new("img").set_img_src('src_url')
+q.new("form").set_form_options('file.php','get')
+q.new("button").set_form_button()
+q.new("iframe").set_iframe('google.com')
+q.new("input").set_auto_complete(False)
 
 ```
 
