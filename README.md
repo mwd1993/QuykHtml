@@ -236,13 +236,13 @@ q.css.colors.DARK_GREEN
 # Loop through every created object of a qhtml instance
 for element in q.all:
 	print('Element type - > ' + element.type)
-	element.set_set("Overwrite")
+	element.set_text("Overwrite")
 	
 # Duplicating element objects
-p_main = q.new("p").style.set("font-size:32px")
+p_main = q.new("p").style.set("font-size:32px;")
 
 p1 = q.dupe(p_main).set_text('p tag number 1').style.append('color:red;')
-p2 = q.dupe(p_main).set_text('p tag number 2').style.append('color:green')
+p2 = q.dupe(p_main).set_text('p tag number 2').style.append('color:green;')
 
 # Exporting css styles added to 'q.css'
 q.css.add('p','font-size:32px;')
