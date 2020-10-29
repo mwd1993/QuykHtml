@@ -66,7 +66,8 @@ q = qhtml()
 
 p = q.new("p")
 
-p = q.add_attribute('title="Qhytml is easy!"')
+# Global Element Setters
+p.add_attribute('title="Qhytml is easy!"')
 p.set_text('text')
 p.set_text_ipsum()
 p.set_text_ipsum_large()
@@ -78,6 +79,7 @@ p.set_name('some-name')
 p.set_value('custom value')
 p.set_tool_tip('simple hover text tool tip')
 
+# Specific Element setters
 q.new("img").set_img_src('src_url')
 q.new("form").set_form_options('file.php','get')
 q.new("button").set_form_button()
