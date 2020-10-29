@@ -2,9 +2,9 @@
 A python library that allows you to quickly and easily generate templates and even create full-on websites.<br><br>
 Key Features:<br>
 	- [Chaining together commands](#example-miscellaneous)<br>
-	- [Easy to use Table system](#example-tables)<br>
-	- [Simple Ajax Calls](#example-ajax-request)<br>
-	- [Simple Form Calls](#example-forms)<br>
+	- [Easy Table system](#example-tables)<br>
+	- [Easy Ajax Setup and Calls](#example-ajax-request)<br>
+	- [Easy Form Submissions](#example-forms)<br>
 	- [Write in your IDE or include JS Code from a file](#example-javascript-code)<br>
 	
 
