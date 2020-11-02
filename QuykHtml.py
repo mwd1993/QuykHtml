@@ -4,7 +4,8 @@ import time
 import random
 from time import sleep
 import copy
-import pyperclip
+import platform
+import subprocess
 
 
 class qhtml:
@@ -98,8 +99,8 @@ class qhtml:
                     _container = self.new_obj("div")
                     _br = self.new_obj("br")
                     if _p != 0:
-                        _obj = self.new_obj(_first,_p)
-                        _container.insert([_obj,_br])
+                        _obj = self.new_obj(_first, _p)
+                        _container.insert([_obj, _br])
                     else:
                         _obj = self.new_obj(_first)
                         _container.insert([_obj, _br])
@@ -192,9 +193,19 @@ class qhtml:
             webbrowser.get(_path).open(str(os.getcwd()) + "/" + output_file)
 
         if set_clip_board:
-            pyperclip.copy(html_string)
+            self.clip_put(html_string)
 
         return html_string
+
+    def clip_put(self, _str):
+        s = self
+        # Check which operating system is running to get the correct copying keyword.
+        if platform.system() == 'Darwin':
+            copy_keyword = 'pbcopy'
+        elif platform.system() == 'Windows':
+            copy_keyword = 'clip'
+
+        subprocess.run(copy_keyword, universal_newlines=True, input=_str)
 
     # CLASS Style sheet attached to the html object
 
@@ -489,7 +500,9 @@ class qhtml:
             return self
 
         def set_clip_board(self):
-            pyperclip.copy(self.html())
+
+            # self.clip_put(self.html())
+            # pyperclip.copy(self.html())
             return self
 
         # action="upload.php" method="post" enctype="multipart/form-data"
