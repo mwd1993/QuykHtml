@@ -9,6 +9,22 @@ Key Features:<br>
 	- [Bootstrap Support](#example-miscellaneous)
 	
 
+# Example: Hello World in 4 lines
+
+```python
+# Import the class from the library
+from QuykHtml import qhtml
+
+# Instantiate class
+q = qhtml()
+
+# Insert a modified p element into our main display
+q.display.insert(q.new('p').set_text('Hello World').set_id('text-id').style.set('font-size:24px;'))
+
+# Render the page
+q.display.render()
+```	
+
 # Example: Basic Declaration
 
 ```python
@@ -113,7 +129,7 @@ table = q.new("div").style.set("width:80%;margin:auto;")
 # Create raw table of 1 row and 2 columns
 table_raw = q.table(1,2)
 
-# Insert method using 0 based index -> insert_at(row,column,qhtml_object)
+# Insert method using 0 based index -> insert_at(row,column,qhtml_object or list of qhtml_objects)
 table_raw.insert_at(0,0,q.new("p").set_text("Row 1 column 1"))
 table_raw.insert_at(0,1,q.new("p").set_text("Row 1 column 2"))
 
