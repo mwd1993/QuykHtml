@@ -257,6 +257,7 @@ q.display.insert(q.new("p.").set_text("Render Arguments")).render(output_file="f
 q.display.insert(q.new("p.").set_text("Render Arguments")).render(only_html=True)
 q.display.insert(q.new("p.").set_text("Render Arguments")).render(output_file="file/path/file.html",set_clip_board=True)
 q.display.insert(q.new("p.").set_text("Render Arguments")).render(only_html=True,set_clip_board=True)
+q.display.insert(q.new("p.").set_text("Render Arguments")).render()
 
 # ------------------------------
 # Bootstrap - Support
