@@ -16,14 +16,146 @@ class qhtml:
         # Variables
         # -------------------------------------
         self.all = []
-        self.css = self.ss()
+        self.css = self._css()
         self.scripts = []
         self.scripts_on_page_load = []
         self.display = self.new("div", self)
         self.bootstrap = self.bootstrap()
         self.preview = self.new("div")
+        self.last = None
         self.head = []
 
+    # Returns a new object of an html element
+    # returns: Object
+
+    def new(self, _type, _p=0):
+
+        _split = _type.split(" ")
+        _obj = ""
+        if len(_split) > 1:
+            _first = _split[0]
+            _second = _split[1]
+
+            if "button" in _first or "input" in _first:
+                if _second == "br":
+                    _container = self.new_obj("div")
+                    _br = self.new_obj("br")
+                    if _p != 0:
+                        _obj = self.new_obj(_first, _p)
+                        _container.insert([_obj, _br])
+                    else:
+                        _obj = self.new_obj(_first)
+                        _container.insert([_obj, _br])
+
+                    _obj.parent = self
+                    self.last = _obj
+                    self.all.append(_container)
+                    self.all.append(_br)
+                    self.all.append(_obj)
+                    return _container
+                else:
+                    return False
+            else:
+                return False
+        else:
+            if _p != 0:
+                # create special
+                _obj = self.new_obj(_type, _p)
+            else:
+                _obj = self.new_obj(_type)
+
+            _obj.parent = self
+            self.all.append(_obj)
+            self.last = _obj
+            return _obj
+
+    def dupe(self, qhtml_obj):
+        if isinstance(qhtml_obj, self.new_obj):
+            new = copy.copy(qhtml_obj)
+            self.all.append(new)
+            return new
+        else:
+            print('New obj instance is not valid or was not provided.')
+            return False
+
+    # Attempts to render the constructed webpage
+    # returns: HTML
+
+    def render(self, output_file="render.html", only_html=False, set_clip_board=False):
+        if "." not in output_file:
+            output_file = output_file + ".html"
+        _css = ""
+        _scripts = ""
+        _scripts_on_page_load = ""
+        _head_append = ""
+        _bootstrap = ""
+        _path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
+        _preview_scripts_loaded = False
+        for _obj_element in self.all:
+            # print("ajax code for " + str(_obj_element.type))
+            if _obj_element.has_preview() and _preview_scripts_loaded is False:
+                self.__get_preview_scripts()
+                _preview_scripts_loaded = True
+
+            if _obj_element.ajax_code != "":
+                # print("render ajax code detected")
+                self.scripts.append(_obj_element.ajax_code)
+
+            if len(_obj_element.scripts_on_page_load) > 0:
+                for __scr in _obj_element.scripts_on_page_load:
+                    _scripts_on_page_load += __scr
+
+            if len(_obj_element.scripts) > 0:
+                _build = ""
+                for _scr in _obj_element.scripts:
+                    _build += _scr
+
+                self.scripts.append(_build)
+
+        if self.bootstrap.using():
+            _bootstrap = self.bootstrap.get()
+
+        for _s in self.css.styles:
+            _css = _css + "" + _s
+
+        for _sc in self.scripts:
+            _scripts = _scripts + "" + _sc + "\n"
+
+        for h in self.head:
+            _head_append += h + "\n"
+
+        print("inserting " + str(self.preview))
+        self.display.insert(self.preview)
+        _scripts_on_page_load = ' window.addEventListener("load", on_page_load_init); function on_page_load_init() {' + _scripts_on_page_load + '}'
+        html_string = "<head>" + _bootstrap + "<style>" + _css + '</style><script type="text/javascript">' + _scripts + '' + _scripts_on_page_load + '</script>' + _head_append + '</head>' + str(
+            self.all[0].innerHTML)
+
+        f = open(os.getcwd() + "/" + output_file, "w")
+        f.write(html_string)
+        f.close()
+
+        # print(html_string)
+
+        sleep(0.2)
+        if not only_html:
+            webbrowser.get(_path).open(str(os.getcwd()) + "/" + output_file)
+
+        if set_clip_board:
+            self.clip_put(html_string)
+
+        return html_string
+
+    def clip_put(self, _str):
+        s = self
+        # Check which operating system is running to get the correct copying keyword.
+        if platform.system() == 'Darwin':
+            copy_keyword = 'pbcopy'
+        elif platform.system() == 'Windows':
+            copy_keyword = 'clip'
+
+        subprocess.run(copy_keyword, universal_newlines=True, input=_str)
+
+    def __get_preview_scripts(self):
         # ** PREVIEW HELPER **
         # -------------------------------------------------------------
         # Preview helper for on_click_show_preview. Shows the element
@@ -83,133 +215,11 @@ class qhtml:
         )
         # -------------------------------------------------------------
 
-    # Returns a new object of an html element
-    # returns: Object
-
-    def new(self, _type, _p=0):
-
-        _split = _type.split(" ")
-        _obj = ""
-        if len(_split) > 1:
-            _first = _split[0]
-            _second = _split[1]
-
-            if "button" in _first or "input" in _first:
-                if _second == "br":
-                    _container = self.new_obj("div")
-                    _br = self.new_obj("br")
-                    if _p != 0:
-                        _obj = self.new_obj(_first, _p)
-                        _container.insert([_obj, _br])
-                    else:
-                        _obj = self.new_obj(_first)
-                        _container.insert([_obj, _br])
-
-                    _obj.parent = self
-                    self.all.append(_container)
-                    self.all.append(_br)
-                    self.all.append(_obj)
-                    return _container
-                else:
-                    return False
-            else:
-                return False
-        else:
-            if _p != 0:
-                # create special
-                _obj = self.new_obj(_type, _p)
-            else:
-                _obj = self.new_obj(_type)
-
-            _obj.parent = self
-            self.all.append(_obj)
-            return _obj
-
-    def dupe(self, qhtml_obj):
-        if isinstance(qhtml_obj, self.new_obj):
-            new = copy.copy(qhtml_obj)
-            self.all.append(new)
-            return new
-        else:
-            print('New obj instance is not valid or was not provided.')
-            return False
-
-    # Attempts to render the constructed webpage
-    # returns: HTML
-
-    def render(self, output_file="render.html", only_html=False, set_clip_board=False):
-        if "." not in output_file:
-            output_file = output_file + ".html"
-        _css = ""
-        _scripts = ""
-        _scripts_on_page_load = ""
-        _head_append = ""
-        _bootstrap = ""
-        _path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
-
-        for _obj_element in self.all:
-            # print("ajax code for " + str(_obj_element.type))
-            if _obj_element.ajax_code != "":
-                # print("render ajax code detected")
-                self.scripts.append(_obj_element.ajax_code)
-
-            if len(_obj_element.scripts_on_page_load) > 0:
-                for __scr in _obj_element.scripts_on_page_load:
-                    _scripts_on_page_load += __scr
-
-            if len(_obj_element.scripts) > 0:
-                _build = ""
-                for _scr in _obj_element.scripts:
-                    _build += _scr
-
-                self.scripts.append(_build)
-
-        if self.bootstrap.using():
-            _bootstrap = self.bootstrap.get()
-
-        for _s in self.css.styles:
-            _css = _css + "" + _s
-
-        for _sc in self.scripts:
-            _scripts = _scripts + "" + _sc + "\n"
-
-        for h in self.head:
-            _head_append += h + "\n"
-
-        print("inserting " + str(self.preview))
-        self.display.insert(self.preview)
-        _scripts_on_page_load = ' window.addEventListener("load", on_page_load_init); function on_page_load_init() {' + _scripts_on_page_load + '}'
-        html_string = "<head>" + _bootstrap + "<style>" + _css + '</style><script type="text/javascript">' + _scripts + '' + _scripts_on_page_load + '</script>' + _head_append + '</head>' + str(
-            self.all[0].innerHTML)
-
-        f = open(os.getcwd() + "/" + output_file, "w")
-        f.write(html_string)
-        f.close()
-
-        # print(html_string)
-
-        sleep(0.2)
-        if not only_html:
-            webbrowser.get(_path).open(str(os.getcwd()) + "/" + output_file)
-
-        if set_clip_board:
-            self.clip_put(html_string)
-
-        return html_string
-
-    def clip_put(self, _str):
-        s = self
-        # Check which operating system is running to get the correct copying keyword.
-        if platform.system() == 'Darwin':
-            copy_keyword = 'pbcopy'
-        elif platform.system() == 'Windows':
-            copy_keyword = 'clip'
-
-        subprocess.run(copy_keyword, universal_newlines=True, input=_str)
+        return True
 
     # CLASS Style sheet attached to the html object
 
-    class ss:
+    class _css:
 
         # INITIALIZE CLASS
 
@@ -332,7 +342,7 @@ class qhtml:
             self.ajax_code = ""
             self.ajax_pointer = ""
             self.ajax_callback = ""
-            self.onclick_showpreview_html = ""
+            self._onclick_showpreview_html = False
 
         # Render - attempts to render the full webpage from the object
         # returns: void
@@ -361,9 +371,9 @@ class qhtml:
 
         def insert_table_raw(self, table_raw_obj: object, append_html=False):
             if append_html:
-                self.innerHTML += table_raw_obj.build_html()
+                self.innerHTML += table_raw_obj.__build_html()
             else:
-                self.innerHTML = table_raw_obj.build_html()
+                self.innerHTML = table_raw_obj.__build_html()
             return self
 
         def insert_table_html(self, table_html: str, append_html=False):
@@ -500,8 +510,7 @@ class qhtml:
             return self
 
         def set_clip_board(self):
-
-            # self.clip_put(self.html())
+            self.parent.clip_put(self.html())
             # pyperclip.copy(self.html())
             return self
 
@@ -602,6 +611,7 @@ class qhtml:
             return self
 
         def on_click_show_preview(self):
+            self._onclick_showpreview_html = True
             self.on_click("quykHtml_showPreview(this);")
             return self
 
@@ -679,6 +689,9 @@ class qhtml:
             # print("ajax code - > " + _r)
 
             # return _func_name + ";"
+
+        def has_preview(self):
+            return self._onclick_showpreview_html
 
         # CLASS style object
 
@@ -849,16 +862,23 @@ class qhtml:
 
             return self
 
-        def build_into(self, _obj: object, append_html=False):
+        def build(self,append_html=False):
+            """Builds the table object into a div object and returns that div."""
+            q = qhtml()
+            div = q.new("div")
+            self.__build_into(div,append_html)
+            return div
+
+        def __build_into(self, _obj: object, append_html=False):
             if not isinstance(_obj, qhtml.new_obj):
                 print("BUILD " + str(self) + " - obj = " + str(_obj) + " - " + str(type(_obj)))
                 print("Error building table -> table.build(_qhtml_object_element) -> argument should be a qhtml.new(type) object.")
                 return False
 
-            _obj.insert_table_html(self.build_html(), append_html)
+            _obj.insert_table_html(self.__build_html(), append_html)
             return _obj
 
-        def build_html(self):
+        def __build_html(self):
             row_index = -1
             column_index = -1
 
