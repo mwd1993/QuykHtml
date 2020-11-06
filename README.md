@@ -123,27 +123,25 @@ q = qhtml()
 # Easily 'import' bootStrap utilities
 q.bootStrap.use(True)
 
-# Create the container for the table to be built into
-table = q.new("div").style.set("width:80%;margin:auto;")
-
 # Create raw table of 1 row and 2 columns
-table_raw = q.table(1,2)
+table = q.table(1,2)
 
 # Insert method using 0 based index -> insert_at(row,column,qhtml_object or list of qhtml_objects)
-table_raw.insert_at(0,0,q.new("p").set_text("Row 1 column 1"))
-table_raw.insert_at(0,1,q.new("p").set_text("Row 1 column 2"))
+table.insert_at(0,0,q.new("p").set_text("Row 1 column 1"))
+table.insert_at(0,1,q.new("p").set_text("Row 1 column 2"))
 
 # Also valid syntax
-table_raw = q.table(1,2).insert_at(0,0,q.new("p").set_text("Row 1 column 1")).insert_at(0,1,q.new("p").set_text("Row 1 column 2"))
+table = q.table(1,2).insert_at(0,0,q.new("p").set_text("Row 1 column 1")).insert_at(0,1,q.new("p").set_text("Row 1 column 2"))
 
 # Td manipulation examples
 for i in range(2): 
-	table_raw.style_td_at(0,i,'text-align:center')
-	table_raw.set_td_class_at(0,i,'some-class')
-	table_raw.set_td_id_at(0,i,'some-id' + str(i))
+	table.style_td_at(0,i,'text-align:center')
+	table.set_td_class_at(0,i,'some-class')
+	table.set_td_id_at(0,i,'some-id' + str(i))
 
-# Build raw table into table container
-table_raw.build_into(table)
+# Make sure to build the table 
+# which returns a div with the table code in it
+table.build()
 
 # Render the results
 q.display.insert(table).render()
