@@ -141,7 +141,7 @@ for i in range(2):
 
 # Make sure to build the table 
 # which returns a div with the table code in it
-table.build()
+table = table.build()
 
 # Render the results
 q.display.insert(table).render()
