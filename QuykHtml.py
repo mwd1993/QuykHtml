@@ -6,6 +6,9 @@ from time import sleep
 import copy
 import platform
 import subprocess
+import pickle
+
+print("\nQuykHtml is currently using pickle to load and save templates.\nBe aware of templates you are loading, see their warnings on it.\nhttps://docs.python.org/3/library/pickle.html\n")
 
 
 class qhtml:
@@ -16,14 +19,16 @@ class qhtml:
         # Variables
         # -------------------------------------
         self.all = []
-        self.css = self._css()
         self.scripts = []
         self.scripts_on_page_load = []
+        self.head = []
+        self.css = self._css()
         self.display = self.new("div", self)
         self.bootstrap = self.bootstrap()
         self.preview = self.new("div")
         self.last = None
-        self.head = []
+        # why do i have to do this self self
+        self.templates = self._templates(self)
 
     # Returns a new object of an html element
     # returns: Object
@@ -408,7 +413,9 @@ class qhtml:
         # Adds an attribute to an element
         # returns: self/object
         def add_attribute(self, _str):
-
+            if len(_str) < 4:
+                print('QuykHtml add_attribute error, no value defined!\n- > ' + _str)
+                return self
             _attr_name = _str[:_str.find("=")]
             _attr_val = _str[_str.find("=") + 1:]
 
@@ -862,11 +869,11 @@ class qhtml:
 
             return self
 
-        def build(self,append_html=False):
+        def build(self, append_html=False):
             """Builds the table object into a div object and returns that div."""
             q = qhtml()
             div = q.new("div")
-            self.__build_into(div,append_html)
+            self.__build_into(div, append_html)
             return div
 
         def __build_into(self, _obj: object, append_html=False):
@@ -983,3 +990,57 @@ class qhtml:
                   'integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" ' \
                   'crossorigin="anonymous"></script> '
             return bss
+
+    # TODO convert from pickle to no required library
+    #   dir(obj) and obj.__dict__ are helpers
+    class _templates:
+        def __init__(self, qhtml_instance):
+            self.parent = qhtml_instance
+            self.__path = os.getcwd() + '/Templates/'
+            self.__path2 = 'Templates/'
+
+        def __space_to_underscore(self, _str, vice_versa=False):
+            s = self
+            if vice_versa:
+                return _str.replace('_', ' ')
+            else:
+                return _str.replace(' ', '_')
+
+            return False
+
+        def save(self, template_name: str, qhtml_obj_list: list):
+            s = self
+            if template_name:
+                template_name = self.__space_to_underscore(template_name)
+                index = -1
+                p = self.__path + template_name + '/'
+                if not os.path.isdir(p):
+                    os.mkdir(p)
+                for el in qhtml_obj_list:
+                    index += 1
+                    if not os.path.isfile(self.__path2 + template_name + '/' + template_name + '_' + str(index) + '.pickle'):
+                        open('templates/' + template_name + '/' + template_name + '_' + str(index) + '.pickle', 'w').close()
+                    pickle.dump(el, file=open('templates/' + template_name + '/' + template_name + '_' + str(index) + '.pickle', 'wb'))
+                    print('Pickle saving - > ' + str(el))
+
+            return True
+
+        def load(self, template_name):
+            s = self
+            if template_name:
+                template_name = self.__space_to_underscore(template_name)
+                p = self.__path + template_name + '/'
+                p2 = self.__path2 + template_name + '/'
+                _templates = []
+                if os.path.isdir(p):
+                    index = -1
+                    for file in os.listdir(p):
+                        index += 1
+                        qhtml_obj = pickle.load(file=open(p2 + file, 'rb'))
+                        _templates.append(qhtml_obj)
+
+                if len(_templates) > 0:
+                    print('Pickles Loaded - > ' + str(_templates))
+                    return _templates
+
+            return False
