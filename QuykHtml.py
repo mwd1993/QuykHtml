@@ -34,7 +34,6 @@ class qhtml:
     # returns: Object
 
     def new(self, _type, _p=0):
-
         _split = _type.split(" ")
         _obj = ""
         if len(_split) > 1:
@@ -682,7 +681,7 @@ class qhtml:
             _r = _r + '  }'
             _r = _r + '};'
             if randomize_call_for_fresh_data:
-                _r = _r + 'r.open("' + _type + '", "' + _str_path + "?ran=" + str(_ran) + '", ' + _async + ');'
+                _r = _r + 'r.open("' + _type + '", "' + _str_path + '?ran=" + Math.random().toString().slice(2),' + _async + ');'
             else:
                 _r = _r + 'r.open("' + _type + '", "' + _str_path + '", ' + _async + ');'
             _r = _r + 'r.send();}'
