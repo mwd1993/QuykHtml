@@ -102,9 +102,13 @@ p.set_id('my-id')
 p.set_name('some-name')
 p.set_value('custom value')
 p.set_tool_tip('simple hover text tool tip')
+p.on_click("alert('i was clicked!');")
+p.on_click_goto('google.com')
 
 # Specific Element setters
 q.new("img").set_img_src('src_url')
+q.new("img").set_img_placeholder(400)
+q.new("img").on_click_showPreview()
 q.new("form").set_form_options('file.php','get')
 q.new("button").set_form_button()
 q.new("iframe").set_iframe('google.com')
