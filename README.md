@@ -6,7 +6,8 @@ Key Features:<br>
 	- [Easy Table system](#example-tables)<br>
 	- [Easy Ajax Setup and Calls](#example-ajax-request)<br>
 	- [Easy Form Submissions](#example-forms)<br>
-	- [Bootstrap Support](#example-miscellaneous)
+	- [Bootstrap Support](#example-miscellaneous)<br>
+	- [Landing Page Example](#example-simple-landing-page1)
 	
 
 # Example: Hello World in 4 lines
@@ -301,6 +302,32 @@ q.css.add('div','text-align:center;')
 
 q.css.export('path/to/export.css')
 
+```
+# Example Simple Landing Page1
 
+``` python
+from QuykHtml import qhtml
+
+q = qhtml()
+
+q.bootstrap.use(True)
+
+head = q.new('div')
+head_text = q.new('p')
+head_text.set_text('Example Landing Header').style.align('center').style.font_size('64px;').style.append('padding-top:200px;padding-bottom:200px;background-color:gray;color:white;')
+head.insert(head_text)
+
+body = q.new('div').style.set('width:65%;margin:auto;margin-bottom:100px;').set_class('row')
+body_text = q.new('p').set_text_ipsum_large().style.font_size('24px').style.align('left').style.append('margin-top:60px;margin-bottom:60px;').style.font_color('gray')
+body_img_1 = q.new('img').set_class('col').set_img_placeholder(400).style.height('400px').style.append('margin-top:20px;')
+body_img_2 = q.dupe(body_img_1)
+body.insert([body_text,body_img_1,body_img_2])
+
+footer = q.new('div').style.align('center').style.set('margin:0px;position:fixed;bottom:0px;width:100%;background-color:gray;padding-top:5px;padding-bottom:5px;')
+footer_text = q.new('p').style.set('font-weight:bold;margin:0px;')
+footer_text.set_text('Example Footer Text. All Right Reserved.').style.align('center').style.font_size('15px').style.font_color('white')
+footer.insert(footer_text)
+
+q.display.insert([head,body,footer]).render()
 
 ```
