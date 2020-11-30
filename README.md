@@ -343,7 +343,7 @@ q.display.insert([head,body,footer]).render()
 
 
 
-#### Using .html() method
+#### Serving HTML using .html() method
 
 ```python
 # A very simple Flask Hello World app for you to get started with...
@@ -369,11 +369,11 @@ div2 = q.new('div').style.set('background-color:gray;text-align:center;').insert
 
 @app.route('/')
 def hello_world():
-	# Use .html on a qhtml object to get it's HTML and serve it
+	# R .html on a qhtml object to get it's HTML and serve it
     return div.html() + div2.html()
 ```
 
-#### Rendering to a file then reading the html from that file
+#### Serving HTML using .render('out_put_file.txt') and .file_read('file.txt')
 
 ```python
 # A very simple Flask Hello World app for you to get started with...
