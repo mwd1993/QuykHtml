@@ -369,7 +369,7 @@ div2 = q.new('div').style.set('background-color:gray;text-align:center;').insert
 
 @app.route('/')
 def hello_world():
-	# R .html on a qhtml object to get it's HTML and serve it
+	# Use .html method on a qhtml object to get it's HTML and serve it
     return div.html() + div2.html()
 ```
 
@@ -403,7 +403,7 @@ q.display.insert([div,div2]).render(output_file='test.txt')
 
 @app.route('/')
 def hello_world():
-	# Use file_read method to get the render'd html and serve it
+	# Use file_read method to get the rendered HTML and serve it
     html = q.file_read('test.txt')
     return html
 
