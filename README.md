@@ -354,7 +354,7 @@ q = qhtml()
 q.bootstrap.use(True)
 app = Flask(__name__)
 
-on_click_code = 'alert("You clicked the button!")'
+on_click_code = 'alert("You clicked the button!");'
 
 # Div containing a p element and a button with an on click event
 div = q.new('div').style.set('text-align:center;').insert([
@@ -385,7 +385,7 @@ q.bootstrap.use(True)
 
 app = Flask(__name__)
 
-on_click_code = 'alert("You clicked the button!")'
+on_click_code = 'alert("You clicked the button!");'
 
 # Div containing a p element and a button with an on click event
 div = q.new('div').style.set('text-align:center;').insert([
