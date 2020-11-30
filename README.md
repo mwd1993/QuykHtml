@@ -337,7 +337,11 @@ q.display.insert([head,body,footer]).render()
 
 ```
 
-# Example QuykHtml with Flask Using pythonanywhere.com
+# Example QuykHtml with Flask
+
+## Using pythonanywhere.com
+
+
 
 #### Using .html() method
 
