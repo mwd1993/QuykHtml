@@ -339,7 +339,9 @@ q.display.insert([head,body,footer]).render()
 
 # Example QuykHtml with Flask
 
-Using pythonanywhere.com with Flask example:
+### Examples used pythonanywhere.com
+
+#### Using .html() method
 
 ```python
 # A very simple Flask Hello World app for you to get started with...
@@ -352,16 +354,55 @@ app = Flask(__name__)
 
 on_click_code = 'alert("You clicked the button!")'
 
+# Div containing a p element and a button with an on click event
 div = q.new('div').style.set('text-align:center;').insert([
     q.new("p").style.font_size('42').set_text("This works"),
     q.new('button').style.font_size('24').set_text('click me').on_click(on_click_code)
 ])
 
+# Div containing a p element with Greeting text in it
 div2 = q.new('div').style.set('background-color:gray;text-align:center;').insert([
     q.new('p').style.set('font-size:32px;color:white;font-weight:bold;').set_text('Hello from QuykHtml and Flask!')
 ])
 
 @app.route('/')
 def hello_world():
+	# Use .html on a qhtml object to get it's HTML and serve it
     return div.html() + div2.html()
+```
+
+#### Rendering to a file then reading the html from that file
+
+```python
+# A very simple Flask Hello World app for you to get started with...
+from QuykHtml import qhtml
+from flask import Flask
+
+q = qhtml()
+q.bootstrap.use(True)
+
+app = Flask(__name__)
+
+on_click_code = 'alert("You clicked the button!")'
+
+# Div containing a p element and a button with an on click event
+div = q.new('div').style.set('text-align:center;').insert([
+    q.new("p").style.font_size('42').set_text("This works"),
+    q.new('button').style.font_size('24').set_text('click me').on_click(on_click_code)
+])
+
+# Div containing a p element with Greeting text in it
+div2 = q.new('div').style.set('background-color:gray;text-align:center;').insert([
+    q.new('p').style.set('font-size:32px;color:white;font-weight:bold;').set_text('Hello from QuykHtml and Flask!')
+])
+
+# Place objects in the display and render out the file to test.txt
+q.display.insert([div,div2]).render(output_file='test.txt')
+
+@app.route('/')
+def hello_world():
+	# Use file_read method to get the render'd html and serve it
+    html = q.file_read('test.txt')
+    return html
+
 ```
