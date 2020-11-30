@@ -105,6 +105,10 @@ p.set_value('custom value')
 p.set_tool_tip('simple hover text tool tip')
 p.on_click("alert('i was clicked!');")
 p.on_click_goto('google.com')
+p.on_right_click("alert('i was right clicked!');")
+p.on_mouse_enter("alert('Mouse entered!');")
+p.on_mouse_leave("alert('Mouse left!');")
+html = p.html()
 
 # Specific Element setters
 q.new("img").set_img_src('src_url')
