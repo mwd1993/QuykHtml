@@ -159,6 +159,21 @@ class qhtml:
 
         subprocess.run(copy_keyword, universal_newlines=True, input=_str)
 
+    def file_read(self,file_name,file_path=''):
+        s = self
+        if file_name:
+            if file_path:
+                dir_path = file_path
+            else:
+                dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'
+            f = open(dir_path + file_name, 'r')
+            read = f.read()
+            f.close()
+
+            return read
+
+        return False
+
     def __get_preview_scripts(self):
         # ** PREVIEW HELPER **
         # -------------------------------------------------------------
@@ -520,7 +535,7 @@ class qhtml:
             # pyperclip.copy(self.html())
             return self
 
-        def on_click_goto(self,url_to_nav_to,new_tab=True,no_https=False):
+        def on_click_goto(self, url_to_nav_to, new_tab=True, no_https=False):
             if no_https is False:
                 if new_tab:
                     self.on_click("window.open('https://" + url_to_nav_to + "');")
@@ -571,7 +586,6 @@ class qhtml:
 
         def html(self):
             return self.get_tag_open() + self.innerText + self.innerHTML + self.get_tag_close()
-
 
         # Get parent class
         # returns: parent/obj
@@ -713,7 +727,7 @@ class qhtml:
         def has_preview(self):
             return self._onclick_showpreview_html
 
-        def set_img_placeholder(self,place_holder_size=150):
+        def set_img_placeholder(self, place_holder_size=150):
             if self.type != 'img':
                 print('qhtml object set_img_placeholder error.\nShould be used on img type, you used it on ' + self.type)
                 return False
@@ -757,7 +771,7 @@ class qhtml:
                 # self._style = self._style + 'text-align:' + left_center_right + ';'
                 return self.parent
 
-            def bg_color(self,color='white'):
+            def bg_color(self, color='white'):
                 self.append('background-color:' + color + ';')
                 # self._style = self._style + 'background-color:' + color + ';'
                 return self.parent
@@ -777,17 +791,17 @@ class qhtml:
                 # self._style += 'color:' + color + ';'
                 return self.parent
 
-            def height(self,height):
+            def height(self, height):
                 self.append('height:' + height + ';')
                 # self._style += 'height:' + height + ';'
                 return self.parent
 
-            def width(self,width):
+            def width(self, width):
                 self.append('width:' + width + ';')
                 # self._style += 'width:' + width + ';'
                 return self.parent
 
-            def hide(self,none_or_hidden='none'):
+            def hide(self, none_or_hidden='none'):
                 self.append('display:' + none_or_hidden + ';')
                 # self._style += 'display:' + none_or_hidden + ';'
                 return self.parent
