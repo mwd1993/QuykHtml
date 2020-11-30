@@ -401,7 +401,7 @@ div2 = q.new('div').style.set('background-color:gray;text-align:center;').insert
 ])
 
 # Place objects in the display and render out the file to test.txt
-q.display.insert([div,div2]).render(output_file='test.txt')
+q.display.insert([div,div2]).render(output_file='test.txt', only_html=True)
 
 @app.route('/')
 def hello_world():
