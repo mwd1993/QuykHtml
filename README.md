@@ -8,6 +8,7 @@ Key Features:<br>
 	- [Easy Form Submissions](#example-forms)<br>
 	- [Bootstrap Support](#example-miscellaneous)<br>
 	- [Landing Page Example](#example-simple-landing-page1)
+	- [QuykHtml and Flask](#example-quykhtml-with-flask)
 	
 
 # Example: Hello World in 4 lines
@@ -334,4 +335,33 @@ footer.insert(footer_text)
 
 q.display.insert([head,body,footer]).render()
 
+```
+
+# Example QuykHtml with Flask
+
+Using pythonanywhere.com with Flask example:
+
+```python
+# A very simple Flask Hello World app for you to get started with...
+from QuykHtml import qhtml
+from flask import Flask
+
+q = qhtml()
+q.bootstrap.use(True)
+app = Flask(__name__)
+
+on_click_code = 'alert("You clicked the button!")'
+
+div = q.new('div').style.set('text-align:center;').insert([
+    q.new("p").style.font_size('42').set_text("This works"),
+    q.new('button').style.font_size('24').set_text('click me').on_click(on_click_code)
+])
+
+div2 = q.new('div').style.set('background-color:gray;text-align:center;').insert([
+    q.new('p').style.set('font-size:32px;color:white;font-weight:bold;').set_text('Hello from QuykHtml and Flask!')
+])
+
+@app.route('/')
+def hello_world():
+    return div.html() + div2.html()
 ```
