@@ -7,7 +7,7 @@ Key Features:<br>
 	- [Easy Ajax Setup and Calls](#example-ajax-request)<br>
 	- [Easy Form Submissions](#example-forms)<br>
 	- [Bootstrap Support](#example-miscellaneous)<br>
-	- [Landing Page Example](#example-simple-landing-page1)
+	- [Landing Page Example](#example-simple-landing-page1)<br>
 	- [QuykHtml and Flask](#example-quykhtml-with-flask)
 	
 
