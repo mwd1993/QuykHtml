@@ -359,8 +359,8 @@ on_click_code = "alert('You clicked the button!');"
 
 # Div containing a p element and a button with an on click event
 div = q.new('div').style.set('text-align:center;').insert([
-    q.new("p").style.font_size('42').set_text("This works"),
-    q.new('button').style.font_size('24').set_text('click me').on_click(on_click_code)
+    q.new("p").style.font_size('42px').set_text("This works"),
+    q.new('button').style.font_size('24px').set_text('click me').on_click(on_click_code)
 ])
 
 # Div containing a p element with Greeting text in it
@@ -391,8 +391,8 @@ on_click_code = "alert('You clicked the button!');"
 
 # Div containing a p element and a button with an on click event
 div = q.new('div').style.set('text-align:center;').insert([
-    q.new("p").style.font_size('42').set_text("This works"),
-    q.new('button').style.font_size('24').set_text('click me').on_click(on_click_code)
+    q.new("p").style.font_size('42px').set_text("This works"),
+    q.new('button').style.font_size('24px').set_text('click me').on_click(on_click_code)
 ])
 
 # Div containing a p element with Greeting text in it
