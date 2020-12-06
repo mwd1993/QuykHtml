@@ -584,8 +584,11 @@ class qhtml:
 
             return self
 
-        def html(self):
-            return self.get_tag_open() + self.innerText + self.innerHTML + self.get_tag_close()
+        def html(self,set_clip_board=False):
+            html = self.get_tag_open() + self.innerText + self.innerHTML + self.get_tag_close()
+            if set_clip_board:
+                self.parent.clip_put(html)
+            return html
 
         # Get parent class
         # returns: parent/obj
