@@ -97,6 +97,7 @@ class qhtml:
         _preview_scripts_loaded = False
         for _obj_element in self.all:
             # print("ajax code for " + str(_obj_element.type))
+
             if _obj_element.has_preview() and _preview_scripts_loaded is False:
                 self.__get_preview_scripts()
                 _preview_scripts_loaded = True
@@ -478,10 +479,44 @@ class qhtml:
         def get_tag_close(self):
             return "</" + self.type + ">"
 
+        def set_text_code_block(self, _str, text_color=False, parentheses_color=False, main_text_color=False, background_color=False):
+
+            if self.type != 'pre':
+                print('set_text_code_block type error. Should be used on a "pre" type.\nYou used it on a ' + self.type)
+                return False
+
+            replace = {
+                ':': '<span style="color:gray;">:</span>',
+                '(': '<span style="color:orange;">(<span style="color:yellow;">',
+                ')': '</span>)</span>',
+            }
+
+            if text_color and parentheses_color:
+                replace['('] = '<span style="color:' + parentheses_color + ';">(<span style="color:' + text_color + ';">'
+            elif text_color:
+                replace['('] = '<span style="color:orange;">(<span style="color:' + text_color + ';">'
+            elif parentheses_color:
+                replace['('] = '<span style="color:' + parentheses_color + ';">(<span style="color:yellow;">'
+
+            for k in replace:
+                v = replace[k]
+                if k in _str:
+                    _str = _str.replace(k, v)
+
+            if not background_color:
+                background_color = 'gray'
+
+            if not main_text_color:
+                main_text_color = 'white'
+
+            self.innerText = '<p style="margin:0px;padding:6px;color:' + main_text_color + ';background-color:' + background_color + ';">' + _str + '</p>'
+
+            return self
+
         # Attempts to set the text of an object
         # returns: itself/object
 
-        def set_text(self, _str):
+        def set_text(self, _str, as_code_block=False):
             self.innerText = _str
             return self
 
