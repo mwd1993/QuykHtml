@@ -516,7 +516,7 @@ class qhtml:
         # Attempts to set the text of an object
         # returns: itself/object
 
-        def set_text(self, _str, as_code_block=False):
+        def set_text(self, _str):
             self.innerText = _str
             return self
 
