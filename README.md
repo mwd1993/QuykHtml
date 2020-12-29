@@ -1,12 +1,12 @@
 # QuykHtml
 A python library that allows you to quickly and easily generate HTML templates and even create full-on websites.<br><br>
 
-<p align="center" style="height:50%;">
-  <img src="example1.gif" alt="animated" />
+<p align="center" width="48">
+  <img src="Example1.gif" alt="animated" />
 </p>
 
-<p align="center" style="height:50%;">
-  <img src="example2.gif" alt="animated" />
+<p align="center" width="48">
+  <img src="Example2.gif" alt="animated" />
 </p>
 
 Key Features:<br>
