@@ -160,7 +160,7 @@ class qhtml:
 
         subprocess.run(copy_keyword, universal_newlines=True, input=_str)
 
-    def file_read(self,file_name,file_path=''):
+    def file_read(self, file_name, file_path=''):
         s = self
         if file_name:
             if file_path:
@@ -619,7 +619,7 @@ class qhtml:
 
             return self
 
-        def html(self,set_clip_board=False):
+        def html(self, set_clip_board=False):
             html = self.get_tag_open() + self.innerText + self.innerHTML + self.get_tag_close()
             if set_clip_board:
                 self.parent.clip_put(html)
@@ -851,6 +851,7 @@ class qhtml:
             self.td_styles = []
             self.td_classes = []
             self.td_ids = []
+            self.objects = []
 
             if type(rows_or_file_path) != int:
                 _styling = columns_or_styling_dict
@@ -895,12 +896,20 @@ class qhtml:
                                     # here
                                     _styling_value = _styling[_p.type]
                                     _values_dict = _styling[_p.type]
-                                    _calls = _values_dict["calls"]
-                                    _styling_value = _styling_value["style"]
-                                    _p.style.set(_styling_value)
+                                    if "calls" in _values_dict:
+                                        _calls = _values_dict["calls"]
+                                    else:
+                                        _calls = []
+
+                                    if "style" in _styling_value:
+                                        _styling_value = _styling_value["style"]
+                                        _p.style.set(_styling_value)
+                                    else:
+                                        _styling_value = []
+
 
                                     for __call in _calls:
-                                        print("call - > " + str(__call))
+                                        # print("call - > " + str(__call))
                                         # call method
                                         __call_m = __call[0]
                                         # call arg ( may need to add support for multiple args )
@@ -912,8 +921,9 @@ class qhtml:
                                             print("call - > " + str(__call) + "\n return - >  " + str(_val))
 
                             _table.insert_at(_curr_row, _curr_col, _p)
-                        _curr_col = -1
 
+                        _curr_col = -1
+                    # print(_table.__dict__)
                     self.get = _table
 
                 else:
@@ -921,6 +931,7 @@ class qhtml:
                     self.columns = 0
                     self.time = "Error"
                     self.error = -1
+                    self.objects = []
 
             else:
                 self.objects = []
@@ -983,7 +994,7 @@ class qhtml:
 
         def build(self, append_html=False):
             """Builds the table object into a div object and returns that div."""
-            q = qhtml()
+            q = self.__qhtml
             div = q.new("div")
             self.__build_into(div, append_html)
             return div
@@ -1051,17 +1062,22 @@ class qhtml:
                         html_mid_build = html_mid_build + "<td>"
 
                     _td_id_set = ""
+                    try:
+                        ob = self.objects
+                        if len(self.objects) == 0:
+                            ob = self.get.objects
+                        for o in ob:
+                            if o.table_inserted_at[0] == str(row_index) and o.table_inserted_at[1] == str(column_index):
 
-                    for o in self.objects:
-                        if o.table_inserted_at[0] == str(row_index) and o.table_inserted_at[1] == str(column_index):
-
-                            # INSERT OBJECT HTML INTO TABLE HERE
-                            # -----------------------------------
-                            if o.innerText not in o.innerHTML:
-                                html_mid_build += o.get_tag_open() + o.innerText + o.innerHTML + o.get_tag_close() + ""
-                            else:
-                                html_mid_build += o.get_tag_open() + o.innerHTML + o.get_tag_close() + ""
-                            # -----------------------------------
+                                # INSERT OBJECT HTML INTO TABLE HERE
+                                # -----------------------------------
+                                if o.innerText not in o.innerHTML:
+                                    html_mid_build += o.get_tag_open() + o.innerText + o.innerHTML + o.get_tag_close() + ""
+                                else:
+                                    html_mid_build += o.get_tag_open() + o.innerHTML + o.get_tag_close() + ""
+                                # -----------------------------------
+                    except Exception as e:
+                        print(e)
 
                     html_mid_build += "</td>"
 
