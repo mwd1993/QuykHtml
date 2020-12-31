@@ -33,24 +33,18 @@ class qhtml:
     # Returns a new object of an html element
     # returns: Object
 
-    def new(self, _type, _p=0):
+    def new(self, _type):
         _split = _type.split(" ")
         _obj = ""
         if len(_split) > 1:
             _first = _split[0]
             _second = _split[1]
-
             if "button" in _first or "input" in _first:
                 if _second == "br":
-                    _container = self.new_obj("div")
-                    _br = self.new_obj("br")
-                    if _p != 0:
-                        _obj = self.new_obj(_first, _p)
-                        _container.insert([_obj, _br])
-                    else:
-                        _obj = self.new_obj(_first)
-                        _container.insert([_obj, _br])
-
+                    _container = self._q_element("div")
+                    _br = self._q_element("br")
+                    _obj = self._q_element(_first)
+                    _container.insert([_obj, _br])
                     _obj.parent = self
                     self.last = _obj
                     self.all.append(_container)
@@ -62,19 +56,17 @@ class qhtml:
             else:
                 return False
         else:
-            if _p != 0:
-                # create special
-                _obj = self.new_obj(_type, _p)
-            else:
-                _obj = self.new_obj(_type)
-
+            _obj = self._q_element(_type)
             _obj.parent = self
             self.all.append(_obj)
             self.last = _obj
             return _obj
 
+    # Duplicates an element
+    # returns: new duped element
+
     def dupe(self, qhtml_obj):
-        if isinstance(qhtml_obj, self.new_obj):
+        if isinstance(qhtml_obj, self._q_element):
             new = copy.copy(qhtml_obj)
             self.all.append(new)
             return new
@@ -96,14 +88,11 @@ class qhtml:
         _path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
         _preview_scripts_loaded = False
         for _obj_element in self.all:
-            # print("ajax code for " + str(_obj_element.type))
-
             if _obj_element.has_preview() and _preview_scripts_loaded is False:
                 self.__get_preview_scripts()
                 _preview_scripts_loaded = True
 
             if _obj_element.ajax_code != "":
-                # print("render ajax code detected")
                 self.scripts.append(_obj_element.ajax_code)
 
             if len(_obj_element.scripts_on_page_load) > 0:
@@ -129,7 +118,6 @@ class qhtml:
         for h in self.head:
             _head_append += h + "\n"
 
-        print("inserting " + str(self.preview))
         self.display.insert(self.preview)
         _scripts_on_page_load = ' window.addEventListener("load", on_page_load_init); function on_page_load_init() {' + _scripts_on_page_load + '}'
         html_string = "<head>" + _bootstrap + "<style>" + _css + '</style><script type="text/javascript">' + _scripts + '' + _scripts_on_page_load + '</script>' + _head_append + '</head>' + str(
@@ -138,10 +126,8 @@ class qhtml:
         f = open(os.getcwd() + "/" + output_file, "w")
         f.write(html_string)
         f.close()
-
-        # print(html_string)
-
         sleep(0.2)
+
         if not only_html:
             webbrowser.get(_path).open(str(os.getcwd()) + "/" + output_file)
 
@@ -152,12 +138,10 @@ class qhtml:
 
     def clip_put(self, _str):
         s = self
-        # Check which operating system is running to get the correct copying keyword.
         if platform.system() == 'Darwin':
             copy_keyword = 'pbcopy'
         elif platform.system() == 'Windows':
             copy_keyword = 'clip'
-
         subprocess.run(copy_keyword, universal_newlines=True, input=_str)
 
     def file_read(self, file_name, file_path=''):
@@ -170,9 +154,7 @@ class qhtml:
             f = open(dir_path + file_name, 'r')
             read = f.read()
             f.close()
-
             return read
-
         return False
 
     def __get_preview_scripts(self):
@@ -252,7 +234,6 @@ class qhtml:
         # returns: class object/itself
 
         def add(self, name: str or list, style=""):
-
             if style == "":
                 if type(name) is list:
                     for li in name:
@@ -279,7 +260,6 @@ class qhtml:
             _b = ""
             for s in self.styles:
                 _b = _b + "" + s + "\n"
-            print("b = " + _b)
             f.write(_b)
             f.close()
 
@@ -338,9 +318,9 @@ class qhtml:
                 _hex = _hex.lstrip('#')
                 return tuple(int(_hex[i:i + 2], 16) for i in (0, 2, 4))
 
-    # CLASS new_obj, an element object type
+    # CLASS _q_element, an element object type
 
-    class new_obj:
+    class _q_element:
 
         # INITIALIZE CLASS
 
@@ -470,7 +450,6 @@ class qhtml:
                 second = ' style="' + self.style.get() + '">'
             else:
                 second = ">"
-            # return "<" + self.type + " " + self.get_attributes() + ' style="' + self.style.get() + '">'
             return first + second
 
         # Gets the closing tag of an object as a string
@@ -478,6 +457,9 @@ class qhtml:
 
         def get_tag_close(self):
             return "</" + self.type + ">"
+
+        # Sets a code block to display code
+        # returns: self
 
         def set_text_code_block(self, _str, text_color=False, parentheses_color=False, main_text_color=False, background_color=False):
 
@@ -907,7 +889,6 @@ class qhtml:
                                     else:
                                         _styling_value = []
 
-
                                     for __call in _calls:
                                         # print("call - > " + str(__call))
                                         # call method
@@ -923,7 +904,6 @@ class qhtml:
                             _table.insert_at(_curr_row, _curr_col, _p)
 
                         _curr_col = -1
-                    # print(_table.__dict__)
                     self.get = _table
 
                 else:
@@ -941,7 +921,6 @@ class qhtml:
 
         def insert_at(self, row, column, obj):
             _s = self
-
             if type(obj) is list:
                 for li in obj:
                     li.table_inserted_at = [str(row), str(column)]
@@ -980,8 +959,6 @@ class qhtml:
 
         def style_td_at(self, row, col, style):
             _s = self
-            # print("\nSTYLING AT " + str(row) + " - " + str(col) + '\n')
-            # _s.td_styles
             _s.td_styles.append({
                 "style": style,
                 "row": row,
@@ -1000,7 +977,7 @@ class qhtml:
             return div
 
         def __build_into(self, _obj: object, append_html=False):
-            if not isinstance(_obj, qhtml.new_obj):
+            if not isinstance(_obj, qhtml._q_element):
                 print("BUILD " + str(self) + " - obj = " + str(_obj) + " - " + str(type(_obj)))
                 print("Error building table -> table.build(_qhtml_object_element) -> argument should be a qhtml.new(type) object.")
                 return False
@@ -1011,7 +988,6 @@ class qhtml:
         def __build_html(self):
             row_index = -1
             column_index = -1
-
             html_table_open = '<table style="border-collapse: collapse;table-layout: fixed;width:100%;"><tbody ' \
                               'style="width:100%;"> '
             html_table_close = "</tbody></table>"
@@ -1086,7 +1062,6 @@ class qhtml:
                 column_index = -1
 
             if not html_mid_build == "":
-                # print(html_table_open + html_mid_build + html_table_close)
                 self.time = int(round(time.time() * 1000)) - self.time_start
                 print("\n** Table built in " + str(self.time) + " MS with " + str(self.columns) + " columns and " + str(self.rows) + " rows  ** \n")
                 return html_table_open + html_mid_build + html_table_close
