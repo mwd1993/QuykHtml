@@ -23,7 +23,7 @@ class qhtml:
         self.scripts_on_page_load = []
         self.head = []
         self.css = self._css()
-        self.display = self.new("div", self)
+        self.display = self.new("div")
         self.bootstrap = self.bootstrap()
         self.preview = self.new("div")
         self.last = None
