@@ -136,6 +136,8 @@ class qhtml:
 
         return html_string
 
+    # Attempts to put a string to the users clipboard
+    # returns: void
     def clip_put(self, _str):
         s = self
         if platform.system() == 'Darwin':
@@ -143,6 +145,9 @@ class qhtml:
         elif platform.system() == 'Windows':
             copy_keyword = 'clip'
         subprocess.run(copy_keyword, universal_newlines=True, input=_str)
+
+    # Easily read a file. Returns the file's contents as a string
+    # returns: file-contents/boolean
 
     def file_read(self, file_name, file_path=''):
         s = self
@@ -359,6 +364,9 @@ class qhtml:
                     else:
                         self.parent.render(output_file)
 
+        # Adds javascript code to the main page/display
+        # returns: self
+
         def scripts_add(self, js_code, on_page_load=False):
             if on_page_load:
                 self.scripts_on_page_load.append(js_code)
@@ -407,6 +415,7 @@ class qhtml:
 
         # Adds an attribute to an element
         # returns: self/object
+
         def add_attribute(self, _str):
             if len(_str) < 4:
                 print('QuykHtml add_attribute error, no value defined!\n- > ' + _str)
@@ -420,6 +429,9 @@ class qhtml:
             self.attr_check.append(_attr_name)
             self.attributes.append(_attr_name + "=" + _attr_val)
             return self
+
+        # Attempts to clear an attribute from an element
+        # returns: self
 
         def clear_attribute(self, _attr_name):
             if _attr_name in self.attr_check:
@@ -502,14 +514,23 @@ class qhtml:
             self.innerText = _str
             return self
 
+        # Attempts to set a MEDIUM sized text block used as a place holder
+        # returns: self
+
         def set_text_ipsum(self):
             self.innerText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in " \
                              "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum "
             return self
 
+        # Attempts to set a SMALL sized text block used as a place holder
+        # returns: self
+
         def set_text_ipsum_small(self):
             self.innerText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
             return self
+
+        # Attempts to set a LARGE sized text block used as a place holder
+        # returns: self
 
         def set_text_ipsum_large(self):
             self.innerText = "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit " \
@@ -526,31 +547,51 @@ class qhtml:
             self.add_attribute('class="' + str(_str) + '"')
             return self
 
+        # Sets an elements id
+        # returns: self
+
         def set_id(self, _str):
             self.add_attribute('id="' + str(_str).replace("#", "") + '"')
             self.id = str(_str).replace("#", "")
             return self
 
+        # Sets an images source (external url or local url)
+        # returns: self
+
         def set_img_src(self, _str):
             self.add_attribute('src="' + _str + '"')
             return self
+
+        # Sets an elements name attribute
+        # returns: self
 
         def set_name(self, _str):
             self.add_attribute('name="' + _str + '"')
             return self
 
+        # Attempts to set an elements value
+        # returns: self
+
         def set_value(self, _str):
             self.add_attribute('value="' + _str + '"')
             return self
+
+        # Sets an elements tooltip (on mouse hover -> text shows near cursor)
+        # returns: self
 
         def set_tool_tip(self, _str):
             self.add_attribute('title="' + _str + '"')
             return self
 
+        # Sets the element and all of it's children's html into the users' clipboard
+        # returns: self
+
         def set_clip_board(self):
             self.parent.clip_put(self.html())
-            # pyperclip.copy(self.html())
             return self
+
+        # On click, go to specified url. no_https=True will allow for external domain linking.
+        # returns: self
 
         def on_click_goto(self, url_to_nav_to, new_tab=True, no_https=False):
             if no_https is False:
@@ -565,7 +606,10 @@ class qhtml:
                     self.on_click("window.location.href='" + url_to_nav_to + "';")
             return self
 
+        # Sets a form elements form options
         # action="upload.php" method="post" enctype="multipart/form-data"
+        # returns: self
+
         def set_form_options(self, action_php_call, method_get_or_post, enctype="multipart/form-data"):
             method = method_get_or_post
             action = action_php_call
@@ -581,9 +625,16 @@ class qhtml:
                 return self
             return self
 
+        # Makes the submit button inside of a specified URL element a form button
+        # which will submit the form
+        # returns: self
+
         def set_form_button(self):
             self.add_attribute('value="submit"')
             return self
+
+        # Sets an iframe element options
+        # returns: self
 
         def set_iframe(self, src_url, title="iframe"):
             if self.type != "iframe":
@@ -593,6 +644,9 @@ class qhtml:
             self.add_attribute('src="' + src_url + '" title="' + title + '"')
             return self
 
+        # Makes element (input) auto complete text or not
+        # returns: self
+
         def set_auto_complete(self, _boolean: bool):
             if not _boolean:
                 self.add_attribute('autocomplete="off"')
@@ -600,6 +654,9 @@ class qhtml:
                 self.add_attribute('autocomplete="on"')
 
             return self
+
+        # Gets all of the html of an element (and innerHtml)
+        # returns: self
 
         def html(self, set_clip_board=False):
             html = self.get_tag_open() + self.innerText + self.innerHTML + self.get_tag_close()
@@ -653,6 +710,9 @@ class qhtml:
                 self.add_attribute('onClick="' + _code + '"')
             return self
 
+        # On right click, run specified code
+        # returns: self
+
         def on_right_click(self, _code, _block_normal_context=True):
             _block = ''
 
@@ -663,6 +723,10 @@ class qhtml:
 
             self.add_attribute('oncontextmenu="' + _code + _block + '"')
             return self
+
+        # Upon element clicked, shows a preview full-screen'd image of the element
+        # This can be used for any element, but makes most sense for images
+        # returns: self
 
         def on_click_show_preview(self):
             self._onclick_showpreview_html = True
@@ -683,6 +747,10 @@ class qhtml:
             self.add_attribute('onmouseout="' + _code + '"')
             return self
 
+        # Gets ajax data if any and retuns a list
+        # of data if no specified type is passed
+        # returns: data/boolean
+
         def ajax_get(self, _type=""):
             if self.ajax_code != "":
                 if _type == "":
@@ -695,10 +763,12 @@ class qhtml:
                     return self.ajax_callback
             return False
 
-        # previous build -> _build(self, _type, _str_path, _js_func_name_and_callback_func: list, _async="true"):
+        # Attempts to build an ajax request. randomize_call_for.. is used
+        # to get the most recent data from the request by providing
+        # a piece of raw js code that appends a random number to the call request
+        # returns: self
 
         def ajax_build(self, _type, _str_path, js_callback_func="", _async="true", randomize_call_for_fresh_data=False):
-            # if isinstance(_js_func_name_and_callback_func, list):
             _ran = []
             for i in range(5):
                 _ran.append(str(random.randint(0, 9)))
@@ -714,11 +784,8 @@ class qhtml:
                 if "(" not in _callback_name:
                     _callback_name = _callback_name + "(r.responseText)"
             else:
-                # print("error in ajax_build_html(...) - > _js_func_name_and_callback_func should be a list with 2 entries [x,y]. \nX being the function for the ajax to be called and Y being the callback function formatted like 'callback_function(r.responseText)'.")
                 print("ajax_build FAILED:\nPlease provide a Javascript function name and a Javascript callback method to handle the response text.\nAs js_func_name and js_callback_func")
                 return self
-
-            # _func_name = "_ajax_handler_" + str(len(self.ajax_list))
 
             _r = 'function ' + _func_name + '{var r = new XMLHttpRequest();'
             _r = _r + 'r.onreadystatechange = function () {'
@@ -728,6 +795,7 @@ class qhtml:
             _r = _r + '     var a = "";'
             _r = _r + '  }'
             _r = _r + '};'
+
             if randomize_call_for_fresh_data:
                 _r = _r + 'r.open("' + _type + '", "' + _str_path + '?ran=" + Math.random().toString().slice(2),' + _async + ');'
             else:
@@ -740,12 +808,16 @@ class qhtml:
 
             return self
 
-            # print("ajax code - > " + _r)
-
-            # return _func_name + ";"
+        # Returns true if the element has an on click preview
+        # returns: self
 
         def has_preview(self):
             return self._onclick_showpreview_html
+
+        # Sets an image placeholder. You can specify
+        # a size by providing an int.
+        # Shout out to via.placeholder.com
+        # returns: self
 
         def set_img_placeholder(self, place_holder_size=150):
             if self.type != 'img':
@@ -753,8 +825,6 @@ class qhtml:
                 return False
             self.set_img_src('https://via.placeholder.com/' + str(place_holder_size))
             return self
-
-        # CLASS style object
 
         class style_obj:
 
@@ -782,44 +852,71 @@ class qhtml:
 
                 return self.parent
 
+            # Appends inline styling to an elements style class
+            # returns: style.parent (element)
+
             def append(self, _style):
                 self._style = self._style + _style
                 return self.parent
+
+            # Helper to align an element
+            # returns: style.parent (element)
 
             def align(self, left_center_right="center"):
                 self.append('text-align:' + left_center_right + ';')
                 # self._style = self._style + 'text-align:' + left_center_right + ';'
                 return self.parent
 
+            # Background color helper
+            # returns: style.parent (element)
+
             def bg_color(self, color='white'):
                 self.append('background-color:' + color + ';')
                 # self._style = self._style + 'background-color:' + color + ';'
                 return self.parent
+
+            # Float helper for an element
+            # returns: style.parent (element)
 
             def float(self, left_or_right="left"):
                 self.append('text-align:' + left_or_right + ';')
                 # self._style = self._style + 'text-align:' + left_or_right + ';'
                 return self.parent
 
+            # Font size helper method
+            # returns: style.parent (element)
+
             def font_size(self, size="18px"):
                 self.append('font-size:' + size + ';')
                 # self._style = self._style + 'font-size:' + size + ';'
                 return self.parent
+
+            # Font color helper method
+            # returns: style.parent (element)
 
             def font_color(self, color='black'):
                 self.append('color:' + color + ';')
                 # self._style += 'color:' + color + ';'
                 return self.parent
 
+            # Height helper method
+            # returns: style.parent (element)
+
             def height(self, height):
                 self.append('height:' + height + ';')
                 # self._style += 'height:' + height + ';'
                 return self.parent
 
+            # Width helper method
+            # returns: style.parent (element)
+
             def width(self, width):
                 self.append('width:' + width + ';')
                 # self._style += 'width:' + width + ';'
                 return self.parent
+
+            # Hide helper method
+            # returns: style.parent (element)
 
             def hide(self, none_or_hidden='none'):
                 self.append('display:' + none_or_hidden + ';')
@@ -919,6 +1016,9 @@ class qhtml:
                 self.columns = columns_or_styling_dict
                 self.time = 0
 
+        # Insert an element object into *row* and *column* using 0 based index
+        # returns: self
+
         def insert_at(self, row, column, obj):
             _s = self
             if type(obj) is list:
@@ -933,6 +1033,9 @@ class qhtml:
 
             return self
 
+        # Set the table td id at *row* and *column* using 0 based index
+        # returns: self
+
         def set_td_id_at(self, row, col, _id):
             _s = self
             _s.td_ids.append({
@@ -944,6 +1047,9 @@ class qhtml:
                 print(str(_c))
 
             return self
+
+        # Set the table td class at *row* and *column* using 0 based index
+        # returns: self
 
         def set_td_class_at(self, row, col, _class):
             _s = self
@@ -957,6 +1063,9 @@ class qhtml:
 
             return self
 
+        # Set the table td style at *row* and *column* using 0 based index
+        # returns: self
+
         def style_td_at(self, row, col, style):
             _s = self
             _s.td_styles.append({
@@ -968,6 +1077,9 @@ class qhtml:
                 print(str(_style))
 
             return self
+
+        # Attempts to build the table and then insert it into a div
+        # returns: div (table inside)
 
         def build(self, append_html=False):
             """Builds the table object into a div object and returns that div."""
@@ -1072,12 +1184,20 @@ class qhtml:
         def __init__(self):
             self._using = False
 
+        # Set using bootstrap true or false
+        # returns: void
+
         def use(self, _bool):
             self._using = _bool
+
+        # Returns true if using bootstrap
+        # returns: Boolean
 
         def using(self):
             return self._using
 
+        # Get the bootstrap raw code
+        # returns: string (bootstrap code)
         def get(self):
             _s = self
             bss = '<!-- CSS only --><link rel="stylesheet" ' \
@@ -1111,6 +1231,9 @@ class qhtml:
 
             return False
 
+        # Saves the template (list of quykhtml elements) to a pickle object
+        # returns: boolean
+
         def save(self, template_name: str, qhtml_obj_list: list):
             s = self
             if template_name:
@@ -1127,6 +1250,9 @@ class qhtml:
                     print('Pickle saving - > ' + str(el))
 
             return True
+
+        # Attempts to load the FOLDER containing all or one pickle object
+        # returns: list (of quykhtml elements)
 
         def load(self, template_name):
             s = self
