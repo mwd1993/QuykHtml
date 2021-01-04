@@ -11,6 +11,7 @@ Key Features:<br>
 	- [Easy Ajax Setup and Calls](#example-ajax-request)<br>
 	- [Easy Form Submissions](#example-forms)<br>
 	- [Bootstrap Support](#example-miscellaneous)<br>
+	- [Easy SEO](#example-SEO)<br>
 	- [Landing Page Example](#example-simple-landing-page1)<br>
 	- [QuykHtml and Flask](#example-quykhtml-with-flask)
 	
@@ -248,6 +249,26 @@ button = q.new("button").set_text("submit").set_form_button()
 form.insert([input,button])
 
 q.display.insert(form).render()
+
+```
+
+# Example: SEO
+
+```python
+
+from QuykHtml import qhtml
+
+# Instantiate class
+q = qhtml()
+
+# Define some SEO
+q.seo.set_page_title('Page Title')
+q.seo.set_page_author('Author')
+q.seo.set_page_keywords('some key words')
+q.seo.set_page_encoding('UTF-8')
+q.seo.set_page_auto_refresh(30)  # refresh every 30 seconds
+
+list_of_seo = q.seo.display_all_seo()
 
 ```
 

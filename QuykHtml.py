@@ -29,8 +29,9 @@ class qhtml:
         self.last = None
         # why do i have to do this self self
         self.templates = self._templates(self)
+        self.seo = self.__seo(self)
 
-    # Returns a new object of an html element
+    # Returns a new q_element object
     # returns: Object
 
     def new(self, _type):
@@ -71,7 +72,7 @@ class qhtml:
             self.all.append(new)
             return new
         else:
-            print('New obj instance is not valid or was not provided.')
+            print('q_element instance is not valid or was not provided.')
             return False
 
     # Attempts to render the constructed webpage
@@ -118,10 +119,16 @@ class qhtml:
         for h in self.head:
             _head_append += h + "\n"
 
-        self.display.insert(self.preview)
-        _scripts_on_page_load = ' window.addEventListener("load", on_page_load_init); function on_page_load_init() {' + _scripts_on_page_load + '}'
-        html_string = "<head>" + _bootstrap + "<style>" + _css + '</style><script type="text/javascript">' + _scripts + '' + _scripts_on_page_load + '</script>' + _head_append + '</head>' + str(
-            self.all[0].innerHTML)
+        if _preview_scripts_loaded:
+            self.display.insert(self.preview)
+
+        if _scripts_on_page_load != "":
+            _scripts_on_page_load = ' window.addEventListener("load", on_page_load_init); function on_page_load_init() {' + _scripts_on_page_load + '}'
+
+        if _scripts != "" or _scripts_on_page_load != "":
+            _scripts = '<script type="text/javascript">' + _scripts + '' + _scripts_on_page_load + '</script>'
+
+        html_string = "<head>" + _head_append + _bootstrap + "<style>" + _css + '</style>' + _scripts + '</head>' + str(self.all[0].innerHTML)
 
         f = open(os.getcwd() + "/" + output_file, "w")
         f.write(html_string)
@@ -138,18 +145,23 @@ class qhtml:
 
     # Attempts to put a string to the users clipboard
     # returns: void
+
     def clip_put(self, _str):
         s = self
+        copy_keyword = ""
         if platform.system() == 'Darwin':
             copy_keyword = 'pbcopy'
         elif platform.system() == 'Windows':
             copy_keyword = 'clip'
+        else:
+            print('Could not copy to clipboard for some reason.')
+            return False
         subprocess.run(copy_keyword, universal_newlines=True, input=_str)
 
     # Easily read a file. Returns the file's contents as a string
     # returns: file-contents/boolean
 
-    def file_read(self, file_name, file_path=''):
+    def file_read(self, file_name, file_path='', to_list=False):
         s = self
         if file_name:
             if file_path:
@@ -159,6 +171,8 @@ class qhtml:
             f = open(dir_path + file_name, 'r')
             read = f.read()
             f.close()
+            if to_list:
+                read = read.split('\n')
             return read
         return False
 
@@ -281,6 +295,9 @@ class qhtml:
                 self.DARK_RED = "#633233"
                 self.DARK_GREEN = "#21573a"
                 self.DARK_BROWN = "#403735"
+
+                self.WHITE = "#FFFFFF"
+                self.BLACK = "#000000"
 
         class _helpers:
             def __init__(self):
@@ -562,6 +579,27 @@ class qhtml:
             self.add_attribute('src="' + _str + '"')
             return self
 
+        # Sets an images alt text
+        # returns: self
+
+        def set_img_alt(self, _str):
+            if self.type != 'img':
+                print('q_element.set_img_alt ERROR.\nset_img_alt should be used on an img type, it was used on a ' + self.type)
+            if _str:
+                self.add_attribute('alt="' + _str + '"')
+
+        # Sets an image placeholder. You can specify
+        # a size by providing an int.
+        # Shout out to via.placeholder.com
+        # returns: self
+
+        def set_img_placeholder(self, place_holder_size=150):
+            if self.type != 'img':
+                print('q_element.set_img_placeholder ERROR.\nShould be used on img type, you used it on ' + self.type)
+                return False
+            self.set_img_src('https://via.placeholder.com/' + str(place_holder_size))
+            return self
+
         # Sets an elements name attribute
         # returns: self
 
@@ -813,18 +851,6 @@ class qhtml:
 
         def has_preview(self):
             return self._onclick_showpreview_html
-
-        # Sets an image placeholder. You can specify
-        # a size by providing an int.
-        # Shout out to via.placeholder.com
-        # returns: self
-
-        def set_img_placeholder(self, place_holder_size=150):
-            if self.type != 'img':
-                print('qhtml object set_img_placeholder error.\nShould be used on img type, you used it on ' + self.type)
-                return False
-            self.set_img_src('https://via.placeholder.com/' + str(place_holder_size))
-            return self
 
         class style_obj:
 
@@ -1273,3 +1299,73 @@ class qhtml:
                     return _templates
 
             return False
+
+    class __seo:
+        def __init__(self, qhtml_parent):
+            self.__title = ""
+            self.__description = ""
+            self.parent = qhtml_parent  # type: qhtml
+
+        def display_all_seo(self):
+            print(str(len(self.parent.head)) + ' SEO Head Tags - > ' + str(self.parent.head))
+            return self.parent.head
+
+        def set_page_title(self, _str):
+            if _str:
+                self.parent.head.append('<title>' + _str + '<title>')
+
+        def set_page_description(self, _str):
+            if _str:
+                self.parent.head.append('<meta name="description" content="' + _str + '">')
+
+        def set_page_keywords(self, _str):
+            if _str:
+                self.parent.head.append('<meta name="keywords" content="' + _str + '">')
+
+        def set_page_author(self, _str):
+            if _str:
+                self.parent.head.append('<meta name="author" content="' + _str + '">')
+
+        def set_page_viewport(self, _str):
+            if _str:
+                self.parent.head.append('<meta name="author" content="' + _str + '">')
+
+        def set_page_auto_refresh(self, seconds: int):
+            if seconds:
+                self.parent.head.append('<meta http-equiv="refresh" content="' + str(seconds) + '">')
+
+        def set_page_robots(self, _str):
+            allowed = ['noindex', 'nofollow', 'index', 'follow']
+            passed = False
+            for a in allowed:
+                if a in _str:
+                    passed = True
+            if _str:
+                if passed:
+                    self.parent.head.append('<meta name="robots" content="' + _str + '">')
+                else:
+                    print('seo.set_page_robots ERROR.\nThese are the allowed strings to be passed: ' + str(allowed))
+
+        def set_page_encoding(self, encoding='UTF-8'):
+            if encoding:
+                self.parent.head.append('<meta charset="' + encoding + '">')
+
+        def set_page_subject(self, _str):
+            if _str:
+                self.parent.head.append('<meta name="subject" content="' + _str + '">')
+
+        def set_page_classification(self, _str):
+            if _str:
+                self.parent.head.append('<meta name="Classification" content="' + _str + '">')
+
+        def set_page_designer(self, _str):
+            if _str:
+                self.parent.head.append('<meta name="designer" content="' + _str + '">')
+
+        def set_page_copyright(self, _str):
+            if _str:
+                self.parent.head.append('<meta name="copyright" content="' + _str + '">')
+
+        def set_page_category(self, _str):
+            if _str:
+                self.parent.head.append('<meta name="category" content="' + _str + '">')
