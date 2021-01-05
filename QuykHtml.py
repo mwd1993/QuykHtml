@@ -30,6 +30,7 @@ class qhtml:
         # why do i have to do this self self
         self.templates = self._templates(self)
         self.seo = self.__seo(self)
+        self._animation_scripts = False
 
     # Returns a new q_element object
     # returns: Object
@@ -68,7 +69,8 @@ class qhtml:
 
     def dupe(self, qhtml_obj):
         if isinstance(qhtml_obj, self._q_element):
-            new = copy.copy(qhtml_obj)
+            new = copy.deepcopy(qhtml_obj)
+            new.parent = self
             self.all.append(new)
             return new
         else:
@@ -125,8 +127,12 @@ class qhtml:
         if _scripts_on_page_load != "":
             _scripts_on_page_load = ' window.addEventListener("load", on_page_load_init); function on_page_load_init() {' + _scripts_on_page_load + '}'
 
-        if _scripts != "" or _scripts_on_page_load != "":
-            _scripts = '<script type="text/javascript">' + _scripts + '' + _scripts_on_page_load + '</script>'
+        if _scripts != "" or _scripts_on_page_load != "" or self._animation_scripts:
+            _anim_scripts = ""
+            if self._animation_scripts:
+                _anim_scripts = self.__get_anim_scripts()
+
+            _scripts = '<script type="text/javascript">' + _scripts + '' + _scripts_on_page_load + _anim_scripts + '</script>'
 
         html_string = "<head>" + _head_append + _bootstrap + "<style>" + _css + '</style>' + _scripts + '</head>' + str(self.all[0].innerHTML)
 
@@ -237,6 +243,27 @@ class qhtml:
         # -------------------------------------------------------------
 
         return True
+
+    def __get_anim_scripts(self):
+        _anim_scripts = 'window.onscroll = function(e){' \
+                        'var els = document.getElementsByClassName("fade-in");' \
+                        'for(var i=0; i<els.length; i++) {' \
+                        '   if(isScrolledIntoView(els[i])) {' \
+                        '       els[i].classList.add("fade-in-now");' \
+                        '       els[i].classList.remove("fade-in");' \
+                        '   }' \
+                        '}' \
+                        '}\n'
+
+        _anim_scripts += 'function isScrolledIntoView(el) {' \
+                         'var rect = el.getBoundingClientRect();' \
+                         'var elemTop = rect.top;' \
+                         'var elemBottom = rect.bottom;' \
+                         'var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);' \
+                         'return isVisible;' \
+                         '}\n'
+
+        return _anim_scripts
 
     # CLASS Style sheet attached to the html object
 
@@ -349,6 +376,7 @@ class qhtml:
         def __init__(self, _type, _parent=0):
             self.type = _type
             self.children = []
+            self.animations = self.__animations(self)
             if _parent != 0:
                 self.parent = _parent
             else:
@@ -433,18 +461,34 @@ class qhtml:
         # Adds an attribute to an element
         # returns: self/object
 
-        def add_attribute(self, _str):
+        def add_attribute(self, _str, append=False):
             if len(_str) < 4:
                 print('QuykHtml add_attribute error, no value defined!\n- > ' + _str)
                 return self
             _attr_name = _str[:_str.find("=")]
             _attr_val = _str[_str.find("=") + 1:]
 
-            if _attr_name in self.attr_check:
-                self.clear_attribute(_attr_name)
+            # TODO - allow for appending of different attribute types.
+            # TODO For now, it only works with class attribute type
+            if append is False:
+                if _attr_name in self.attr_check:
+                    self.clear_attribute(_attr_name)
 
-            self.attr_check.append(_attr_name)
-            self.attributes.append(_attr_name + "=" + _attr_val)
+                self.attr_check.append(_attr_name)
+                self.attributes.append(_attr_name + "=" + _attr_val)
+            else:
+                # TODO For now, it only works with class attribute type
+                _index = -1
+                _found = False
+                for attr in self.attributes:
+                    _index += 1
+                    if "class=" in attr:
+                        self.attributes[_index] = attr[:-1] + " " + _attr_val.replace('"', "") + '"'
+                        _found = True
+
+                if _found is False:
+                    self.attr_check.append(_attr_name)
+                    self.attributes.append(_attr_name + "=" + _attr_val)
             return self
 
         # Attempts to clear an attribute from an element
@@ -560,8 +604,8 @@ class qhtml:
         # the specified value
         # returns: self/object
 
-        def set_class(self, _str):
-            self.add_attribute('class="' + str(_str) + '"')
+        def set_class(self, _str, append=False):
+            self.add_attribute('class="' + str(_str) + '"', append=append)
             return self
 
         # Sets an elements id
@@ -587,6 +631,8 @@ class qhtml:
                 print('q_element.set_img_alt ERROR.\nset_img_alt should be used on an img type, it was used on a ' + self.type)
             if _str:
                 self.add_attribute('alt="' + _str + '"')
+
+            return self
 
         # Sets an image placeholder. You can specify
         # a size by providing an int.
@@ -949,6 +995,94 @@ class qhtml:
                 # self._style += 'display:' + none_or_hidden + ';'
                 return self.parent
 
+        class __animations:
+            def __init__(self, q_element):
+                self.parent = q_element
+
+            def get_anim_scripts(self):
+                _anim_scripts = 'window.onscroll = function(e){' \
+                                'var els = document.getElementsByClassName("fade-in");' \
+                                'for(var i=0; i<els.length; i++) {' \
+                                '   if(isScrolledIntoView(els[i])) {' \
+                                '       els[i].classList.add("fade-in-now");' \
+                                '       els[i].classList.remove("fade-in");' \
+                                '   }' \
+                                '}' \
+                                '}\n'
+
+                _anim_scripts += 'function isScrolledIntoView(el) {' \
+                                 'var rect = el.getBoundingClientRect();' \
+                                 'var elemTop = rect.top;' \
+                                 'var elemBottom = rect.bottom;' \
+                                 'var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);' \
+                                 'return isVisible;' \
+                                 '}\n'
+                return _anim_scripts
+            # in view code:
+            # window.onscroll = function (e) {
+            # // called when the window is scrolled.
+            # // loop through each page element or some array constructed from python as a raw js string??
+            # // check if element has class type and isn't 100% visible opacity
+            # // if has class and isn't 100% opacity, change class and transition
+            # }
+            # function isScrolledIntoView(el) {
+            #     var rect = el.getBoundingClientRect();
+            #     var elemTop = rect.top;
+            #     var elemBottom = rect.bottom;
+            #
+            #     // Only completely visible elements return true:
+            #     var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+            #     // Partially visible elements return true:
+            #     //isVisible = elemTop < window.innerHeight && elemBottom >= 0;
+            #     return isVisible;
+            # }
+
+            def on_inview_fade_in(self, fade_in_speed=4.0):
+                element = self.parent  # type: qhtml._q_element
+                _qhtml = element.parent  # type: qhtml
+                if _qhtml._animation_scripts is False:
+                    _qhtml._animation_scripts = True
+                _qhtml.css.add('.fade-in', 'opacity:5%;transition:opacity 0.8s;')
+                _qhtml.css.add('.fade-in-now', 'opacity:100%;transition:opacity ' + str(fade_in_speed) + 's;')
+                element.set_class('fade-in', append=True)
+                _anim_script_onLoad = 'var els = document.getElementsByClassName("fade-in");' \
+                                      'for(var i=0; i<els.length; i++) {' \
+                                      '   if(isScrolledIntoView(els[i])) {' \
+                                      '       els[i].classList.add("fade-in-now");' \
+                                      '       els[i].classList.remove("fade-in");' \
+                                      '   }' \
+                                      '}'
+                element.scripts_add(_anim_script_onLoad,on_page_load=True)
+                return element
+
+            def on_inview_slide_in(self):
+                pass
+                # https://stackoverflow.com/questions/11725631/how-can-i-make-a-div-horizontally-slide-in
+                # .left-right {
+                #     overflow:hidden;
+                #     height:200px;
+                #     width:200px;
+                #     position:relative;
+                #     background-color:#333;
+                # }
+                # .slider {
+                #     width:200px;
+                #     height:200px;
+                #     position:absolute;
+                #     top:0;
+                #     right:-200px;
+                #     background-color:#000;
+                #     color:#fff;
+                #     transition:0.4s ease;
+                # }
+                #
+                # .left-right:hover .slider {
+                #   right:0;
+                # }
+                # <div class="left-right">
+                #   <div class="slider">Welcome !</div>
+                # </div>
+
     class table:
         def __init__(self, rows_or_file_path, columns_or_styling_dict=-1):
             self.__qhtml = qhtml()
@@ -1306,13 +1440,24 @@ class qhtml:
             self.__description = ""
             self.parent = qhtml_parent  # type: qhtml
 
+        def help_links(self):
+            links = [
+                'http://static.googleusercontent.com/media/www.google.com/en/us/webmasters/docs/search-engine-optimization-starter-guide.pdf',
+                'https://github.com/joshbuchea/HEAD'
+            ]
+            print('QuykHtml - Links on what SEO is and how to use them (shoutout to the authors):')
+            for li in links:
+                print(li)
+
+            return links
+
         def display_all_seo(self):
             print(str(len(self.parent.head)) + ' SEO Head Tags - > ' + str(self.parent.head))
             return self.parent.head
 
         def set_page_title(self, _str):
             if _str:
-                self.parent.head.append('<title>' + _str + '<title>')
+                self.parent.head.append('<title>' + _str + '</title>')
 
         def set_page_description(self, _str):
             if _str:
@@ -1328,7 +1473,7 @@ class qhtml:
 
         def set_page_viewport(self, _str):
             if _str:
-                self.parent.head.append('<meta name="author" content="' + _str + '">')
+                self.parent.head.append('<meta name="viewport" content="' + _str + '">')
 
         def set_page_auto_refresh(self, seconds: int):
             if seconds:
@@ -1369,3 +1514,113 @@ class qhtml:
         def set_page_category(self, _str):
             if _str:
                 self.parent.head.append('<meta name="category" content="' + _str + '">')
+
+        def export(self, file_path='seo_export.txt'):
+            if len(self.parent.head) > 0:
+                qf = QuykFile(file_path, force_create=True)
+                if qf.success:
+                    qf.write(self.parent.head)
+            else:
+                print('no len')
+
+
+class QuykFile:
+    def __init__(self, path, as_full_dir=False, force_create=False):
+        self.success = False
+        self.file_data = {
+            'full': '',
+            'path': '',
+            'name': ''
+        }
+        if force_create:
+            if as_full_dir:
+                full_path = path
+            else:
+                full_path = os.getcwd() + '/' + path
+
+            if os.path.isfile(full_path):
+                _path, _file = os.path.split(full_path)
+                if _path:
+                    self.file_data['path'] = _path
+                else:
+                    self.file_data['path'] = _path
+                self.file_data['name'] = _file
+                self.file_data['full'] = full_path
+                self.success = True
+            else:
+                _path, _file = os.path.split(full_path)
+                self.file_data['path'] = _path
+                self.file_data['name'] = _file
+                self.file_data['full'] = path
+                if _path:
+                    if os.path.isdir(_path) is False:
+                        os.mkdir(_path)
+
+                if os.path.isfile(full_path) is False:
+                    f = open(full_path, 'w+')
+                    f.close()
+                    while os.path.isfile(full_path) is False:
+                        time.sleep(1.5)
+
+                if os.path.isfile(full_path):
+                    self.success = True
+
+            if self.success is False:
+                print('QuykFile - Error could not create a valid object for:\n' + full_path)
+
+    def read(self, as_list=False):
+        if self.success:
+            f = open(self.file_data['full'])
+            r = f.read()
+            f.close()
+            if as_list:
+                r = r.split('\n')
+            return r
+
+    def write(self, text):
+        if self.success:
+            _type = str(type(text))
+            if 'str' in _type:
+                f = open(self.file_data['full'], 'w')
+                f.write(text)
+                f.close()
+            elif 'list' in _type:
+                f = open(self.file_data['full'], 'w')
+                t = '\n'.join(text)
+                f.write(t)
+                f.close()
+
+    def append(self, text, as_new_line=True, before=False):
+        if self.success:
+            _type = str(type(text))
+            if 'str' in _type:
+                f = open(self.file_data['full'], 'a')
+                if as_new_line:
+                    text = '\n' + text
+                f.write(text)
+                f.close()
+            elif 'list' in _type:
+                f = open(self.file_data['full'], 'a')
+                _text = '\n'.join(text)
+
+                if as_new_line:
+                    text = '\n' + _text
+                else:
+                    text = _text
+
+                f.write(text)
+                f.close()
+
+    def insert(self, text, line_index: int):
+        if self.success:
+            _type = str(type(text))
+            if 'str' in _type:
+                rl = self.read(as_list=True)
+                rl.insert(line_index, text)
+                f = open(self.file_data['full'], 'w')
+                t = '\n'.join(rl)
+                f.write(t)
+                f.close()
+
+            elif 'list' in _type:
+                pass
