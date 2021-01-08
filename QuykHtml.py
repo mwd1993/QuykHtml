@@ -11,6 +11,9 @@ import pickle
 print("\nQuykHtml is currently using pickle to load and save templates.\nBe aware of templates you are loading, see their warnings on it.\nhttps://docs.python.org/3/library/pickle.html\n")
 
 
+# TODO - Optimize the logic of the output
+#        of element animation genearated code: animations class
+
 class qhtml:
 
     # Initialize class
@@ -23,19 +26,22 @@ class qhtml:
         self.scripts_on_page_load = []
         self.head = []
         self.css = self._css()
-        self.display = self.new("div")
+        self.display = self.new("div").style.append('background-color:transparent;')
         self.bootstrap = self.bootstrap()
         self.preview = self.new("div")
-        self.last = None
-        # why do i have to do this self self
-        self.templates = self._templates(self)
+        self.last = None  # type: qhtml._q_element
         self.seo = self.__seo(self)
         self._animation_scripts = False
+        self.themes = self._themes(self)
+        self.__body_background = ''
 
     # Returns a new q_element object
     # returns: Object
 
     def new(self, _type):
+        """
+        div, pre, p, a, img, iframe, etc
+        """
         _split = _type.split(" ")
         _obj = ""
         if len(_split) > 1:
@@ -52,7 +58,7 @@ class qhtml:
                     self.all.append(_container)
                     self.all.append(_br)
                     self.all.append(_obj)
-                    return _container
+                    return _container  # type: qhtml._q_element
                 else:
                     return False
             else:
@@ -62,14 +68,19 @@ class qhtml:
             _obj.parent = self
             self.all.append(_obj)
             self.last = _obj
-            return _obj
+            return _obj  # type: qhtml._q_element
 
     # Duplicates an element
     # returns: new duped element
 
-    def dupe(self, qhtml_obj):
-        if isinstance(qhtml_obj, self._q_element):
-            new = copy.deepcopy(qhtml_obj)
+    def dupe(self, q_element):
+        """
+        Dupes an element:\n
+        p = q.new('p').set_text('hi')\n
+        p_dupe = q.dupe(p).style.set('background-color:gray;')\n
+        """
+        if isinstance(q_element, self._q_element):
+            new = copy.deepcopy(q_element)
             new.parent = self
             self.all.append(new)
             return new
@@ -77,10 +88,13 @@ class qhtml:
             print('q_element instance is not valid or was not provided.')
             return False
 
+    def prettify_html(self, html):
+        return html
+
     # Attempts to render the constructed webpage
     # returns: HTML
 
-    def render(self, output_file="render.html", only_html=False, set_clip_board=False):
+    def render(self, output_file="render.html", only_html=False, set_clip_board=False, prettify_html=True):
         if "." not in output_file:
             output_file = output_file + ".html"
         _css = ""
@@ -95,8 +109,10 @@ class qhtml:
                 self.__get_preview_scripts()
                 _preview_scripts_loaded = True
 
-            if _obj_element.ajax_code != "":
-                self.scripts.append(_obj_element.ajax_code)
+            # noinspection PyProtectedMember
+            if _obj_element._ajax_code != "":
+                # noinspection PyProtectedMember
+                self.scripts.append(_obj_element._ajax_code)
 
             if len(_obj_element.scripts_on_page_load) > 0:
                 for __scr in _obj_element.scripts_on_page_load:
@@ -134,12 +150,18 @@ class qhtml:
 
             _scripts = '<script type="text/javascript">' + _scripts + '' + _scripts_on_page_load + _anim_scripts + '</script>'
 
-        html_string = "<head>" + _head_append + _bootstrap + "<style>" + _css + '</style>' + _scripts + '</head>' + str(self.all[0].innerHTML)
+        if self.__body_background:
+            print('body background - >\n' + self.__body_background)
+
+        html_string = "<head>" + _head_append + _bootstrap + "<style>" + _css + '</style>' + _scripts + '</head><body' + self.__body_background + '>' + str(self.display.html()) + '</body>'
 
         f = open(os.getcwd() + "/" + output_file, "w")
         f.write(html_string)
         f.close()
         sleep(0.2)
+
+        if prettify_html:
+            html_string = self.prettify_html(html_string)
 
         if not only_html:
             webbrowser.get(_path).open(str(os.getcwd()) + "/" + output_file)
@@ -181,6 +203,14 @@ class qhtml:
                 read = read.split('\n')
             return read
         return False
+
+    def set_body_background(self, _src, _transparency_strength=0.15):
+        """Set the body background image for the page.\n
+        Transparency Range (0,1) | 1 = full transparency
+        """
+        self.__body_background = ' style="background: linear-gradient(rgba(255,255,255,' + str(_transparency_strength) + '), rgba(255,255,255,' + str(_transparency_strength) + ')),'
+        self.__body_background += 'url(\'' + _src + '\');background-attachment:fixed;background-repeat:no-repeat;background-position:center;background-size: cover;"'
+        return self
 
     def __get_preview_scripts(self):
         # ** PREVIEW HELPER **
@@ -245,25 +275,170 @@ class qhtml:
         return True
 
     def __get_anim_scripts(self):
+        # '       els[i].classList.add("fade-in-now");' \
+        # '       els[i].classList.remove("fade-in");' \
         _anim_scripts = 'window.onscroll = function(e){' \
-                        'var els = document.getElementsByClassName("fade-in");' \
+                        'var els = document.getElementsByTagName("*");' \
                         'for(var i=0; i<els.length; i++) {' \
-                        '   if(isScrolledIntoView(els[i])) {' \
-                        '       els[i].classList.add("fade-in-now");' \
-                        '       els[i].classList.remove("fade-in");' \
+                        '   if(isScrolledIntoView(els[i]) && els[i].id.includes("fade-in")) {' \
+                        '       if(els[i].id.includes("-now") == false)' \
+                        '           els[i].id = els[i].id + "-now";' \
                         '   }' \
-                        '}' \
+                        '} \n' \
+                        'var elss = document.getElementsByTagName("*");' \
+                        'for(i=0; i<elss.length; i++) {' \
+                        '   if(isScrolledIntoView(elss[i]) && window.jQuery.hasData(elss[i])) {' \
+                        '       var _data = e.currentTarget.window.jQuery.data(elss[i]);' \
+                        '       var _anim = _data["animation"];' \
+                        '       var _anim_length = JSON.stringify(_data["animation_length"]);' \
+                        '       $("#" + elss[i].id).animate(_anim,_anim_length,function(){});' \
+                        '       elss[i].classList.add("slide-in-horiz-now");' \
+                        '       elss[i].classList.remove("slide-in-horiz");' \
+                        '   }' \
+                        '} \n' \
                         '}\n'
 
+        # alert("invalid el for scroll");
         _anim_scripts += 'function isScrolledIntoView(el) {' \
+                         'if(!el){ return false;}' \
                          'var rect = el.getBoundingClientRect();' \
                          'var elemTop = rect.top;' \
                          'var elemBottom = rect.bottom;' \
                          'var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);' \
+                         'var _new = parseInt(elemTop) + parseInt(document.body.scrollTop);' \
                          'return isVisible;' \
                          '}\n'
 
         return _anim_scripts
+
+    class _themes:
+        """Themes class which contains theme objects.\n
+        print(q.themes.basic.about())
+        """
+
+        def __init__(self, parent=''):
+            if parent:
+                self.parent = parent
+
+            theme_info = {
+                'name': 'basic',
+                'description': 'A basic theme with: Green buttons, Gray Text and white backgrounds.',
+                'css': [
+                    [
+                        'button',
+                        'color:white;font-size:24px;background-color:#6dad7a;padding:16px;padding-top:5px;'
+                        'padding-bottom:5px;border:solid 1px black;border-radius:6px;margin-top:20px;margin-bottom:20px;'
+                    ],
+                    [
+                        'button:hover',
+                        'background-color:#7ecc8e;'
+                    ],
+                    [
+                        'p',
+                        'font-size:18px;font-weight:bold;margin-top:12px;margin-bottom:12px;color:#454a46;'
+                    ],
+                    [
+                        'input',
+                        'font-size:18px;font-weight:bold;padding:6px;border-radius:2px;border: 1px solid black;'
+                    ]
+                ]
+            }
+
+            self.basic = self._theme_object(theme_info['css'], theme_info['name'], theme_info['description'])
+
+            theme_info['name'] = 'greens'
+            theme_info['description'] = 'A green theme with: Green buttons, White Text and Green Divs and a White backgrounds.'
+            theme_info['css'] = [
+                [
+                    'button',
+                    'color:white;font-size:24px;background-color:#739e7e;padding-top:5px;'
+                    'padding-bottom:5px;border:solid 1px black;border-radius:6px;margin-top:20px;margin-bottom:20px;'
+                    'padding:16px;padding-top:5px;padding-bottom:5px;'
+                ],
+                [
+                    'button:hover',
+                    'background-color:#84b591;'
+
+                ],
+                [
+                    'p',
+                    'font-size:18px;font-weight:bold;margin-top:12px;margin-bottom:12px;color:#454a46;'
+                    'color:white;'
+                ],
+                [
+                    'div',
+                    'background-color:#597560;'
+                ],
+                ['.dark-green-text', 'color:#27362b;']
+            ]
+
+            self.greens = self._theme_object(theme_info['css'], theme_info['name'], theme_info['description'])
+
+            theme_info['name'] = 'blues'
+            theme_info['description'] = 'A Blue theme with: Blue buttons, Gray Text and Blue Divs and a Light Gray background.'
+            theme_info['css'] = [
+                [
+                    'button',
+                    'color:white;font-size:24px;background-color:#5987a8;padding:16px;padding-top:5px;'
+                    'padding-bottom:5px;border:solid 1px black;border-radius:6px;margin-top:20px;margin-bottom:20px;'
+                ],
+                [
+                    'button:hover',
+                    'background-color:#699dc2;'
+                ],
+                [
+                    'div',
+                    'background-color:#426b8a;color:white;'
+                ],
+                [
+                    'body',
+                    'background-color:#a9bdcc;'
+                ],
+                [
+                    'p',
+                    'font-size:18px;font-weight:bold;margin-top:12px;margin-bottom:12px;'
+                    'color:#265373;'
+                ],
+            ]
+
+            self.blues = self._theme_object(theme_info['css'], theme_info['name'], theme_info['description'])
+
+            theme_info['name'] = 'night'
+            theme_info['description'] = 'A Night-Mode theme where everything is mostly dark.'
+            theme_info['css'] = [
+            ]
+
+        class _theme_object:
+            def __init__(self, css, name, about):
+                self.css = css
+                self.__name = name
+                self.__about = about
+
+            def about(self):
+                """Get the description of a theme and available classes you can use\n
+                print(q.themes.basic.about())
+                """
+                _avail_classes = []
+                for ee in self.css:
+                    _ind = 0
+                    for e in ee:
+                        if _ind == 1:
+                            _ind = 0
+                            break
+                        _ind += 1
+
+                        if e[:1] == ".":
+                            _avail_classes.append(e)
+                _append = ""
+                if len(_avail_classes) > 0:
+                    _append = ' '.join(_avail_classes)
+                else:
+                    _append = 'None'
+                return '***** Theme \'' + self.__name + '\' ***** \n' + self.__about + '\nClasses Available For Use:\n\t\t' + _append + ''
+
+            def __repr__(self):
+                print(self.about())
+                return 'Usage: q.css.add(q.themes.' + str(self.__name).lower() + ')\n'
 
     # CLASS Style sheet attached to the html object
 
@@ -280,6 +455,15 @@ class qhtml:
         # returns: class object/itself
 
         def add(self, name: str or list, style=""):
+            """q.css.add( [\n\t['p','font-size:64px;], ['div','background-color:gray;'] \n] )\n
+            or\n
+            q.css.add('p','font-size:64px;')\n
+            q.css.add('div','background-color:gray;')
+            """
+            # noinspection PyProtectedMember
+            if type(name) is qhtml._themes._theme_object:
+                name = name.css
+
             if style == "":
                 if type(name) is list:
                     for li in name:
@@ -370,10 +554,14 @@ class qhtml:
     # CLASS _q_element, an element object type
 
     class _q_element:
+        """
+        An 'element' which allows us to simulate a web element
+        """
 
         # INITIALIZE CLASS
 
         def __init__(self, _type, _parent=0):
+
             self.type = _type
             self.children = []
             self.animations = self.__animations(self)
@@ -385,19 +573,19 @@ class qhtml:
             self.scripts_on_page_load = []
             self.id = -1
             self.attributes = []
-            self.attr_check = []
-            self.style = self.style_obj(self)
+            self._attr_check = []
+            self.style = self._style_obj(self)
             self.innerHTML = ""
             self.innerText = ""
-            self.ajax_code = ""
-            self.ajax_pointer = ""
-            self.ajax_callback = ""
+            self._ajax_code = ""
+            self._ajax_pointer = ""
+            self._ajax_callback = ""
             self._onclick_showpreview_html = False
 
         # Render - attempts to render the full webpage from the object
         # returns: void
 
-        def render(self, output_file="render.html", only_html=False, set_clip_board=False):
+        def render(self, output_file="render.html", only_html=False, set_clip_board=False, prettify_html=True):
             if self.parent == "":
                 return False
             else:
@@ -471,10 +659,10 @@ class qhtml:
             # TODO - allow for appending of different attribute types.
             # TODO For now, it only works with class attribute type
             if append is False:
-                if _attr_name in self.attr_check:
+                if _attr_name in self._attr_check:
                     self.clear_attribute(_attr_name)
 
-                self.attr_check.append(_attr_name)
+                self._attr_check.append(_attr_name)
                 self.attributes.append(_attr_name + "=" + _attr_val)
             else:
                 # TODO For now, it only works with class attribute type
@@ -487,7 +675,7 @@ class qhtml:
                         _found = True
 
                 if _found is False:
-                    self.attr_check.append(_attr_name)
+                    self._attr_check.append(_attr_name)
                     self.attributes.append(_attr_name + "=" + _attr_val)
             return self
 
@@ -495,11 +683,11 @@ class qhtml:
         # returns: self
 
         def clear_attribute(self, _attr_name):
-            if _attr_name in self.attr_check:
+            if _attr_name in self._attr_check:
                 for _a in self.attributes:
                     if _attr_name in _a:
                         self.attributes.remove(_a)
-                        self.attr_check.remove(_attr_name)
+                        self._attr_check.remove(_attr_name)
                         break
                     else:
                         print("FALSE\n")
@@ -513,6 +701,14 @@ class qhtml:
             for s in self.attributes:
                 _b = _b + " " + s
             return _b.strip()
+
+        def get_attribute(self, _attr: str):
+            if _attr:
+                for s in self.attributes:
+                    if _attr.lower() in s:
+                        return s
+
+            return False
 
         # Get the full tag of an object as a string
         # returns: string
@@ -621,6 +817,12 @@ class qhtml:
 
         def set_img_src(self, _str):
             self.add_attribute('src="' + _str + '"')
+            return self
+
+        def set_img_background(self, _source,_transparency_strength=0.2):
+            _str = 'background: linear-gradient(rgba(255,255,255,' + str(_transparency_strength) + '), rgba(255,255,255,' + str(_transparency_strength) + ')), '
+            _str += 'url(\'' + _source + '\');background-attachment:fixed;background-repeat:no-repeat;background-position:center;background-size: cover;'
+            self.style.append(_str)
             return self
 
         # Sets an images alt text
@@ -831,20 +1033,24 @@ class qhtml:
             self.add_attribute('onmouseout="' + _code + '"')
             return self
 
+        def on_mouse_scroll(self, _code):
+            self.add_attribute('onscroll="' + _code + '"')
+            return self
+
         # Gets ajax data if any and retuns a list
         # of data if no specified type is passed
         # returns: data/boolean
 
         def ajax_get(self, _type=""):
-            if self.ajax_code != "":
+            if self._ajax_code != "":
                 if _type == "":
-                    return [self.ajax_code, self.ajax_pointer, self.ajax_callback]
+                    return [self._ajax_code, self._ajax_pointer, self._ajax_callback]
                 elif _type == "code":
-                    return self.ajax_code
+                    return self._ajax_code
                 elif _type == "pointer":
-                    return self.ajax_pointer
+                    return self._ajax_pointer
                 elif _type == "callback":
-                    return self.ajax_callback
+                    return self._ajax_callback
             return False
 
         # Attempts to build an ajax request. randomize_call_for.. is used
@@ -886,9 +1092,9 @@ class qhtml:
                 _r = _r + 'r.open("' + _type + '", "' + _str_path + '", ' + _async + ');'
             _r = _r + 'r.send();}'
 
-            self.ajax_code = _r
-            self.ajax_pointer = _func_name + ";"
-            self.ajax_callback = _callback_name
+            self._ajax_code = _r
+            self._ajax_pointer = _func_name + ";"
+            self._ajax_callback = _callback_name
 
             return self
 
@@ -898,13 +1104,13 @@ class qhtml:
         def has_preview(self):
             return self._onclick_showpreview_html
 
-        class style_obj:
+        class _style_obj:
 
             # INITIALIZE
 
             def __init__(self, _parent):
                 self._style = ""
-                self.parent = _parent
+                self.parent = _parent  # type: qhtml._q_element
 
             # Gets the style of the object
             # returns: style (str)
@@ -996,94 +1202,120 @@ class qhtml:
                 return self.parent
 
         class __animations:
+            __fade_in_loaded = False
+
             def __init__(self, q_element):
-                self.parent = q_element
-
-            def get_anim_scripts(self):
-                _anim_scripts = 'window.onscroll = function(e){' \
-                                'var els = document.getElementsByClassName("fade-in");' \
-                                'for(var i=0; i<els.length; i++) {' \
-                                '   if(isScrolledIntoView(els[i])) {' \
-                                '       els[i].classList.add("fade-in-now");' \
-                                '       els[i].classList.remove("fade-in");' \
-                                '   }' \
-                                '}' \
-                                '}\n'
-
-                _anim_scripts += 'function isScrolledIntoView(el) {' \
-                                 'var rect = el.getBoundingClientRect();' \
-                                 'var elemTop = rect.top;' \
-                                 'var elemBottom = rect.bottom;' \
-                                 'var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);' \
-                                 'return isVisible;' \
-                                 '}\n'
-                return _anim_scripts
-            # in view code:
-            # window.onscroll = function (e) {
-            # // called when the window is scrolled.
-            # // loop through each page element or some array constructed from python as a raw js string??
-            # // check if element has class type and isn't 100% visible opacity
-            # // if has class and isn't 100% opacity, change class and transition
-            # }
-            # function isScrolledIntoView(el) {
-            #     var rect = el.getBoundingClientRect();
-            #     var elemTop = rect.top;
-            #     var elemBottom = rect.bottom;
-            #
-            #     // Only completely visible elements return true:
-            #     var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
-            #     // Partially visible elements return true:
-            #     //isVisible = elemTop < window.innerHeight && elemBottom >= 0;
-            #     return isVisible;
-            # }
+                self.parent = q_element  # type: qhtml._q_element
+                self._total_anims = 0
 
             def on_inview_fade_in(self, fade_in_speed=4.0):
-                element = self.parent  # type: qhtml._q_element
+                self._total_anims += 1
+                element = self.parent
                 _qhtml = element.parent  # type: qhtml
                 if _qhtml._animation_scripts is False:
                     _qhtml._animation_scripts = True
-                _qhtml.css.add('.fade-in', 'opacity:5%;transition:opacity 0.8s;')
-                _qhtml.css.add('.fade-in-now', 'opacity:100%;transition:opacity ' + str(fade_in_speed) + 's;')
-                element.set_class('fade-in', append=True)
-                _anim_script_onLoad = 'var els = document.getElementsByClassName("fade-in");' \
-                                      'for(var i=0; i<els.length; i++) {' \
-                                      '   if(isScrolledIntoView(els[i])) {' \
-                                      '       els[i].classList.add("fade-in-now");' \
-                                      '       els[i].classList.remove("fade-in");' \
-                                      '   }' \
-                                      '}'
-                element.scripts_add(_anim_script_onLoad,on_page_load=True)
+
+                if str(element.id) == "-1":
+
+                    def get_ran_id():
+                        n = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
+                        _rn = ""
+                        for i in range(8):
+                            _rn += str(n[random.randint(0, 9)])
+
+                        _id = 'fade-in-' + str(_rn)
+                        return _id
+
+                    element.set_id(get_ran_id())
+                    print('No element ID, generating one for fade in functionality: ' + element.id)
+
+                _qhtml.css.add('#' + element.id, 'opacity:5%;transition:opacity 0.8s;')
+                _qhtml.css.add('#' + element.id + '-now', 'opacity:100%;transition:opacity ' + str(fade_in_speed) + 's;')
+                _anim_script_onLoad = 'var el = document.getElementById("' + element.id + '");' \
+                                                                                          '   if(isScrolledIntoView(el)) {' \
+                                                                                          '   el.id = "' + element.id + '-now";' \
+                                                                                                                        '}'
+                element.scripts_add(_anim_script_onLoad, on_page_load=True)
                 return element
 
-            def on_inview_slide_in(self):
-                pass
-                # https://stackoverflow.com/questions/11725631/how-can-i-make-a-div-horizontally-slide-in
-                # .left-right {
-                #     overflow:hidden;
-                #     height:200px;
-                #     width:200px;
-                #     position:relative;
-                #     background-color:#333;
-                # }
-                # .slider {
-                #     width:200px;
-                #     height:200px;
-                #     position:absolute;
-                #     top:0;
-                #     right:-200px;
-                #     background-color:#000;
-                #     color:#fff;
-                #     transition:0.4s ease;
-                # }
-                #
-                # .left-right:hover .slider {
-                #   right:0;
-                # }
-                # <div class="left-right">
-                #   <div class="slider">Welcome !</div>
-                # </div>
+            def on_inview_slide_in(self, slide_to='50%', x_or_y='x', _from='left', duration=2000.0, force_position="left:-100%;"):
+                self._total_anims += 1
+                _from = _from.lower()
+                element = self.parent  # type: qhtml._q_element
+                _qhtml = element.parent  # type: qhtml
+                element.style.append('position:absolute;')
+                element.set_class('slide-in-horiz', append=True)
+
+                if _qhtml._animation_scripts is False:
+                    if _qhtml.bootstrap.using() is False:
+                        _qhtml.bootstrap.use(True)
+                        print('Animations require bootstrap. It has been auto loaded for you.')
+                    print('Horizontal Slide (warning): Forces an element to use absolute positioning!')
+                    _qhtml._animation_scripts = True
+                    _qhtml.display.style.append('overflow-x:hidden;')
+                    _jq = ('var _style = $(document.body).attr("style");'
+                           '_style += "overflow-x:hidden;width:100%;";'
+                           'setTimeout(function(){$(document.body).scrollLeft(0);},0.001);')
+                    element.scripts_add(_jq, on_page_load=True)
+
+                if x_or_y == 'x':
+                    def get_ran_id():
+                        n = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
+                        _rn = ""
+                        for i in range(8):
+                            _rn += str(n[random.randint(0, 9)])
+
+                        _id = 'slide-in-' + str(_rn)
+                        return _id
+
+                    _anim_str = ""
+                    if _from == 'left':
+                        _anim_str = 'left:"' + slide_to + '"'
+                        element.style.append(force_position)
+                        if element.id == -1:
+                            _id_get = get_ran_id()
+                            element.set_id(_id_get)
+
+                    elif _from == 'right':
+                        force_position = 'left:100%;'
+                        element.style.append(force_position)
+                        if element.id == -1:
+                            _id_get = get_ran_id()
+                            element.set_id(_id_get)
+                        _anim_str = 'left:"' + slide_to + '"'
+
+                    _anim_data = {
+                        _from.replace('right', 'left'): slide_to
+                    }
+                    _jquery = (
+                            '$(document).ready(function(){'
+                            'if(isScrolledIntoView(el=document.getElementById("' + str(element.id) + '"))){'
+                                                                                                     'el.classList.add("slide-in-horiz-now");'
+                                                                                                     'el.classList.remove("slide-in-horiz");'
+                                                                                                     '$("#' + str(element.id) + '").animate({'
+                                                                                                                                '' + _anim_str + ''
+                                                                                                                                                 '}, ' + str(duration) + ', function(){'
+                                                                                                                                                                         '  '
+                                                                                                                                                                         '});'
+                                                                                                                                                                         '}});'
+                    )
+                    _jquery += 'var _el = document.getElementById("' + str(element.id) + '");'
+                    _jquery += 'window.jQuery.data(_el,"animation",' + str(_anim_data) + ');'
+                    _jquery += 'window.jQuery.data(_el,"animation_length","' + str(duration) + '");'
+                    # print(_jquery)
+                    element.scripts_add(_jquery, on_page_load=True)
+                    return element
 
     class table:
+        """
+        Create a raw table or use a .csv file and generate a table\n
+        table = q.table(1,2) # raw table of 1 row and 2 columns
+        table.insert_at(0,0,q.new('p').set_text('row 1 column 1')\n
+        table.insert_at(0,1,q.new('p').set_text('row 1 column 2')\n
+        table = table.build()\n\n\n
+        table = q.table('my_csv_file',{'p':'font-size:26px;'}).build()
+        """
+
         def __init__(self, rows_or_file_path, columns_or_styling_dict=-1):
             self.__qhtml = qhtml()
             self.time_start = int(round(time.time() * 1000))
@@ -1180,6 +1412,7 @@ class qhtml:
         # returns: self
 
         def insert_at(self, row, column, obj):
+            """insert_at(0, 0, q.new('p').set_text('QuykHtml Rocks!')"""
             _s = self
             if type(obj) is list:
                 for li in obj:
@@ -1197,6 +1430,10 @@ class qhtml:
         # returns: self
 
         def set_td_id_at(self, row, col, _id):
+            """
+            set_td_id_at(0, 0, 'some_id')\n
+            Set the ID of the td element at row 1 column 1
+            """
             _s = self
             _s.td_ids.append({
                 "id": _id,
@@ -1212,6 +1449,10 @@ class qhtml:
         # returns: self
 
         def set_td_class_at(self, row, col, _class):
+            """
+            set_td_class_at(0, 0, 'some_class')\n
+            Set the class of the td element at row 1 column 1
+            """
             _s = self
             _s.td_classes.append({
                 "class": _class,
@@ -1227,6 +1468,10 @@ class qhtml:
         # returns: self
 
         def style_td_at(self, row, col, style):
+            """
+            style_td_at(0, 0, 'font-size:42px;background-color:green;')\n
+            Set the styling of the td element at row 1 column 1
+            """
             _s = self
             _s.td_styles.append({
                 "style": style,
@@ -1242,7 +1487,15 @@ class qhtml:
         # returns: div (table inside)
 
         def build(self, append_html=False):
-            """Builds the table object into a div object and returns that div."""
+            """
+            Builds the table object into a div object and returns that div.\n
+            correct usage:\n
+            t = q.table(1,1)\n
+            t = t.build()\n
+            incorrect usage:\n
+            t = q.table(1,1)\n
+            t.build()\n
+            """
             q = self.__qhtml
             div = q.new("div")
             self.__build_into(div, append_html)
@@ -1363,8 +1616,8 @@ class qhtml:
             bss = '<!-- CSS only --><link rel="stylesheet" ' \
                   'href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" ' \
                   'integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" ' \
-                  'crossorigin="anonymous"><script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" ' \
-                  'integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" ' \
+                  'crossorigin="anonymous"><script src="https://code.jquery.com/jquery-3.5.1.js" ' \
+                  'integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" ' \
                   'crossorigin="anonymous"></script><script ' \
                   'src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" ' \
                   'integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" ' \
@@ -1374,67 +1627,14 @@ class qhtml:
                   'crossorigin="anonymous"></script> '
             return bss
 
-    # TODO convert from pickle to no required library
-    #   dir(obj) and obj.__dict__ are helpers
-    class _templates:
-        def __init__(self, qhtml_instance):
-            self.parent = qhtml_instance
-            self.__path = os.getcwd() + '/Templates/'
-            self.__path2 = 'Templates/'
-
-        def __space_to_underscore(self, _str, vice_versa=False):
-            s = self
-            if vice_versa:
-                return _str.replace('_', ' ')
-            else:
-                return _str.replace(' ', '_')
-
-            return False
-
-        # Saves the template (list of quykhtml elements) to a pickle object
-        # returns: boolean
-
-        def save(self, template_name: str, qhtml_obj_list: list):
-            s = self
-            if template_name:
-                template_name = self.__space_to_underscore(template_name)
-                index = -1
-                p = self.__path + template_name + '/'
-                if not os.path.isdir(p):
-                    os.mkdir(p)
-                for el in qhtml_obj_list:
-                    index += 1
-                    if not os.path.isfile(self.__path2 + template_name + '/' + template_name + '_' + str(index) + '.pickle'):
-                        open('templates/' + template_name + '/' + template_name + '_' + str(index) + '.pickle', 'w').close()
-                    pickle.dump(el, file=open('templates/' + template_name + '/' + template_name + '_' + str(index) + '.pickle', 'wb'))
-                    print('Pickle saving - > ' + str(el))
-
-            return True
-
-        # Attempts to load the FOLDER containing all or one pickle object
-        # returns: list (of quykhtml elements)
-
-        def load(self, template_name):
-            s = self
-            if template_name:
-                template_name = self.__space_to_underscore(template_name)
-                p = self.__path + template_name + '/'
-                p2 = self.__path2 + template_name + '/'
-                _templates = []
-                if os.path.isdir(p):
-                    index = -1
-                    for file in os.listdir(p):
-                        index += 1
-                        qhtml_obj = pickle.load(file=open(p2 + file, 'rb'))
-                        _templates.append(qhtml_obj)
-
-                if len(_templates) > 0:
-                    print('Pickles Loaded - > ' + str(_templates))
-                    return _templates
-
-            return False
-
     class __seo:
+        """
+        Class to manage SEO Data.\n
+        You can see some various help links which\n
+        explain what SEO is and how to use it:\n
+        q.seo.help_links()
+        """
+
         def __init__(self, qhtml_parent):
             self.__title = ""
             self.__description = ""
@@ -1525,6 +1725,20 @@ class qhtml:
 
 
 class QuykFile:
+    """
+    QuykFile Class:\n
+    Allows easy file manipulation:\n
+    \n
+    qf = QuykFile('path/to/file.txt')\n
+    if qf:
+    \t  qf.write('QuykFile!')\n
+    \t  read = qf.read()\n
+    \t  read_list = qf.read(as_list=True)\n
+    \t  qf.rename('file_renamed.txt')\n
+    \t  print(str(qf.file_data))
+
+    """
+
     def __init__(self, path, as_full_dir=False, force_create=False):
         self.success = False
         self.file_data = {
@@ -1566,7 +1780,29 @@ class QuykFile:
                     self.success = True
 
             if self.success is False:
-                print('QuykFile - Error could not create a valid object for:\n' + full_path)
+                print('QuykFile - Error could not create a valid object for ( Dir Creation Failed ) :\n' + full_path)
+        else:
+            _reason = ""
+            if as_full_dir:
+                full_path = path
+            else:
+                full_path = os.getcwd() + '/' + path
+
+            if os.path.isfile(full_path):
+                _path, _file = os.path.split(full_path)
+                if _path:
+                    self.file_data['path'] = _path
+                else:
+                    self.file_data['path'] = _path
+                self.file_data['name'] = _file
+                self.file_data['full'] = full_path
+                self.success = True
+            else:
+                self.success = False
+                _reason = "( No Such File )"
+
+            if self.success is False:
+                print('QuykFile - Error could not create a valid object ' + _reason + ':\n' + full_path)
 
     def read(self, as_list=False):
         if self.success:
@@ -1624,3 +1860,36 @@ class QuykFile:
 
             elif 'list' in _type:
                 pass
+
+    def copy_to(self, path, as_full_dir=False):
+        if self.success:
+            c = self.read()
+            if c:
+                if as_full_dir is False:
+                    path = os.getcwd() + '/' + path
+
+                _path, _file = os.path.split(path)
+                if os.path.isdir(_path):
+                    f = open(path, 'w+')
+                    f.write(c)
+                    f.close()
+                    return True
+
+        return False
+
+    def rename(self, name):
+        if self.success:
+            if self.copy_to(name):
+                os.remove(self.file_data['full'])
+                n_replace = self.file_data['name']
+                self.file_data['full'] = self.file_data['full'].replace(n_replace, name)
+                self.file_data['name'] = name
+                print(str(self.file_data))
+                return True
+        return False
+
+    def delete(self):
+        if self.success:
+            os.remove(self.file_data['full'])
+            self.file_data = {}
+            self.success = False
