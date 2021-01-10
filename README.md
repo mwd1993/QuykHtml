@@ -5,15 +5,15 @@ A python library that allows you to quickly and easily generate HTML templates a
  | ----------------- | ----------------- |  
 
 Key Features:<br>
+	- [Flask](#example-quykhtml-with-flask)
 	- [Chaining together commands](#example-miscellaneous)<br>
-	- [Write Javascript/jquery in your IDE or include from a file](#example-javascript-code)<br>
-	- [Easy Table system](#example-tables)<br>
-	- [Easy Ajax Setup and Calls](#example-ajax-request)<br>
-	- [Easy Form Submissions](#example-forms)<br>
-	- [Bootstrap Support](#example-miscellaneous)<br>
-	- [Easy SEO](#example-SEO)<br>
+	- [Javascript/jQuery support](#example-javascript-code)<br>
+	- [Table Creation](#example-tables)<br>
+	- [Ajax Creation](#example-ajax-request)<br>
+	- [Form Creation](#example-forms)<br>
+	- [Boostrap](#example-miscellaneous)<br>
+	- [SEO](#example-SEO)<br>
 	- [Landing Page Example](#example-simple-landing-page1)<br>
-	- [QuykHtml and Flask](#example-quykhtml-with-flask)
 	
 
 # Example: Hello World in 4 lines
