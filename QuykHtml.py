@@ -6,17 +6,13 @@ from time import sleep
 import copy
 import platform
 import subprocess
-import pickle
 
-print("\nQuykHtml is currently using pickle to load and save templates.\nBe aware of templates you are loading, see their warnings on it.\nhttps://docs.python.org/3/library/pickle.html\n")
-
-
-# TODO - Optimize the logic of the output
-#        of element animation genearated code: animations class
 
 class qhtml:
 
-    # Initialize class
+    """
+    Main qhtml class
+    """
     def __init__(self):
 
         # Variables
@@ -35,11 +31,9 @@ class qhtml:
         self.themes = self._themes(self)
         self.__body_background = ''
 
-    # Returns a new q_element object
-    # returns: Object
-
     def new(self, _type):
         """
+        Returns a new q_element object
         div, pre, p, a, img, iframe, etc
         """
         _split = _type.split(" ")
@@ -70,9 +64,6 @@ class qhtml:
             self.last = _obj
             return _obj  # type: qhtml._q_element
 
-    # Duplicates an element
-    # returns: new duped element
-
     def dupe(self, q_element):
         """
         Dupes an element:\n
@@ -91,10 +82,11 @@ class qhtml:
     def prettify_html(self, html):
         return html
 
-    # Attempts to render the constructed webpage
-    # returns: HTML
-
     def render(self, output_file="render.html", only_html=False, set_clip_board=False, prettify_html=True):
+        """
+        Renders a file, returns the html generated
+        """
+
         if "." not in output_file:
             output_file = output_file + ".html"
         _css = ""
@@ -171,11 +163,10 @@ class qhtml:
 
         return html_string
 
-    # Attempts to put a string to the users clipboard
-    # returns: void
-
     def clip_put(self, _str):
-        s = self
+        """
+        Attempts to put a string to your clipboard
+        """
         copy_keyword = ""
         if platform.system() == 'Darwin':
             copy_keyword = 'pbcopy'
@@ -190,6 +181,9 @@ class qhtml:
     # returns: file-contents/boolean
 
     def file_read(self, file_name, file_path='', to_list=False):
+        """
+        Easily read a file. Returns the file's contents as a string
+        """
         s = self
         if file_name:
             if file_path:
@@ -455,7 +449,9 @@ class qhtml:
         # returns: class object/itself
 
         def add(self, name: str or list, style=""):
-            """q.css.add( [\n\t['p','font-size:64px;], ['div','background-color:gray;'] \n] )\n
+            """
+            Add a style to an object element
+            q.css.add( [\n\t['p','font-size:64px;], ['div','background-color:gray;'] \n] )\n
             or\n
             q.css.add('p','font-size:64px;')\n
             q.css.add('div','background-color:gray;')
@@ -479,11 +475,10 @@ class qhtml:
                 self.styles.append(name + "{" + style + "}")
                 return self
 
-        # Export every style into an external style sheet
-        # in the program's directory
-        # returns: void
-
         def export(self, _file):
+            """
+            Export every style into an external style sheet in the program's directory
+            """
             if "." not in _file:
                 return False
             f = open(_file, "w")
@@ -582,10 +577,10 @@ class qhtml:
             self._ajax_callback = ""
             self._onclick_showpreview_html = False
 
-        # Render - attempts to render the full webpage from the object
-        # returns: void
-
         def render(self, output_file="render.html", only_html=False, set_clip_board=False, prettify_html=True):
+            """
+            Attempts to render the full webpage from the object
+            """
             if self.parent == "":
                 return False
             else:
@@ -597,20 +592,21 @@ class qhtml:
                     else:
                         self.parent.render(output_file)
 
-        # Adds javascript code to the main page/display
-        # returns: self
-
         def scripts_add(self, js_code, on_page_load=False):
+            """
+            Adds javascript code to the main page/display
+            """
             if on_page_load:
                 self.scripts_on_page_load.append(js_code)
             else:
                 self.scripts.append(js_code)
             return self
 
-        # Insert a table into an element as pure html
-        # returns: itself/html object
-
         def insert_table_raw(self, table_raw_obj: object, append_html=False):
+            """
+            Insert a table into an element as pure html
+            returns: itself/html object
+            """
             if append_html:
                 self.innerHTML += table_raw_obj.__build_html()
             else:
@@ -624,11 +620,12 @@ class qhtml:
                 self.innerHTML = table_html
             return self
 
-        # Insert an object into another object
-        # IE: insert a p object inside of a div object
-        # returns: itself/html object
-
         def insert(self, _obj):
+            """
+            Insert an object into another object
+            IE: insert a p object inside of a div object
+            returns: itself/html object
+            """
             if type(_obj) is list:
                 for l in _obj:
                     self.children.append(l)
@@ -646,10 +643,11 @@ class qhtml:
 
             return self
 
-        # Adds an attribute to an element
-        # returns: self/object
-
         def add_attribute(self, _str, append=False):
+            """
+            Adds an attribute to an element
+            returns: self/object
+            """
             if len(_str) < 4:
                 print('QuykHtml add_attribute error, no value defined!\n- > ' + _str)
                 return self
@@ -679,10 +677,11 @@ class qhtml:
                     self.attributes.append(_attr_name + "=" + _attr_val)
             return self
 
-        # Attempts to clear an attribute from an element
-        # returns: self
-
         def clear_attribute(self, _attr_name):
+            """
+            Attempts to clear an attribute from an element
+            returns: self
+            """
             if _attr_name in self._attr_check:
                 for _a in self.attributes:
                     if _attr_name in _a:
@@ -693,10 +692,11 @@ class qhtml:
                         print("FALSE\n")
             return self
 
-        # Retrieves all attributes from an object
-        # returns: html attributes (str)
-
         def get_attributes(self):
+            """
+            Retrieves all attributes from an object
+            returns: html attributes (str)
+            """
             _b = ""
             for s in self.attributes:
                 _b = _b + " " + s
@@ -710,10 +710,11 @@ class qhtml:
 
             return False
 
-        # Get the full tag of an object as a string
-        # returns: string
-
         def get_tag_open(self):
+            """
+            Get the full tag of an object as a string
+            returns: string
+            """
             first = "<" + self.type + " " + self.get_attributes()
             if self.style.get():
                 second = ' style="' + self.style.get() + '">'
@@ -721,17 +722,18 @@ class qhtml:
                 second = ">"
             return first + second
 
-        # Gets the closing tag of an object as a string
-        # returns: string
-
         def get_tag_close(self):
+            """
+            Gets the closing tag of an object as a string
+            returns: string
+            """
             return "</" + self.type + ">"
 
-        # Sets a code block to display code
-        # returns: self
-
         def set_text_code_block(self, _str, text_color=False, parentheses_color=False, main_text_color=False, background_color=False):
-
+            """
+            Sets a code block to display code
+            returns: self
+            """
             if self.type != 'pre':
                 print('set_text_code_block type error. Should be used on a "pre" type.\nYou used it on a ' + self.type)
                 return False
@@ -764,71 +766,82 @@ class qhtml:
 
             return self
 
-        # Attempts to set the text of an object
-        # returns: itself/object
-
         def set_text(self, _str):
+            """
+            Attempts to set the text of an object
+            returns: itself/object
+            """
             self.innerText = _str
             return self
 
-        # Attempts to set a MEDIUM sized text block used as a place holder
-        # returns: self
-
         def set_text_ipsum(self):
+            """
+            Attempts to set a MEDIUM sized text block used as a place holder
+            returns: self
+            """
             self.innerText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in " \
                              "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum "
             return self
 
-        # Attempts to set a SMALL sized text block used as a place holder
-        # returns: self
-
         def set_text_ipsum_small(self):
+            """
+            Attempts to set a SMALL sized text block used as a place holder
+            returns: self
+            """
             self.innerText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
             return self
 
-        # Attempts to set a LARGE sized text block used as a place holder
-        # returns: self
-
         def set_text_ipsum_large(self):
+            """
+            Attempts to set a LARGE sized text block used as a place holder
+            returns: self
+            """
             self.innerText = "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit " \
                              "aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et " \
                              "dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae " \
                              "consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur? "
             return self
 
-        # Sets/overrides the class on the object with
-        # the specified value
-        # returns: self/object
-
         def set_class(self, _str, append=False):
+            """
+            Sets/overrides the class on the object with
+            the specified value
+            returns: self/object
+            """
             self.add_attribute('class="' + str(_str) + '"', append=append)
             return self
 
-        # Sets an elements id
-        # returns: self
-
         def set_id(self, _str):
+            """
+            Sets an elements id
+            returns: self
+            """
             self.add_attribute('id="' + str(_str).replace("#", "") + '"')
             self.id = str(_str).replace("#", "")
             return self
 
-        # Sets an images source (external url or local url)
-        # returns: self
-
         def set_img_src(self, _str):
+            """
+            Sets an images source (external url or local url)
+            returns: self
+            """
             self.add_attribute('src="' + _str + '"')
             return self
 
-        def set_img_background(self, _source,_transparency_strength=0.2):
+        def set_img_background(self, _source, _transparency_strength=0.2):
+            """
+            Sets an images background
+            """
             _str = 'background: linear-gradient(rgba(255,255,255,' + str(_transparency_strength) + '), rgba(255,255,255,' + str(_transparency_strength) + ')), '
             _str += 'url(\'' + _source + '\');background-attachment:fixed;background-repeat:no-repeat;background-position:center;background-size: cover;'
             self.style.append(_str)
             return self
 
-        # Sets an images alt text
-        # returns: self
-
         def set_img_alt(self, _str):
+            """
+            Sets an images alt text
+            returns: self
+            """
             if self.type != 'img':
                 print('q_element.set_img_alt ERROR.\nset_img_alt should be used on an img type, it was used on a ' + self.type)
             if _str:
@@ -836,50 +849,56 @@ class qhtml:
 
             return self
 
-        # Sets an image placeholder. You can specify
-        # a size by providing an int.
-        # Shout out to via.placeholder.com
-        # returns: self
-
         def set_img_placeholder(self, place_holder_size=150):
+            """
+            Sets an image placeholder. You can specify
+            a size by providing an int.
+            Shout out to via.placeholder.com\n
+            returns: self
+            """
             if self.type != 'img':
                 print('q_element.set_img_placeholder ERROR.\nShould be used on img type, you used it on ' + self.type)
                 return False
             self.set_img_src('https://via.placeholder.com/' + str(place_holder_size))
             return self
 
-        # Sets an elements name attribute
-        # returns: self
-
         def set_name(self, _str):
+            """
+            Sets an elements name attribute\n
+            returns: self
+            """
             self.add_attribute('name="' + _str + '"')
             return self
 
-        # Attempts to set an elements value
-        # returns: self
-
         def set_value(self, _str):
+            """
+            Attempts to set an elements value\n
+            returns: self
+            """
             self.add_attribute('value="' + _str + '"')
             return self
 
-        # Sets an elements tooltip (on mouse hover -> text shows near cursor)
-        # returns: self
-
         def set_tool_tip(self, _str):
+            """
+            Sets an elements tooltip (on mouse hover -> text shows near cursor)\n
+            returns: self
+            """
             self.add_attribute('title="' + _str + '"')
             return self
 
-        # Sets the element and all of it's children's html into the users' clipboard
-        # returns: self
-
         def set_clip_board(self):
+            """
+            Sets the element and all of it's children's html into the users' clipboard\n
+            returns: self
+            """
             self.parent.clip_put(self.html())
             return self
 
-        # On click, go to specified url. no_https=True will allow for external domain linking.
-        # returns: self
-
         def on_click_goto(self, url_to_nav_to, new_tab=True, no_https=False):
+            """
+            On click, go to specified url. no_https=True will allow for external domain linking.\n
+            returns: self
+            """
             if no_https is False:
                 if new_tab:
                     self.on_click("window.open('https://" + url_to_nav_to + "');")
@@ -892,11 +911,12 @@ class qhtml:
                     self.on_click("window.location.href='" + url_to_nav_to + "';")
             return self
 
-        # Sets a form elements form options
-        # action="upload.php" method="post" enctype="multipart/form-data"
-        # returns: self
-
         def set_form_options(self, action_php_call, method_get_or_post, enctype="multipart/form-data"):
+            """
+            Sets a form elements form options\n
+            action="upload.php" method="post" enctype="multipart/form-data"\n
+            returns: self
+            """
             method = method_get_or_post
             action = action_php_call
             if self.type != "form":
@@ -911,18 +931,21 @@ class qhtml:
                 return self
             return self
 
-        # Makes the submit button inside of a specified URL element a form button
-        # which will submit the form
-        # returns: self
-
         def set_form_button(self):
+            """
+            Makes the submit button inside of a specified URL element a form button
+            which will submit the form
+            returns: self
+            """
             self.add_attribute('value="submit"')
             return self
 
-        # Sets an iframe element options
-        # returns: self
-
         def set_iframe(self, src_url, title="iframe"):
+            """
+            Sets an iframe element options
+            returns: self
+
+            """
             if self.type != "iframe":
                 print("Cannot set iframe data on type " + self.type)
                 return self
@@ -930,10 +953,11 @@ class qhtml:
             self.add_attribute('src="' + src_url + '" title="' + title + '"')
             return self
 
-        # Makes element (input) auto complete text or not
-        # returns: self
-
         def set_auto_complete(self, _boolean: bool):
+            """
+            Makes element (input) auto complete text or not
+            returns: self
+            """
             if not _boolean:
                 self.add_attribute('autocomplete="off"')
             else:
@@ -941,25 +965,28 @@ class qhtml:
 
             return self
 
-        # Gets all of the html of an element (and innerHtml)
-        # returns: self
-
         def html(self, set_clip_board=False):
+            """
+            Gets all of the html of an element (and innerHtml)
+            returns: self
+            """
             html = self.get_tag_open() + self.innerText + self.innerHTML + self.get_tag_close()
             if set_clip_board:
                 self.parent.clip_put(html)
             return html
 
-        # Get parent class
-        # returns: parent/obj
-
         def get_parent(self):
+            """
+            Get parent class
+            returns: parent/obj
+            """
             return self.parent
 
-        # Get the highest class in the nested class
-        # returns: highest class
-
         def get_parent_super(self):
+            """
+            Get the highest class in the nested class
+            returns: highest class
+            """
             _obj = self
             while _obj.parent:
                 _obj = _obj.parent
@@ -970,10 +997,11 @@ class qhtml:
             if _f not in self.get_tag_open():
                 self.add_attribute('id="' + _f + '"')
 
-        # Attempts to link the current object to a higher class
-        # returns: Void
-
         def __link_self(self):
+            """
+            Attempts to link the current object to a higher class
+            returns: Void
+            """
             _obj = self
             _s = self
             while _obj.parent:
@@ -986,62 +1014,69 @@ class qhtml:
 
                 _obj = _obj.parent
 
-        # Set an onclick function to be called with code (JS)
-        # returns: self/object
-
         def on_click(self, _code, _block_normal_context=True):
+            """
+            Set an onclick function to be called with code (JS)
+            returns: self/object
+            """
             if _block_normal_context:
                 self.add_attribute('onClick="' + _code + ' return false;"')
             else:
                 self.add_attribute('onClick="' + _code + '"')
             return self
 
-        # On right click, run specified code
-        # returns: self
-
         def on_right_click(self, _code, _block_normal_context=True):
+            """
+            On right click, run specified code
+            returns: self
+            """
             _block = ''
-
             if _block_normal_context:
                 _block = ' return false;'
             else:
                 _block = ''
-
             self.add_attribute('oncontextmenu="' + _code + _block + '"')
             return self
 
-        # Upon element clicked, shows a preview full-screen'd image of the element
-        # This can be used for any element, but makes most sense for images
-        # returns: self
-
         def on_click_show_preview(self):
+            """
+            Upon element clicked, shows a preview full-screen'd image of the element
+            This can be used for any element, but makes most sense for images
+            returns: self
+            """
             self._onclick_showpreview_html = True
             self.on_click("quykHtml_showPreview(this);")
             return self
 
-        # Set an on mouse enter to be called with code (JS)
-        # returns: self/object
-
         def on_mouse_enter(self, _code):
+            """
+            Set an on mouse enter to be called with code (JS)
+            returns: self/object
+            """
             self.add_attribute('onmouseover="' + _code + '"')
             return self
 
-        # Set an onmouseleave function to be called with code (JS)
-        # returns: self/object
-
         def on_mouse_leave(self, _code):
+            """
+            Set an onmouseleave function to be called with code (JS)
+            returns: self/object
+            """
             self.add_attribute('onmouseout="' + _code + '"')
             return self
 
         def on_mouse_scroll(self, _code):
+            """
+            Sets an onmousescroll function to be called with code (JS)
+            """
             self.add_attribute('onscroll="' + _code + '"')
             return self
 
-        # Gets ajax data if any and retuns a list
-        # of data if no specified type is passed
-        # returns: data/boolean
-
         def ajax_get(self, _type=""):
+            """
+            Gets ajax data if any and retuns a list
+            of data if no specified type is passed
+            returns: data/boolean
+            """
             if self._ajax_code != "":
                 if _type == "":
                     return [self._ajax_code, self._ajax_pointer, self._ajax_callback]
@@ -1053,12 +1088,13 @@ class qhtml:
                     return self._ajax_callback
             return False
 
-        # Attempts to build an ajax request. randomize_call_for.. is used
-        # to get the most recent data from the request by providing
-        # a piece of raw js code that appends a random number to the call request
-        # returns: self
-
         def ajax_build(self, _type, _str_path, js_callback_func="", _async="true", randomize_call_for_fresh_data=False):
+            """
+            Attempts to build an ajax request. randomize_call_for.. is used\n
+            to get the most recent data from the request by providing\n
+            a piece of raw js code that appends a random number to the call request\n
+            returns: self
+            """
             _ran = []
             for i in range(5):
                 _ran.append(str(random.randint(0, 9)))
@@ -1098,30 +1134,36 @@ class qhtml:
 
             return self
 
-        # Returns true if the element has an on click preview
-        # returns: self
-
         def has_preview(self):
+            """
+            Returns true if the element has an on click preview
+            returns: self
+            """
             return self._onclick_showpreview_html
 
         class _style_obj:
-
-            # INITIALIZE
+            """
+            Style class instantiated in the main QHTML class
+            """
 
             def __init__(self, _parent):
                 self._style = ""
                 self.parent = _parent  # type: qhtml._q_element
 
-            # Gets the style of the object
-            # returns: style (str)
-
             def get(self):
+                """
+                Gets the style of the object
+                :return: str
+                """
                 return self._style
 
-            # Set an object/element's style
-            # returns: self/object
-
             def set(self, _style):
+                """
+                Set an object/element's style\n
+                returns: self/object
+                :param _style: str
+                :return: self
+                """
                 if type(_style) is list:
                     for l in _style:
                         self.append(l)
@@ -1130,78 +1172,99 @@ class qhtml:
 
                 return self.parent
 
-            # Appends inline styling to an elements style class
-            # returns: style.parent (element)
-
             def append(self, _style):
+                """
+                Appends inline styling to an elements style class
+                :param _style:
+                :return:
+                """
                 self._style = self._style + _style
                 return self.parent
 
-            # Helper to align an element
-            # returns: style.parent (element)
-
             def align(self, left_center_right="center"):
+                """
+                Helper to align an element
+                :param left_center_right:
+                :return: q_element object
+                """
                 self.append('text-align:' + left_center_right + ';')
                 # self._style = self._style + 'text-align:' + left_center_right + ';'
                 return self.parent
 
-            # Background color helper
-            # returns: style.parent (element)
-
             def bg_color(self, color='white'):
+                """
+                Background color helper
+                :param color: str
+                :return: q_element object
+                """
                 self.append('background-color:' + color + ';')
                 # self._style = self._style + 'background-color:' + color + ';'
                 return self.parent
 
-            # Float helper for an element
-            # returns: style.parent (element)
-
             def float(self, left_or_right="left"):
+                """
+                Float helper for an element
+                :param left_or_right: str
+                :return: q_element object
+                """
                 self.append('text-align:' + left_or_right + ';')
-                # self._style = self._style + 'text-align:' + left_or_right + ';'
                 return self.parent
-
-            # Font size helper method
-            # returns: style.parent (element)
 
             def font_size(self, size="18px"):
+                """
+                Font size helper method
+                :param size: str
+                :return: q_element object
+                """
+                if 'px' not in size:
+                    size = size + 'px'
                 self.append('font-size:' + size + ';')
-                # self._style = self._style + 'font-size:' + size + ';'
                 return self.parent
-
-            # Font color helper method
-            # returns: style.parent (element)
 
             def font_color(self, color='black'):
+                """
+                Font color helper method
+                :param color: str
+                :return: q_element object
+                """
                 self.append('color:' + color + ';')
-                # self._style += 'color:' + color + ';'
                 return self.parent
-
-            # Height helper method
-            # returns: style.parent (element)
 
             def height(self, height):
+                """
+                Height helper method
+                :param height: str
+                :return: q_element object
+                """
                 self.append('height:' + height + ';')
-                # self._style += 'height:' + height + ';'
                 return self.parent
 
-            # Width helper method
-            # returns: style.parent (element)
-
             def width(self, width):
+                """
+                Width helper method
+                :param width:
+                :return: q_element object
+                """
                 self.append('width:' + width + ';')
-                # self._style += 'width:' + width + ';'
                 return self.parent
 
             # Hide helper method
             # returns: style.parent (element)
 
             def hide(self, none_or_hidden='none'):
+                """
+                Hide an element, helper method
+                :param none_or_hidden: str
+                :return: q_element object
+                """
                 self.append('display:' + none_or_hidden + ';')
-                # self._style += 'display:' + none_or_hidden + ';'
                 return self.parent
 
         class __animations:
+            """
+            Animations for an element\n
+            Sliding and Fade In are supported at the moment
+            """
             __fade_in_loaded = False
 
             def __init__(self, q_element):
@@ -1209,6 +1272,11 @@ class qhtml:
                 self._total_anims = 0
 
             def on_inview_fade_in(self, fade_in_speed=4.0):
+                """
+                When the element is in view, fade in
+                :param fade_in_speed: seconds (float)
+                :return: q_element object
+                """
                 self._total_anims += 1
                 element = self.parent
                 _qhtml = element.parent  # type: qhtml
@@ -1239,6 +1307,17 @@ class qhtml:
                 return element
 
             def on_inview_slide_in(self, slide_to='50%', x_or_y='x', _from='left', duration=2000.0, force_position="left:-100%;"):
+                """
+                When the element is in view, slide in\n
+                Allows slide in from left or right, element will then use
+                Absolute positioning\n
+                :param slide_to: position (50%, 400px, etc)
+                :param x_or_y: slide horizontal (vertical slide not supported yet)
+                :param _from: left or right
+                :param duration: Amount of time until the element reaches the set position
+                :param force_position: Force the initial position of the element (ie: left:-100%; or left:-200px;, etc)
+                :return: q_element object
+                """
                 self._total_anims += 1
                 _from = _from.lower()
                 element = self.parent  # type: qhtml._q_element
@@ -1312,7 +1391,8 @@ class qhtml:
         table = q.table(1,2) # raw table of 1 row and 2 columns
         table.insert_at(0,0,q.new('p').set_text('row 1 column 1')\n
         table.insert_at(0,1,q.new('p').set_text('row 1 column 2')\n
-        table = table.build()\n\n\n
+        table = table.build()\n
+        Or from a .csv:\n
         table = q.table('my_csv_file',{'p':'font-size:26px;'}).build()
         """
 
@@ -1412,7 +1492,10 @@ class qhtml:
         # returns: self
 
         def insert_at(self, row, column, obj):
-            """insert_at(0, 0, q.new('p').set_text('QuykHtml Rocks!')"""
+            """
+            Insert an element object into *row* and *column* using 0 based index\n
+            insert_at(0, 0, q.new('p').set_text('QuykHtml Rocks!')
+            """
             _s = self
             if type(obj) is list:
                 for li in obj:
@@ -1426,11 +1509,9 @@ class qhtml:
 
             return self
 
-        # Set the table td id at *row* and *column* using 0 based index
-        # returns: self
-
         def set_td_id_at(self, row, col, _id):
             """
+            Set the table td id at *row* and *column* using 0 based index\n
             set_td_id_at(0, 0, 'some_id')\n
             Set the ID of the td element at row 1 column 1
             """
@@ -1445,11 +1526,9 @@ class qhtml:
 
             return self
 
-        # Set the table td class at *row* and *column* using 0 based index
-        # returns: self
-
         def set_td_class_at(self, row, col, _class):
             """
+            Set the table td class at *row* and *column* using 0 based index\n
             set_td_class_at(0, 0, 'some_class')\n
             Set the class of the td element at row 1 column 1
             """
@@ -1464,11 +1543,9 @@ class qhtml:
 
             return self
 
-        # Set the table td style at *row* and *column* using 0 based index
-        # returns: self
-
         def style_td_at(self, row, col, style):
             """
+            Set the table td style at *row* and *column* using 0 based index\n
             style_td_at(0, 0, 'font-size:42px;background-color:green;')\n
             Set the styling of the td element at row 1 column 1
             """
@@ -1482,9 +1559,6 @@ class qhtml:
                 print(str(_style))
 
             return self
-
-        # Attempts to build the table and then insert it into a div
-        # returns: div (table inside)
 
         def build(self, append_html=False):
             """
@@ -1594,24 +1668,35 @@ class qhtml:
             return -1
 
     class bootstrap:
+        """
+        Bootstrap loader
+        """
+
         def __init__(self):
             self._using = False
 
-        # Set using bootstrap true or false
-        # returns: void
-
         def use(self, _bool):
+            """
+            Set using bootstrap true or false
+            :param _bool:
+            :return: None
+            """
             self._using = _bool
 
-        # Returns true if using bootstrap
-        # returns: Boolean
-
         def using(self):
+            """
+            Returns true if using bootstrap
+            :return: boolean
+            """
             return self._using
 
         # Get the bootstrap raw code
         # returns: string (bootstrap code)
         def get(self):
+            """
+            Get the bootstrap raw code
+            :return: string
+            """
             _s = self
             bss = '<!-- CSS only --><link rel="stylesheet" ' \
                   'href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" ' \
@@ -1641,6 +1726,10 @@ class qhtml:
             self.parent = qhtml_parent  # type: qhtml
 
         def help_links(self):
+            """
+            Help links which print to the console, which allows users to learn what seo is
+            :return: list
+            """
             links = [
                 'http://static.googleusercontent.com/media/www.google.com/en/us/webmasters/docs/search-engine-optimization-starter-guide.pdf',
                 'https://github.com/joshbuchea/HEAD'
@@ -1652,34 +1741,77 @@ class qhtml:
             return links
 
         def display_all_seo(self):
+            """
+            Displays all seo user has defined, if any
+            :return: html head string value
+            """
             print(str(len(self.parent.head)) + ' SEO Head Tags - > ' + str(self.parent.head))
             return self.parent.head
 
         def set_page_title(self, _str):
+            """
+            Set the SEO page title
+            :param _str: Title
+            :return: none
+            """
             if _str:
                 self.parent.head.append('<title>' + _str + '</title>')
 
         def set_page_description(self, _str):
+            """
+            Set the SEO page description
+            :param _str: description
+            :return: none
+            """
             if _str:
                 self.parent.head.append('<meta name="description" content="' + _str + '">')
 
         def set_page_keywords(self, _str):
+            """
+            Set the SEO page keywords (think google search keywords)
+            :param _str: key words
+            :return: none
+            """
             if _str:
                 self.parent.head.append('<meta name="keywords" content="' + _str + '">')
 
         def set_page_author(self, _str):
+            """
+            Set the SEO page author
+            :param _str: author string
+            :return: none
+            """
             if _str:
                 self.parent.head.append('<meta name="author" content="' + _str + '">')
 
         def set_page_viewport(self, _str):
+            """
+            Set the SEP page view port (desktop, mobile, etc)
+            :param _str: view port string content
+            :return: none
+            """
             if _str:
                 self.parent.head.append('<meta name="viewport" content="' + _str + '">')
 
         def set_page_auto_refresh(self, seconds: int):
+            """
+            Set the SEO, page to auto refresh every 'seconds'
+            :param seconds: int
+            :return: none
+            """
             if seconds:
                 self.parent.head.append('<meta http-equiv="refresh" content="' + str(seconds) + '">')
 
         def set_page_robots(self, _str):
+            """
+            Set SEO page robots, allowed keywords:\n
+            noindex\n
+            nofollow\n
+            index\n
+            follow\n
+            :param _str: str
+            :return: none
+            """
             allowed = ['noindex', 'nofollow', 'index', 'follow']
             passed = False
             for a in allowed:
@@ -1692,30 +1824,65 @@ class qhtml:
                     print('seo.set_page_robots ERROR.\nThese are the allowed strings to be passed: ' + str(allowed))
 
         def set_page_encoding(self, encoding='UTF-8'):
+            """
+            Set the SEO page encoding, default value is UTF-8
+            :param encoding: encoding type (str)
+            :return: none
+            """
             if encoding:
                 self.parent.head.append('<meta charset="' + encoding + '">')
 
         def set_page_subject(self, _str):
+            """
+            Set the SEO page subject
+            :param _str: Subject (str)
+            :return: none
+            """
             if _str:
                 self.parent.head.append('<meta name="subject" content="' + _str + '">')
 
         def set_page_classification(self, _str):
+            """
+            Set the SEO classification of the page
+            :param _str: classification details (str)
+            :return: none
+            """
             if _str:
                 self.parent.head.append('<meta name="Classification" content="' + _str + '">')
 
         def set_page_designer(self, _str):
+            """
+            Set the SEO page designer
+            :param _str: Designer (str)
+            :return: none
+            """
             if _str:
                 self.parent.head.append('<meta name="designer" content="' + _str + '">')
 
         def set_page_copyright(self, _str):
+            """
+            Set SEO page copyright
+            :param _str: str
+            :return: none
+            """
             if _str:
                 self.parent.head.append('<meta name="copyright" content="' + _str + '">')
 
         def set_page_category(self, _str):
+            """
+            Set the page category
+            :param _str: str
+            :return: none
+            """
             if _str:
                 self.parent.head.append('<meta name="category" content="' + _str + '">')
 
         def export(self, file_path='seo_export.txt'):
+            """
+            Export all of the SEO out to a file
+            :param file_path: 'path/to/file.txt' (str)
+            :return: none
+            """
             if len(self.parent.head) > 0:
                 qf = QuykFile(file_path, force_create=True)
                 if qf.success:
@@ -1746,6 +1913,7 @@ class QuykFile:
             'path': '',
             'name': ''
         }
+
         if force_create:
             if as_full_dir:
                 full_path = path
