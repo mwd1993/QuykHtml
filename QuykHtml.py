@@ -828,12 +828,12 @@ class qhtml:
             self.add_attribute('src="' + _str + '"')
             return self
 
-        def set_img_background(self, _source, _transparency_strength=0.2):
+        def set_img_background(self, _source, _transparency_strength=0.2,background_attachment='fixed'):
             """
             Sets an images background
             """
             _str = 'background: linear-gradient(rgba(255,255,255,' + str(_transparency_strength) + '), rgba(255,255,255,' + str(_transparency_strength) + ')), '
-            _str += 'url(\'' + _source + '\');background-attachment:fixed;background-repeat:no-repeat;background-position:center;background-size: cover;'
+            _str += 'url(\'' + _source + '\');background-attachment:' + background_attachment + ';background-repeat:no-repeat;background-position:center;background-size: cover;'
             self.style.append(_str)
             return self
 
