@@ -198,12 +198,12 @@ class qhtml:
             return read
         return False
 
-    def set_body_background(self, _src, _transparency_strength=0.15):
+    def set_body_background(self, _src, _transparency_strength=0.15, background_attachment='fixed'):
         """Set the body background image for the page.\n
         Transparency Range (0,1) | 1 = full transparency
         """
         self.__body_background = ' style="background: linear-gradient(rgba(255,255,255,' + str(_transparency_strength) + '), rgba(255,255,255,' + str(_transparency_strength) + ')),'
-        self.__body_background += 'url(\'' + _src + '\');background-attachment:fixed;background-repeat:no-repeat;background-position:center;background-size: cover;"'
+        self.__body_background += 'url(\'' + _src + '\');background-attachment:' + background_attachment + ';background-repeat:no-repeat;background-position:center;background-size: cover;"'
         return self
 
     def __get_preview_scripts(self):
