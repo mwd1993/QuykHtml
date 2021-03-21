@@ -9,10 +9,10 @@ import subprocess
 
 
 class qhtml:
-
     """
     Main qhtml class
     """
+
     def __init__(self):
 
         # Variables
@@ -20,6 +20,7 @@ class qhtml:
         self.all = []
         self.scripts = []
         self.scripts_on_page_load = []
+        self.scripts_draggable = False
         self.head = []
         self.css = self._css()
         self.display = self.new("div").style.append('background-color:transparent;')
@@ -30,6 +31,88 @@ class qhtml:
         self._animation_scripts = False
         self.themes = self._themes(self)
         self.__body_background = ''
+        self._htmlData = {}
+
+    def express(self, expression_or_file):
+        errorMsg = 'express method error: '
+        results2 = self.new('div')
+        if type(expression_or_file) is list:
+            expression = expression_or_file
+            print("Expression: " + expression.__str__())
+            results = []
+            row_index = 0
+            for row in expression:
+                if type(row) is not list:
+                    print('express method formatting error, cannot build expression:\n' + expression.__str__())
+                row_index += 1
+                col_index = 0
+                rowd = self.new('div').set_class('row')
+                for col in row:
+                    element_type = col.split()[0]
+                    element_attrs = col.split()
+                    element_attrs.pop(0)
+                    element_attrs = ' '.join(element_attrs)
+                    col_index += 1
+                    obj = self.new(element_type)
+
+                    for attr in element_attrs.split('" '):
+                        if len(attr) > 0:
+                            _keyword = attr[:attr.find('="')]
+                            if 'attr-' in _keyword:
+                                call = attr[attr.find('='):attr.find(')')]
+                                # callattr = attr[:attr.find('" ')]
+                                callattr = attr[attr.find('-') + 1:] + '"'
+                                obj.add_attribute(callattr)
+                                print(obj.attributes)
+                            elif 'style' in _keyword:
+                                has_function = hasattr(obj.style, 'set')
+                                if has_function:
+                                    method = getattr(obj.style, 'set')
+                                    call = attr[attr.find('=') + 1:].replace('"', "").replace("'", "")
+                                    method(call)
+                                else:
+                                    print(errorMsg + ' could not apply attribute \'' + _keyword + '\', try attr-' + _keyword + ' to set actual HTML attributes')
+                            elif 'text' in _keyword:
+                                obj.set_text(attr[attr.find('=') + 1:].replace('"', "").replace("'", ""))
+                            else:
+                                has_function = hasattr(obj, 'set_' + _keyword)
+                                if has_function:
+                                    method = getattr(obj, 'set_' + _keyword)
+                                    call = attr[attr.find('=') + 1:].replace('"', "").replace("'", "")
+                                    # print('calling method with ' + call)
+                                    method(call)
+                                else:
+                                    print(errorMsg + ' could not apply attribute \'' + _keyword + '\', try attr-' + _keyword + ' to set actual HTML attributes')
+                    container = self.new('div').col().insert(obj)
+                    # obj.set_class('col', append=True)
+                    obj.meta = col + ' at row ' + str(row_index) + ', column ' + str(col_index)
+                    results.append(container)
+                    rowd.insert(container)
+                results2.insert(rowd)
+        else:
+            if os.path.exists(os.getcwd() + '/Expressions/' + expression_or_file):
+                file = '/Expressions/' + expression_or_file
+                r = self.file_read(file)
+                rs = r.split('\n')
+                mainlist = []
+                rowlist = []
+                for row in rs:
+                    if row == "":
+                        continue
+                    # print(row)
+                    cs = row.split('|')
+                    for col in cs:
+                        col = col.strip()
+                        # print(col)
+                        rowlist.append(col)
+
+                    mainlist.append(rowlist)
+                    rowlist = []
+
+                # print('main list - > ' + str(mainlist))
+                results2 = self.express(mainlist)
+
+        return results2
 
     def new(self, _type):
         """
@@ -145,8 +228,8 @@ class qhtml:
         if self.__body_background:
             print('body background - >\n' + self.__body_background)
 
-        html_string = "<head>" + _head_append + _bootstrap + "<style>" + _css + '</style>' + _scripts + '</head><body' + self.__body_background + '>' + str(self.display.html()) + '</body>'
-
+        # html_string = "<head>" + _head_append + _bootstrap + "<style>" + _css + '</style>' + _scripts + '</head><body' + self.__body_background + '>' + str(self.display.html()) + '</body>'
+        html_string = "<head>" + _head_append + _bootstrap + "<style>" + _css + '</style>' + _scripts + '</head><body' + self.__body_background + '>' + str(self.display.innerHtml(full_html=True)) + '</body>'
         f = open(os.getcwd() + "/" + output_file, "w")
         f.write(html_string)
         f.close()
@@ -162,6 +245,20 @@ class qhtml:
             self.clip_put(html_string)
 
         return html_string
+
+    def col(self):
+        """
+        Returns a new div with the col class set for bootstrap
+        :return: _q_element
+        """
+        return self.new('div').col()
+
+    def row(self):
+        """
+        Returns a new div with the row class set for bootstrap
+        :return: _q_element
+        """
+        return self.new('div').row()
 
     def clip_put(self, _str):
         """
@@ -558,7 +655,7 @@ class qhtml:
         def __init__(self, _type, _parent=0):
 
             self.type = _type
-            self.children = []
+            self.children = []  # type: _q_element
             self.animations = self.__animations(self)
             if _parent != 0:
                 self.parent = _parent
@@ -570,7 +667,7 @@ class qhtml:
             self.attributes = []
             self._attr_check = []
             self.style = self._style_obj(self)
-            self.innerHTML = ""
+            self._innerHTML = ""
             self.innerText = ""
             self._ajax_code = ""
             self._ajax_pointer = ""
@@ -592,6 +689,53 @@ class qhtml:
                     else:
                         self.parent.render(output_file)
 
+        def row(self):
+            """
+            Makes this element a row (bootstrap)\n
+            Same as calling:\n
+            element.set_class('row')
+            :return: self
+            """
+            self.set_class('row', append=True)
+            return self
+
+        def col(self):
+            """
+            Makes this element a column (goes inside a row)\n
+            Same as calling:\n
+            element.set_class('row')
+            :return: self
+            """
+            self.set_class('col', append=True)
+            return self
+
+        def fetch_children(self, s_string):
+            """
+            Fetch a child _q_element by a sub string of the element's open tag\n
+            Example:\n
+            mydiv = q.new('div').insert(q.new('div').set_class('testing1212'))\n
+            search = mydiv.fetch_children('testing12')\n
+            --- > [QuykHtml.qhtml._q_element object at 0x000001D211E48610]
+            :param s_string: string to find in the elements opening tag
+            :return: a list of elements found
+            """
+            detected = []
+            if len(self.children) > 0:
+                for c in self.children:
+                    if len(c.children) > 0:
+                        for cc in c.children:
+                            detected = detected + cc.fetch_children(s_string)
+
+                    # print(s_string + " in " + c.get_tag_open().lower())
+                    if s_string in c.get_tag_open().lower():
+                        detected.append(c)
+            else:
+                # print(s_string + " in " + self.get_tag_open().lower())
+                if s_string in self.get_tag_open().lower():
+                    return [self]
+
+            return detected
+
         def scripts_add(self, js_code, on_page_load=False):
             """
             Adds javascript code to the main page/display
@@ -608,16 +752,16 @@ class qhtml:
             returns: itself/html object
             """
             if append_html:
-                self.innerHTML += table_raw_obj.__build_html()
+                self._innerHTML += table_raw_obj.__build_html()
             else:
-                self.innerHTML = table_raw_obj.__build_html()
+                self._innerHTML = table_raw_obj.__build_html()
             return self
 
         def insert_table_html(self, table_html: str, append_html=False):
             if append_html:
-                self.innerHTML = self.innerHTML + table_html
+                self._innerHTML = self.innerHTML + table_html
             else:
-                self.innerHTML = table_html
+                self._innerHTML = table_html
             return self
 
         def insert(self, _obj):
@@ -629,19 +773,38 @@ class qhtml:
             if type(_obj) is list:
                 for l in _obj:
                     self.children.append(l)
-                    self.innerHTML += l.get_tag_open() + l.innerText + l.innerHTML + l.get_tag_close()
-                    self.innerHTML = self.innerHTML.replace("  ", " ")
+                    # self.innerHTML += l.get_tag_open() + l.innerText + l.innerHTML + l.get_tag_close()
+                    # self.innerHTML = self.innerHTML.replace("  ", " ")
+                    self._innerHTML += self.innerHtml(full_html=True)
                     l.parent = self
                     l.__link_self()
 
             else:
                 self.children.append(_obj)
-                self.innerHTML += _obj.get_tag_open() + _obj.innerText + _obj.innerHTML + _obj.get_tag_close()
-                self.innerHTML = self.innerHTML.replace("  ", " ")
+                # self.innerHTML += _obj.get_tag_open() + _obj.innerText + _obj.innerHTML + _obj.get_tag_close()
+                # self.innerHTML = self.innerHTML.replace("  ", " ")
+                self._innerHTML += self.innerHtml(full_html=True)
                 _obj.parent = self
                 _obj.__link_self()
 
             return self
+
+        def innerHtml(self, full_html=False):
+            html = ''
+            for child in self.children:
+                html += child.innerHtml(full_html=True)
+                # if len(child.children) > 0:
+                #    for child2 in child.children:
+                #        html += child2.get_innerHtml()
+
+            # if len(self.children) == 0:
+            if hasattr(self, '_is_table'):
+                html += self._innerHTML
+
+            if full_html:
+                return self.get_tag_open() + self.innerText + html + self.get_tag_close()
+            else:
+                return html
 
         def add_attribute(self, _str, append=False):
             """
@@ -671,6 +834,11 @@ class qhtml:
                     if "class=" in attr:
                         self.attributes[_index] = attr[:-1] + " " + _attr_val.replace('"', "") + '"'
                         _found = True
+                    else:
+                        d = self.get_attribute(_attr_name)
+                        d = d[:-1] + _str + '"'
+                        self.clear_attribute(_attr_name)
+                        self.add_attribute(d)
 
                 if _found is False:
                     self._attr_check.append(_attr_name)
@@ -820,6 +988,7 @@ class qhtml:
             self.id = str(_str).replace("#", "")
             return self
 
+        # TODO Deprecated but retaining for backward compatibility
         def set_img_src(self, _str):
             """
             Sets an images source (external url or local url)
@@ -828,7 +997,15 @@ class qhtml:
             self.add_attribute('src="' + _str + '"')
             return self
 
-        def set_img_background(self, _source, _transparency_strength=0.2,background_attachment='fixed'):
+        def set_src(self, _str):
+            """
+            Sets an images source (external url or local url)
+            returns: self
+            """
+            self.add_attribute('src="' + _str + '"')
+            return self
+
+        def set_img_background(self, _source, _transparency_strength=0.2, background_attachment='fixed'):
             """
             Sets an images background
             """
@@ -911,6 +1088,62 @@ class qhtml:
                     self.on_click("window.location.href='" + url_to_nav_to + "';")
             return self
 
+        def set_draggable(self, on_mouse_leave_default_js='drag_handle_clear(this);'):
+            """
+            Sets an element as draggable. Once clicked to start dragging,\n
+            changes the elements position to absolute..\n
+            returns: self
+            """
+            self.set_class('draggable')
+            self.on_mouse_down('this.mouse_down="1";drag_handle(this);')
+            self.on_mouse_leave('drag_handle(this);')
+            self.on_mouse_up('this.mouse_down="0";' + on_mouse_leave_default_js)
+            _qhtml = self.get_parent_super()
+            if _qhtml.scripts_draggable is False:
+                _qhtml.scripts_draggable = True
+                js_drag = (
+                    'var x = null;'
+                    'var y = null;'
+                    'var drag_handles = [];'
+                    'var drag_handle_timeout = 1000;'
+                    'document.addEventListener(\'mousemove\', onMouseUpdate, false);'
+                    'document.addEventListener(\'mouseenter\', onMouseUpdate, false);'
+                    'function onMouseUpdate(e) {'
+                    '   x = e.pageX;'
+                    '   y = e.pageY;'
+                    '}'
+                    'function getMouseX() {'
+                    '   return x;'
+                    '}'
+                    'function getMouseY() {'
+                    '   return y;'
+                    '}'
+                    'function drag_handle(element) {'
+                    '   el = element;'
+                    '   console.log("mouse down - > " + element.mouse_down);'
+                    '   if(typeof element.mouse_down === \'undefined\' || element.mouse_down == "0") {'
+                    '       return false;'
+                    '   }'
+                    '   if(Date.now() - element.drag_handle_timeout <= drag_handle_timeout) {'
+                    '       console.log("drag handle timeout for " + element);'
+                    '       return false;'
+                    '   }'
+                    '   if(!el.style.position.includes("absolute"))'
+                    '       el.style.position += "absolute";'
+                    '   el.style.left = x - (el.clientWidth / 2);'
+                    '   el.style.top = y - (el.clientHeight / 2);'
+                    '   console.log(el.style.position)'
+                    '}'
+                    ''
+                    'function drag_handle_clear(element) {'
+                    '   element.drag_handle_timeout = Date.now();'
+                    '}'
+
+                )
+                # print('Init draggable code:\n' + js_drag)
+                self.scripts_add(js_drag)
+            return self
+
         def set_form_options(self, action_php_call, method_get_or_post, enctype="multipart/form-data"):
             """
             Sets a form elements form options\n
@@ -970,9 +1203,13 @@ class qhtml:
             Gets all of the html of an element (and innerHtml)
             returns: self
             """
-            html = self.get_tag_open() + self.innerText + self.innerHTML + self.get_tag_close()
+
+            # html = self.get_tag_open() + self.innerText + self._innerHTML + self.get_tag_close()
+            html = self.innerHtml(full_html=True)
+
             if set_clip_board:
                 self.parent.clip_put(html)
+
             return html
 
         def get_parent(self):
@@ -984,12 +1221,19 @@ class qhtml:
 
         def get_parent_super(self):
             """
-            Get the highest class in the nested class
+            Get the the parent qhtml class\n
+            instance from the element
             returns: highest class
             """
             _obj = self
-            while _obj.parent:
+            while True:
                 _obj = _obj.parent
+                # lol for now
+                # print(type(_obj))
+                if 'qhtml\'>' in str(type(_obj)):  # if type(_obj) == qhtml:
+                    break
+
+                time.sleep(1)
 
             return _obj
 
@@ -1019,6 +1263,7 @@ class qhtml:
             Set an onclick function to be called with code (JS)
             returns: self/object
             """
+            _code = _code.replace('"', '\'')
             if _block_normal_context:
                 self.add_attribute('onClick="' + _code + ' return false;"')
             else:
@@ -1053,6 +1298,7 @@ class qhtml:
             Set an on mouse enter to be called with code (JS)
             returns: self/object
             """
+            _code = _code.replace('"', '\'')
             self.add_attribute('onmouseover="' + _code + '"')
             return self
 
@@ -1061,7 +1307,26 @@ class qhtml:
             Set an onmouseleave function to be called with code (JS)
             returns: self/object
             """
+            _code = _code.replace('"', '\'')
             self.add_attribute('onmouseout="' + _code + '"')
+            return self
+
+        def on_mouse_down(self, _code):
+            """
+            Set an onmousedown function to be called with code (JS)
+            returns: self/object
+            """
+            _code = _code.replace('"', '\'')
+            self.add_attribute('onmousedown="' + _code + '"')
+            return self
+
+        def on_mouse_up(self, _code):
+            """
+            Set an onmousedown function to be called with code (JS)
+            returns: self/object
+            """
+            _code = _code.replace('"', '\'')
+            self.add_attribute('onmouseup="' + _code + '"')
             return self
 
         def on_mouse_scroll(self, _code):
@@ -1073,13 +1338,17 @@ class qhtml:
 
         def ajax_get(self, _type=""):
             """
-            Gets ajax data if any and retuns a list
+            Gets ajax data if any and retuns a dictionary
             of data if no specified type is passed
             returns: data/boolean
             """
             if self._ajax_code != "":
                 if _type == "":
-                    return [self._ajax_code, self._ajax_pointer, self._ajax_callback]
+                    return {
+                        'code': self._ajax_code,
+                        'pointer': self._ajax_pointer,
+                        'callback': self._ajax_callback
+                    }
                 elif _type == "code":
                     return self._ajax_code
                 elif _type == "pointer":
@@ -1572,6 +1841,7 @@ class qhtml:
             """
             q = self.__qhtml
             div = q.new("div")
+            div._is_table = True
             self.__build_into(div, append_html)
             return div
 
@@ -1646,10 +1916,10 @@ class qhtml:
 
                                 # INSERT OBJECT HTML INTO TABLE HERE
                                 # -----------------------------------
-                                if o.innerText not in o.innerHTML:
-                                    html_mid_build += o.get_tag_open() + o.innerText + o.innerHTML + o.get_tag_close() + ""
+                                if o.innerText not in o._innerHTML:
+                                    html_mid_build += o.get_tag_open() + o.innerText + o._innerHTML + o.get_tag_close() + ""
                                 else:
-                                    html_mid_build += o.get_tag_open() + o.innerHTML + o.get_tag_close() + ""
+                                    html_mid_build += o.get_tag_open() + o._innerHTML + o.get_tag_close() + ""
                                 # -----------------------------------
                     except Exception as e:
                         print(e)
@@ -1906,7 +2176,7 @@ class QuykFile:
 
     """
 
-    def __init__(self, path, as_full_dir=False, force_create=False):
+    def __init__(self, path, as_full_dir=False, force_create=True):
         self.success = False
         self.file_data = {
             'full': '',
