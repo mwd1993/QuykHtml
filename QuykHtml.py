@@ -177,7 +177,16 @@ class qhtml:
         _scripts_on_page_load = ""
         _head_append = ""
         _bootstrap = ""
-        _path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
+        _path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe'
+        if not os.path.exists(_path):
+            _path = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
+            if not os.path.exists(_path):
+                _path = os.getenv('APPDATA') + '/Google/Chrome/Application/chrome.exe'
+
+                if not os.path.exists(_path):
+                    print('Could not find google chrome. Rendering html file, but cannot display via chrome.')
+
+        _path = _path + ' %s'
         _preview_scripts_loaded = False
         for _obj_element in self.all:
             if _obj_element.has_preview() and _preview_scripts_loaded is False:
@@ -1229,12 +1238,8 @@ class qhtml:
             while True:
                 _obj = _obj.parent
                 # lol for now
-                # print(type(_obj))
                 if 'qhtml\'>' in str(type(_obj)):  # if type(_obj) == qhtml:
                     break
-
-                time.sleep(1)
-
             return _obj
 
         def generate_css_id(self, _f):
