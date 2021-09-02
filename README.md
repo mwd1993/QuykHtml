@@ -3,6 +3,8 @@ A python library that allows you to quickly and easily generate HTML templates a
 
 # pip install QuykHtml
 
+[![Downloads](https://pepy.tech/badge/quykhtml)](https://pepy.tech/project/quykhtml)
+
  ![](Example3.gif)
 
 Key Features:<br>
