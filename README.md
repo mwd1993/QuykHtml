@@ -6,6 +6,9 @@ A python library that allows you to quickly and easily generate HTML templates a
 [![Downloads](https://pepy.tech/badge/quykhtml)](https://pepy.tech/project/quykhtml)
 
  ![](Example3.gif)
+ 
+ New Features:  
+ 	- [Express](#example-express)<br>
 
 Key Features:<br>
 	- [Flask](#example-quykhtml-with-flask)<br>
@@ -253,6 +256,52 @@ form.insert([input,button])
 
 q.display.insert(form).render()
 
+```
+
+# Example: Express
+
+Express Rules:  
+	- use attr-'attributename' to declare normal html element attributes  
+	- use 'attributename' to attempt use ANY Qhtml setter methods on an element
+	- you declare columns by element position in the list  
+	- each list item is essentially a row
+	
+
+#### create a 3 columned row
+```python
+# express method returns
+# an actual qhtml object
+
+layout = q.express([
+	['div','p','div']
+]).style.set('background-color:#45afed;')
+
+q.display.insert(layout).render()
+```
+
+#### create a 3 columned row and define html values
+```python
+# express method returns
+# an actual qhtml object
+
+layout = q.express([
+	['div attr-class="myclass"','p attr-id="myid"','div attr-style="background-color:red"']
+]).style.set('background-color:#45afed;')
+
+q.display.insert(layout).render()
+```
+#### create a 3 columned row and call Qhtml setter methods on said element
+```python
+# a Qhtml object has a method called: set_text
+# it also a method called: set_img_src
+# so we do the following
+
+layout = q.express([
+	['div','p text="QuykHtml Rocks!"','div'],
+	['div','img img_src="myimagesource.com" attr-class="myImgClass"','div']
+]).style.set('background-color:#45afed;')
+
+q.display.insert(layout).render()
 ```
 
 # Example: SEO
