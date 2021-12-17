@@ -320,6 +320,41 @@ layout = q.express([
 q.display.insert(layout).render()
 ```
 
+## Express Real World Example
+
+### create a simple form
+
+```python
+# Instantiate class
+q = qhtml()
+
+# Easily 'import' bootStrap utilities
+q.bootStrap.use(True)
+
+# Define some css
+q.css.add('.center','text-align:center;')
+
+# Create our form elements
+layout = q.express([
+	['div', 'p text="Email"', 'div'],
+	['div', 'input', 'div'],
+	['div', 'p text="Password"', 'div'],
+	['div', 'input', 'div'],
+	['div', 'p text="Confirm"', 'div'],
+	['div', 'input', 'div'],
+	['div', 'button text="Complete" attr-value="submit" attr-class="margin-top-med signup"', 'div']
+]).set_class("center", True)
+
+# Create the actual form container element
+form = q.new('form').set_class('center')
+
+# Insert the form elements and set the form options
+form.insert(layout).set_form_options("register.php", "post")
+
+# Render the results
+q.display.insert(form)
+```
+
 # Example: SEO
 
 ```python
