@@ -262,7 +262,7 @@ q.display.insert(form).render()
 
 Express Rules:  
 	- use attr-'attributename' to declare normal html element attributes  
-	- use 'attributename' to attempt use ANY Qhtml setter methods on an element  
+	- use 'attributename' to attempt to use ANY Qhtml setter methods on an element  
 	- you declare columns by element position in the list  
 	- each list item is essentially a row  
 	- requires bootstrap (instantiate with qhtml method)
