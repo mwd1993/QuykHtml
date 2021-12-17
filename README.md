@@ -141,8 +141,8 @@ from QuykHtml import qhtml
 # Instantiate class
 q = qhtml()
 
-# Easily 'import' bootStrap utilities
-q.bootStrap.use(True)
+# Easily 'import' bootstrap utilities
+q.bootstrap.use(True)
 
 # Create raw table of 1 row and 2 columns
 table = q.table(1,2)
@@ -178,8 +178,8 @@ from QuykHtml import qhtml
 # Instantiate class
 q = qhtml()
 
-# Easily 'import' bootStrap utilities
-q.bootStrap.use(True)
+# Easily 'import' bootstrap utilities
+q.bootstrap.use(True)
 
 # Append a script, can even be read from a file
 q.scripts.append(
@@ -211,8 +211,8 @@ from QuykHtml import qhtml
 # Instantiate class
 q = qhtml()
 
-# Easily 'import' bootStrap utilities
-q.bootStrap.use(True)
+# Easily 'import' bootstrap utilities
+q.bootstrap.use(True)
 
 # Create an ajax request on the p element
 # Always specify r in the callback function as that is the response text
@@ -238,8 +238,8 @@ from QuykHtml import qhtml
 # Instantiate class
 q = qhtml()
 
-# Easily 'import' bootStrap utilities
-q.bootStrap.use(True)
+# Easily 'import' bootstrap utilities
+q.bootstrap.use(True)
 
 # Create form element
 form = q.new("form").set_form_options('file.php','post')
@@ -273,8 +273,8 @@ Express Rules:
 # Instantiate class
 q = qhtml()
 
-# Easily 'import' bootStrap utilities
-q.bootStrap.use(True)
+# Easily 'import' bootstrap utilities
+q.bootstrap.use(True)
 
 # express method returns
 # an actual qhtml object
@@ -290,8 +290,8 @@ q.display.insert(layout).render()
 # Instantiate class
 q = qhtml()
 
-# Easily 'import' bootStrap utilities
-q.bootStrap.use(True)
+# Easily 'import' bootstrap utilities
+q.bootstrap.use(True)
 
 # express method returns
 # an actual qhtml object
@@ -306,8 +306,8 @@ q.display.insert(layout).render()
 # Instantiate class
 q = qhtml()
 
-# Easily 'import' bootStrap utilities
-q.bootStrap.use(True)
+# Easily 'import' bootstrap utilities
+q.bootstrap.use(True)
 
 # a Qhtml object has a method called: set_text
 # it also a method called: set_img_src
@@ -328,8 +328,8 @@ q.display.insert(layout).render()
 # Instantiate class
 q = qhtml()
 
-# Easily 'import' bootStrap utilities
-q.bootStrap.use(True)
+# Easily 'import' bootstrap utilities
+q.bootstrap.use(True)
 
 # Define some css
 q.css.add('.center','text-align:center;')
