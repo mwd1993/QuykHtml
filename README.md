@@ -259,8 +259,9 @@ q.display.insert(form).render()
 ```
 
 # Example: Express
-
-Express Rules:  
+Easily use the official markup language (uses bootstrap)  
+to quickly and easily define qhtml objects.  
+#### Express Rules:  
 	- use attr-'attributename' to declare normal html element attributes  
 	- use 'attributename' to attempt to use ANY Qhtml setter methods on an element  
 	- you declare columns by element position in the list  
