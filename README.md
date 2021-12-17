@@ -262,16 +262,22 @@ q.display.insert(form).render()
 
 Express Rules:  
 	- use attr-'attributename' to declare normal html element attributes  
-	- use 'attributename' to attempt use ANY Qhtml setter methods on an element
+	- use 'attributename' to attempt use ANY Qhtml setter methods on an element  
 	- you declare columns by element position in the list  
-	- each list item is essentially a row
+	- each list item is essentially a row  
+	- requires bootstrap (instantiate with qhtml method)
 	
 
 #### create a 3 columned row
 ```python
+# Instantiate class
+q = qhtml()
+
+# Easily 'import' bootStrap utilities
+q.bootStrap.use(True)
+
 # express method returns
 # an actual qhtml object
-
 layout = q.express([
 	['div','p','div']
 ]).style.set('background-color:#45afed;')
@@ -281,9 +287,14 @@ q.display.insert(layout).render()
 
 #### create a 3 columned row and define html values
 ```python
+# Instantiate class
+q = qhtml()
+
+# Easily 'import' bootStrap utilities
+q.bootStrap.use(True)
+
 # express method returns
 # an actual qhtml object
-
 layout = q.express([
 	['div attr-class="myclass"','p attr-id="myid"','div attr-style="background-color:red"']
 ]).style.set('background-color:#45afed;')
@@ -292,10 +303,15 @@ q.display.insert(layout).render()
 ```
 #### create a 3 columned row and call Qhtml setter methods on said element
 ```python
+# Instantiate class
+q = qhtml()
+
+# Easily 'import' bootStrap utilities
+q.bootStrap.use(True)
+
 # a Qhtml object has a method called: set_text
 # it also a method called: set_img_src
 # so we do the following
-
 layout = q.express([
 	['div','p text="QuykHtml Rocks!"','div'],
 	['div','img img_src="myimagesource.com" attr-class="myImgClass"','div']
