@@ -312,7 +312,9 @@ q.bootstrap.use(True)
 
 # a Qhtml object has a method called: set_text
 # it also a method called: set_img_src
-# so we do the following
+# so we omit the 'set_' prefix. So instead of
+# set_text("some text"), we simply use text="some text"
+# to call said method
 layout = q.express([
 	['div','p text="QuykHtml Rocks!"','div'],
 	['div','img img_src="myimagesource.com" attr-class="myImgClass"','div']
