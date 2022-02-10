@@ -7,6 +7,12 @@ import copy
 import platform
 import subprocess
 
+print('############################################')
+print('Thank you for using QuykHtml.\nAny donation for my hard work is GREATLY appreciated')
+print('You can donate to my cash app:\n\n\t$elmling\n')
+print('I hope you continue to enjoy using QuykHtml!')
+print('############################################')
+
 
 class qhtml:
     """
@@ -21,6 +27,8 @@ class qhtml:
         self.scripts = []
         self.scripts_on_page_load = []
         self.scripts_draggable = False
+        self.scripts_img_group = False
+        self.scripts_img_group_time = 5000
         self.head = []
         self.css = self._css()
         self.display = self.new("div").style.append('background-color:transparent;')
@@ -34,8 +42,19 @@ class qhtml:
         self._htmlData = {}
 
     def express(self, expression_or_file):
+        """
+        allows you to easily create bootstrap rows/columns\n\n
+        you can also load from a .exp file\n\n
+        example code usage: express_obj = q.express([ ['p text="text1"','p text="text2"','p text="text3"'] ])\n\n
+
+        example file usage: express_obj = q.express("path/to/express/file.exp")\n\n
+        inside file.exp would look like so:\n\n
+        'p text="text1"|p text="text2"|p text="text3"\n\n
+        basically providing a file is using a markup language to instantiate qhtml objects
+        """
         errorMsg = 'express method error: '
         results2 = self.new('div')
+
         if type(expression_or_file) is list:
             expression = expression_or_file
             print("Expression: " + expression.__str__())
@@ -147,6 +166,36 @@ class qhtml:
             self.last = _obj
             return _obj  # type: qhtml._q_element
 
+    def img_group(self, sources: list, transition_delay=5):
+        """
+        Creates an image group to be used for image transitions, ie:\n
+        img_group = q.img_group(["img1.com","img2.com","img3.com"],5)\n
+        q.display.insert(img_group).render()\n
+        Which will render a single image element that cycles through sources
+        :param sources:
+        :param transition_delay:
+        :return:
+        """
+
+        _ran = []
+        for i in range(5):
+            _ran.append(str(random.randint(0, 9)))
+
+        _ran = ''.join(_ran)
+
+        ms = transition_delay * 1000
+
+        _img = self.new("img").set_img_src(sources[0]).scripts_add(
+            "quykHtml_register('img_group_" + str(_ran) + "'," + str(sources) + ");", on_page_load=True
+        ).set_id('img_group_' + str(_ran))
+        ig = self.new("div").insert([
+            _img
+        ])
+        self.scripts_img_group = True
+        self.scripts_img_group_time = ms
+
+        return ig
+
     def dupe(self, q_element):
         """
         Dupes an element:\n
@@ -217,6 +266,36 @@ class qhtml:
 
         for _sc in self.scripts:
             _scripts = _scripts + "" + _sc + "\n"
+
+        if self.scripts_img_group is True:
+            img_data = 'var cycle_data = {' \
+                       'speed:' + str(self.scripts_img_group_time) + ',' \
+                                                                     '};' \
+                                                                     'cycle_data.cycles = [];' \
+                                                                     'setInterval(function() {quykHtml_cycle_images()}, cycle_data.speed);' \
+                                                                     'function quykHtml_register(element_id, images_array) {' \
+                                                                     'cycle_data.cycles.push({id:element_id,images:images_array,index:-1});' \
+                                                                     '}' \
+                                                                     'function quykHtml_cycle_images() {' \
+                                                                     'for(var i = 0; i < cycle_data.cycles.length; i++) {' \
+                                                                     'var d = cycle_data.cycles[i];' \
+                                                                     'var id = d.id;' \
+                                                                     'var images = d.images;' \
+                                                                     'd.index = d.index + 1;' \
+                                                                     'var ind = d.index;' \
+                                                                     'var image = images[ind];' \
+                                                                     'var el = document.getElementById(id);' \
+                                                                     'if(el) {' \
+                                                                     '	el.src = image;' \
+                                                                     '} else {' \
+                                                                     '' \
+                                                                     '}' \
+                                                                     'if(ind >= images.length-1) {' \
+                                                                     '   	d.index = -1;' \
+                                                                     '}' \
+                                                                     '}' \
+                                                                     '}'
+            _scripts = _scripts + img_data
 
         for h in self.head:
             _head_append += h + "\n"
