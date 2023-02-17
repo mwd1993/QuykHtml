@@ -405,7 +405,12 @@ class qhtml:
                 dir_path = file_path
             else:
                 dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'
-            f = open(dir_path + file_name, 'r')
+            f = ""
+            read = ""
+            try:
+                f = open(dir_path + file_name, 'r')
+            except:
+                f = open(file_name, 'r')
             read = f.read()
             f.close()
             if to_list:
