@@ -1,5 +1,5 @@
-import webbrowser
 import os
+import sys
 import time
 import random
 from time import sleep
@@ -55,9 +55,11 @@ class qhtml:
         errorMsg = 'express method error: '
         results2 = self.new('div')
 
+        # print("Expression: " + str(expression_or_file))
+
         if type(expression_or_file) is list:
             expression = expression_or_file
-            print("Expression: " + expression.__str__())
+            # print("Expression: " + expression.__str__())
             results = []
             row_index = 0
             for row in expression:
@@ -90,7 +92,8 @@ class qhtml:
                                     call = attr[attr.find('=') + 1:].replace('"', "").replace("'", "")
                                     method(call)
                                 else:
-                                    print(errorMsg + ' could not apply attribute \'' + _keyword + '\', try attr-' + _keyword + ' to set actual HTML attributes')
+                                    print(
+                                        errorMsg + ' could not apply attribute \'' + _keyword + '\', try attr-' + _keyword + ' to set actual HTML attributes')
                             elif 'text' in _keyword:
                                 obj.set_text(attr[attr.find('=') + 1:].replace('"', "").replace("'", ""))
                             else:
@@ -101,7 +104,8 @@ class qhtml:
                                     # print('calling method with ' + call)
                                     method(call)
                                 else:
-                                    print(errorMsg + ' could not apply attribute \'' + _keyword + '\', try attr-' + _keyword + ' to set actual HTML attributes')
+                                    print(
+                                        errorMsg + ' could not apply attribute \'' + _keyword + '\', try attr-' + _keyword + ' to set actual HTML attributes')
                     container = self.new('div').col().insert(obj)
                     # obj.set_class('col', append=True)
                     obj.meta = col + ' at row ' + str(row_index) + ', column ' + str(col_index)
@@ -109,8 +113,13 @@ class qhtml:
                     rowd.insert(container)
                 results2.insert(rowd)
         else:
-            if os.path.exists(os.getcwd() + '/Expressions/' + expression_or_file):
-                file = '/Expressions/' + expression_or_file
+            file = -1
+            if os.path.exists(expression_or_file):
+                file = expression_or_file
+            elif os.path.exists(os.getcwd() + '/Expressions/' + expression_or_file):
+                file = os.getcwd() + '/Expressions/' + expression_or_file
+
+            if file != -1:
                 r = self.file_read(file)
                 rs = r.split('\n')
                 mainlist = []
@@ -166,14 +175,28 @@ class qhtml:
             self.last = _obj
             return _obj  # type: qhtml._q_element
 
-    def img_group(self, sources: list, transition_delay=5):
+    def webbrowser_open(self, path):
+        if sys.platform == 'win32':
+            os.startfile(path)
+        elif sys.platform == 'darwin':
+            subprocess.Popen(['open', path])
+        else:
+            try:
+                subprocess.Popen(['xdg-open', path])
+            except OSError:
+                print
+                'Please open a browser on: ' + path
+
+    def img_group(self, sources: list, transition_delay=5, force_img_size=(-1,-1)):
         """
         Creates an image group to be used for image transitions, ie:\n
         img_group = q.img_group(["img1.com","img2.com","img3.com"],5)\n
         q.display.insert(img_group).render()\n
         Which will render a single image element that cycles through sources
+        force_img_size takes a tuple of width and height to force all images to adhere to (pixels)
         :param sources:
         :param transition_delay:
+        :param force_img_size
         :return:
         """
 
@@ -188,6 +211,8 @@ class qhtml:
         _img = self.new("img").set_img_src(sources[0]).scripts_add(
             "quykHtml_register('img_group_" + str(_ran) + "'," + str(sources) + ");", on_page_load=True
         ).set_id('img_group_' + str(_ran))
+        if force_img_size[0] != -1 and force_img_size[1] != -1:
+            _img.style.append('width:' + str(force_img_size[0]) + ';height:' + str(force_img_size[1]))
         ig = self.new("div").insert([
             _img
         ])
@@ -231,9 +256,10 @@ class qhtml:
             _path = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
             if not os.path.exists(_path):
                 _path = os.getenv('APPDATA') + '/Google/Chrome/Application/chrome.exe'
-
                 if not os.path.exists(_path):
-                    print('Could not find google chrome. Rendering html file, but cannot display via chrome.')
+                    print('Could not find google chrome. Trying to Render html file via default browser.')
+
+
 
         _path = _path + ' %s'
         _preview_scripts_loaded = False
@@ -317,7 +343,8 @@ class qhtml:
             print('body background - >\n' + self.__body_background)
 
         # html_string = "<head>" + _head_append + _bootstrap + "<style>" + _css + '</style>' + _scripts + '</head><body' + self.__body_background + '>' + str(self.display.html()) + '</body>'
-        html_string = "<head>" + _head_append + _bootstrap + "<style>" + _css + '</style>' + _scripts + '</head><body' + self.__body_background + '>' + str(self.display.innerHtml(full_html=True)) + '</body>'
+        html_string = "<head>" + _head_append + _bootstrap + "<style>" + _css + '</style>' + _scripts + '</head><body' + self.__body_background + '>' + str(
+            self.display.innerHtml(full_html=True)) + '</body>'
         f = open(os.getcwd() + "/" + output_file, "w")
         f.write(html_string)
         f.close()
@@ -327,7 +354,10 @@ class qhtml:
             html_string = self.prettify_html(html_string)
 
         if not only_html:
-            webbrowser.get(_path).open(str(os.getcwd()) + "/" + output_file)
+            if 'chrome' not in _path.lower():
+                self.webbrowser_open(str(os.getcwd()) + "/" + output_file)
+            else:
+                self.webbrowser_open(str(os.getcwd()) + "/" + output_file)
 
         if set_clip_board:
             self.clip_put(html_string)
@@ -387,7 +417,8 @@ class qhtml:
         """Set the body background image for the page.\n
         Transparency Range (0,1) | 1 = full transparency
         """
-        self.__body_background = ' style="background: linear-gradient(rgba(255,255,255,' + str(_transparency_strength) + '), rgba(255,255,255,' + str(_transparency_strength) + ')),'
+        self.__body_background = ' style="background: linear-gradient(rgba(255,255,255,' + str(
+            _transparency_strength) + '), rgba(255,255,255,' + str(_transparency_strength) + ')),'
         self.__body_background += 'url(\'' + _src + '\');background-attachment:' + background_attachment + ';background-repeat:no-repeat;background-position:center;background-size: cover;"'
         return self
 
@@ -398,7 +429,8 @@ class qhtml:
         # object that was clicked in full screen. Good for images, but
         # can be used with any element created by qhtml.new(type)
         # -------------------------------------------------------------
-        self.css.add(".quykHtml_preview", "display:none;padding-top:60px;text-align:center;z-index:100;position:fixed;top:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);")
+        self.css.add(".quykHtml_preview",
+                     "display:none;padding-top:60px;text-align:center;z-index:100;position:fixed;top:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);")
         self.preview.set_class("quykHtml_preview").add_attribute('id="quykHtml_preview"')
 
         # preview display code
@@ -526,7 +558,8 @@ class qhtml:
             self.basic = self._theme_object(theme_info['css'], theme_info['name'], theme_info['description'])
 
             theme_info['name'] = 'greens'
-            theme_info['description'] = 'A green theme with: Green buttons, White Text and Green Divs and a White backgrounds.'
+            theme_info[
+                'description'] = 'A green theme with: Green buttons, White Text and Green Divs and a White backgrounds.'
             theme_info['css'] = [
                 [
                     'button',
@@ -554,7 +587,8 @@ class qhtml:
             self.greens = self._theme_object(theme_info['css'], theme_info['name'], theme_info['description'])
 
             theme_info['name'] = 'blues'
-            theme_info['description'] = 'A Blue theme with: Blue buttons, Gray Text and Blue Divs and a Light Gray background.'
+            theme_info[
+                'description'] = 'A Blue theme with: Blue buttons, Gray Text and Blue Divs and a Light Gray background.'
             theme_info['css'] = [
                 [
                     'button',
@@ -705,7 +739,8 @@ class qhtml:
             def font_color(self, _color=-1):
                 _s = self
                 if _color == -1:
-                    print("css.helpers.font_color(_color) error -> _color should be formatted like: #ffffff or #000000 etc")
+                    print(
+                        "css.helpers.font_color(_color) error -> _color should be formatted like: #ffffff or #000000 etc")
                     return False
                 else:
                     return "color:" + _color + ";"
@@ -985,7 +1020,8 @@ class qhtml:
             """
             return "</" + self.type + ">"
 
-        def set_text_code_block(self, _str, text_color=False, parentheses_color=False, main_text_color=False, background_color=False):
+        def set_text_code_block(self, _str, text_color=False, parentheses_color=False, main_text_color=False,
+                                background_color=False):
             """
             Sets a code block to display code
             returns: self
@@ -1001,7 +1037,8 @@ class qhtml:
             }
 
             if text_color and parentheses_color:
-                replace['('] = '<span style="color:' + parentheses_color + ';">(<span style="color:' + text_color + ';">'
+                replace[
+                    '('] = '<span style="color:' + parentheses_color + ';">(<span style="color:' + text_color + ';">'
             elif text_color:
                 replace['('] = '<span style="color:orange;">(<span style="color:' + text_color + ';">'
             elif parentheses_color:
@@ -1097,7 +1134,8 @@ class qhtml:
             """
             Sets an images background
             """
-            _str = 'background: linear-gradient(rgba(255,255,255,' + str(_transparency_strength) + '), rgba(255,255,255,' + str(_transparency_strength) + ')), '
+            _str = 'background: linear-gradient(rgba(255,255,255,' + str(
+                _transparency_strength) + '), rgba(255,255,255,' + str(_transparency_strength) + ')), '
             _str += 'url(\'' + _source + '\');background-attachment:' + background_attachment + ';background-repeat:no-repeat;background-position:center;background-size: cover;'
             self.style.append(_str)
             return self
@@ -1108,7 +1146,8 @@ class qhtml:
             returns: self
             """
             if self.type != 'img':
-                print('q_element.set_img_alt ERROR.\nset_img_alt should be used on an img type, it was used on a ' + self.type)
+                print(
+                    'q_element.set_img_alt ERROR.\nset_img_alt should be used on an img type, it was used on a ' + self.type)
             if _str:
                 self.add_attribute('alt="' + _str + '"')
 
@@ -1463,7 +1502,8 @@ class qhtml:
                 if "(" not in _callback_name:
                     _callback_name = _callback_name + "(r.responseText)"
             else:
-                print("ajax_build FAILED:\nPlease provide a Javascript function name and a Javascript callback method to handle the response text.\nAs js_func_name and js_callback_func")
+                print(
+                    "ajax_build FAILED:\nPlease provide a Javascript function name and a Javascript callback method to handle the response text.\nAs js_func_name and js_callback_func")
                 return self
 
             _r = 'function ' + _func_name + '{var r = new XMLHttpRequest();'
@@ -1651,7 +1691,8 @@ class qhtml:
                     print('No element ID, generating one for fade in functionality: ' + element.id)
 
                 _qhtml.css.add('#' + element.id, 'opacity:5%;transition:opacity 0.8s;')
-                _qhtml.css.add('#' + element.id + '-now', 'opacity:100%;transition:opacity ' + str(fade_in_speed) + 's;')
+                _qhtml.css.add('#' + element.id + '-now',
+                               'opacity:100%;transition:opacity ' + str(fade_in_speed) + 's;')
                 _anim_script_onLoad = 'var el = document.getElementById("' + element.id + '");' \
                                                                                           '   if(isScrolledIntoView(el)) {' \
                                                                                           '   el.id = "' + element.id + '-now";' \
@@ -1659,7 +1700,8 @@ class qhtml:
                 element.scripts_add(_anim_script_onLoad, on_page_load=True)
                 return element
 
-            def on_inview_slide_in(self, slide_to='50%', x_or_y='x', _from='left', duration=2000.0, force_position="left:-100%;"):
+            def on_inview_slide_in(self, slide_to='50%', x_or_y='x', _from='left', duration=2000.0,
+                                   force_position="left:-100%;"):
                 """
                 When the element is in view, slide in\n
                 Allows slide in from left or right, element will then use
@@ -1724,12 +1766,13 @@ class qhtml:
                             'if(isScrolledIntoView(el=document.getElementById("' + str(element.id) + '"))){'
                                                                                                      'el.classList.add("slide-in-horiz-now");'
                                                                                                      'el.classList.remove("slide-in-horiz");'
-                                                                                                     '$("#' + str(element.id) + '").animate({'
-                                                                                                                                '' + _anim_str + ''
-                                                                                                                                                 '}, ' + str(duration) + ', function(){'
-                                                                                                                                                                         '  '
-                                                                                                                                                                         '});'
-                                                                                                                                                                         '}});'
+                                                                                                     '$("#' + str(
+                        element.id) + '").animate({'
+                                      '' + _anim_str + ''
+                                                       '}, ' + str(duration) + ', function(){'
+                                                                               '  '
+                                                                               '});'
+                                                                               '}});'
                     )
                     _jquery += 'var _el = document.getElementById("' + str(element.id) + '");'
                     _jquery += 'window.jQuery.data(_el,"animation",' + str(_anim_data) + ');'
@@ -1932,7 +1975,8 @@ class qhtml:
         def __build_into(self, _obj: object, append_html=False):
             if not isinstance(_obj, qhtml._q_element):
                 print("BUILD " + str(self) + " - obj = " + str(_obj) + " - " + str(type(_obj)))
-                print("Error building table -> table.build(_qhtml_object_element) -> argument should be a qhtml.new(type) object.")
+                print(
+                    "Error building table -> table.build(_qhtml_object_element) -> argument should be a qhtml.new(type) object.")
                 return False
 
             _obj.insert_table_html(self.__build_html(), append_html)
@@ -1972,7 +2016,8 @@ class qhtml:
                                 _td_id_set = ' '
 
                             if _class_val:
-                                _td_styling_set = '<td ' + _td_id_set + 'style="' + _style['style'] + '" class="' + _class_val + '">'
+                                _td_styling_set = '<td ' + _td_id_set + 'style="' + _style[
+                                    'style'] + '" class="' + _class_val + '">'
                             else:
                                 _td_styling_set = '<td ' + _td_id_set + 'style="' + _style['style'] + '">'
                             break
@@ -2016,7 +2061,8 @@ class qhtml:
 
             if not html_mid_build == "":
                 self.time = int(round(time.time() * 1000)) - self.time_start
-                print("\n** Table built in " + str(self.time) + " MS with " + str(self.columns) + " columns and " + str(self.rows) + " rows  ** \n")
+                print("\n** Table built in " + str(self.time) + " MS with " + str(self.columns) + " columns and " + str(
+                    self.rows) + " rows  ** \n")
                 return html_table_open + html_mid_build + html_table_close
 
             return -1
