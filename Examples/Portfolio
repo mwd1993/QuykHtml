@@ -1,0 +1,224 @@
+# -----------------------------------------------------------------------------
+# portfolio_style_page.py
+# -----------------------------------------------------------------------------
+# A "Portfolio-Style" webpage using QuykHtml:
+#  - Navbar
+#  - Hero with large placeholder image
+#  - About section (placeholder portrait)
+#  - Portfolio grid (placeholder images)
+#  - Contact form
+#  - Fade-in animations
+# -----------------------------------------------------------------------------
+
+from QuykHtml import qhtml
+
+def main():
+    # 1) Instantiate and enable Bootstrap (optional)
+    q = qhtml()
+    q.bootstrap.use(True)
+
+    # -------------------------------------------------------------------------
+    # 2) ADD CUSTOM CSS
+    # -------------------------------------------------------------------------
+    # We'll define various classes for layout and styling.
+    q.css.add([
+        # Main wrapper for the page
+        [".page-wrapper",
+         "width:100%;margin:0;padding:0;display:flex;flex-direction:column;"],
+
+        # NAVBAR
+        [".navbar",
+         "display:flex;align-items:center;justify-content:space-between;"
+         "padding:20px;background-color:#333;color:#fff;"],
+        [".navbar h1",
+         "font-size:24px;margin:0;"],
+        [".nav-links",
+         "list-style:none;display:flex;gap:20px;margin:0;padding:0;"],
+        [".nav-links li",
+         "cursor:pointer;font-weight:bold;transition:all 0.2s ease;"],
+        [".nav-links li:hover",
+         "text-decoration:underline;"],
+
+        # HERO SECTION
+        [".hero-section",
+         "position:relative;overflow:hidden;text-align:center;color:#fff;"
+         "width:100%;height:400px;display:flex;flex-direction:column;"
+         "align-items:center;justify-content:center;background-color:#444;"],
+        [".hero-section img",
+         "position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;"
+         "z-index:-1;opacity:0.4;"],
+        [".hero-title",
+         "font-size:48px;font-weight:bold;margin-bottom:10px;"],
+        [".hero-subtitle",
+         "font-size:20px;font-weight:500;margin-bottom:0;"],
+
+        # ABOUT SECTION
+        [".about-section",
+         "max-width:1000px;margin:40px auto;padding:20px;display:flex;"
+         "flex-wrap:wrap;gap:20px;align-items:center;"],
+        [".about-image, .about-info",
+         "flex:1;min-width:280px;"],
+        [".about-image img",
+         "max-width:100%;border-radius:8px;"],
+        [".about-info h2",
+         "font-size:28px;margin-bottom:10px;"],
+        [".about-info p",
+         "font-size:16px;color:#555;line-height:1.5;"],
+
+        # PORTFOLIO
+        [".portfolio-section",
+         "max-width:1200px;margin:40px auto;padding:20px;"],
+        [".portfolio-title",
+         "font-size:32px;font-weight:bold;margin-bottom:20px;text-align:center;"],
+        [".project-grid",
+         "display:flex;flex-wrap:wrap;gap:20px;justify-content:center;"],
+        [".project-card",
+         "width:280px;padding:16px;text-align:center;border:1px solid #ddd;"
+         "border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,0.1);"
+         "transition:transform 0.3s;"],
+        [".project-card:hover",
+         "transform:translateY(-3px);box-shadow:0 4px 12px rgba(0,0,0,0.15);"],
+        [".project-card img",
+         "max-width:100%;border-radius:6px;margin-bottom:10px;"],
+        [".project-card h3",
+         "font-size:20px;margin-bottom:8px;"],
+        [".project-card p",
+         "font-size:14px;color:#666;margin-bottom:10px;"],
+
+        # CONTACT SECTION
+        [".contact-section",
+         "max-width:800px;margin:40px auto;padding:20px;"],
+        [".contact-title",
+         "font-size:28px;font-weight:bold;margin-bottom:20px;text-align:center;"],
+        [".contact-form label",
+         "font-weight:bold;margin-top:10px;display:block;"],
+        [".contact-form input, .contact-form textarea",
+         "width:100%;border:1px solid #ccc;padding:8px;border-radius:4px;"
+         "margin-bottom:12px;"],
+
+        # FOOTER
+        [".footer",
+         "background-color:#333;color:#fff;text-align:center;padding:16px;"
+         "margin-top:40px;"]
+    ])
+
+    # -------------------------------------------------------------------------
+    # 3) PAGE STRUCTURE
+    # -------------------------------------------------------------------------
+    # PAGE WRAPPER
+    page_wrapper = q.new("div").set_class("page-wrapper")
+
+    # ------------------ NAVBAR ------------------
+    navbar = q.new("nav").set_class("navbar")
+    nav_title = q.new("h1").set_text("My Portfolio")
+    nav_links_list = q.new("ul").set_class("nav-links")
+    links = ["Home", "Projects", "Contact"]
+    for link in links:
+        li = q.new("li").set_text(link)
+        nav_links_list.insert(li)
+    navbar.insert([nav_title, nav_links_list])
+
+    # ------------------ HERO SECTION ------------------
+    hero_section = q.new("div").set_class("hero-section")
+    # Large placeholder image behind
+    hero_img = q.new("img").set_img_placeholder(1200)
+    hero_title = q.new("div").set_class("hero-title").set_text("Hello, I'm John Doe")
+    hero_subtitle = q.new("div").set_class("hero-subtitle").set_text("A Passionate Developer & Designer")
+
+    # Optional fade in
+    hero_section.animations.on_inview_fade_in(1.0)
+
+    hero_section.insert([hero_img, hero_title, hero_subtitle])
+
+    # ------------------ ABOUT SECTION ------------------
+    about_section = q.new("div").set_class("about-section")
+    about_image_div = q.new("div").set_class("about-image")
+    about_image = q.new("img").set_img_placeholder(300)
+    about_image_div.insert(about_image)
+
+    about_info_div = q.new("div").set_class("about-info")
+    about_info_h2 = q.new("h2").set_text("About Me")
+    about_info_text = q.new("p").set_text(
+        "I'm a software engineer with a passion for building beautiful, "
+        "functional websites and applications. QuykHtml makes it easy to prototype quickly!"
+    )
+    about_info_div.insert([about_info_h2, about_info_text])
+
+    # Fade in the about section
+    about_section.animations.on_inview_fade_in(1.0)
+    about_section.insert([about_image_div, about_info_div])
+
+    # ------------------ PORTFOLIO SECTION ------------------
+    portfolio_section = q.new("div").set_class("portfolio-section")
+    portfolio_title = q.new("h2").set_class("portfolio-title").set_text("My Recent Projects")
+    project_grid = q.new("div").set_class("project-grid")
+
+    # Create a few sample “project cards”
+    project_names = ["Project One", "Project Two", "Project Three",
+                     "Project Four", "Project Five", "Project Six"]
+    for pname in project_names:
+        card = q.new("div").set_class("project-card")
+        # Each project has a placeholder image
+        card_img = q.new("img").set_img_placeholder(300)
+        card_title = q.new("h3").set_text(pname)
+        card_desc = q.new("p").set_text("A brief description of the project goes here.")
+        card.insert([card_img, card_title, card_desc])
+        # Optional fade in
+        card.animations.on_inview_fade_in(1.0)
+        project_grid.insert(card)
+
+    portfolio_section.insert([portfolio_title, project_grid])
+
+    # ------------------ CONTACT SECTION ------------------
+    contact_section = q.new("div").set_class("contact-section")
+    contact_title = q.new("h2").set_class("contact-title").set_text("Contact Me")
+    contact_section.insert(contact_title)
+
+    # Simple contact form
+    contact_form = q.new("form").set_class("contact-form").set_form_options("#","post")
+    label_name = q.new("label").set_text("Name:")
+    input_name = q.new("input").set_name("name")
+
+    label_email = q.new("label").set_text("Email:")
+    input_email = q.new("input").set_name("email")
+
+    label_msg = q.new("label").set_text("Message:")
+    textarea_msg = q.new("textarea").add_attribute('name="message" rows="5"')
+
+    submit_btn = q.new("button").set_text("Send").set_form_button().style.set("background-color:#333;color:#fff;")
+
+    contact_form.insert([label_name, input_name,
+                         label_email, input_email,
+                         label_msg, textarea_msg,
+                         submit_btn])
+    # Fade in the contact section
+    contact_section.animations.on_inview_fade_in(1.0)
+    contact_section.insert(contact_form)
+
+    # ------------------ FOOTER ------------------
+    footer = q.new("footer").set_class("footer")
+    footer_text = q.new("p").set_text("© 2025 John Doe • All Rights Reserved.")
+    footer.insert(footer_text)
+
+    # -------------------------------------------------------------------------
+    # 4) ASSEMBLE EVERYTHING INTO page_wrapper
+    # -------------------------------------------------------------------------
+    page_wrapper.insert([navbar, hero_section, about_section, portfolio_section, contact_section, footer])
+
+    # Insert the wrapper into q.display
+    q.display.insert(page_wrapper)
+
+    # -------------------------------------------------------------------------
+    # 5) SEO (Optional)
+    # -------------------------------------------------------------------------
+    q.seo.set_page_title("John Doe - Portfolio")
+    q.seo.set_page_description("A developer/designer showcasing projects using QuykHtml.")
+    # q.seo.set_page_keywords("portfolio, developer, QuykHtml")
+
+    # -------------------------------------------------------------------------
+    # 6) RENDER
+    # -------------------------------------------------------------------------
+    q.render("portfolio_style_page.html")
+
+if __name__ == "__main__":
+    main()
