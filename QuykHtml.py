@@ -9,7 +9,7 @@ import subprocess
 
 print('############################################')
 print('Thank you for using QuykHtml.\nAny donation for my hard work is GREATLY appreciated')
-print('You can donate to my cash app:\n\n\t$elmling\n')
+print('You can donate to my cash app:\n\n\t$marcwd1993\n')
 print('I hope you continue to enjoy using QuykHtml!')
 print('############################################')
 
